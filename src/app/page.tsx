@@ -32,7 +32,6 @@ export default function Home() {
                     {exercises.data.map((exercise) => (
                       <li key={exercise.id}>
                         <strong>{exercise.name}</strong> -{" "}
-                        {exercise.muscleGroups.join(", ")}
                       </li>
                     ))}
                   </ul>

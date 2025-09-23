@@ -1,5 +1,8 @@
 import { z } from "zod";
+import { ExerciseType, PrismaClient } from "@/generated/prisma";
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+
+const prisma = new PrismaClient();
 
 export const exerciseRouter = createTRPCRouter({
   hello: publicProcedure
@@ -11,14 +14,57 @@ export const exerciseRouter = createTRPCRouter({
     }),
 
   getAll: publicProcedure.query(() => {
-    // This will later fetch from database
-    return [
-      {
-        id: 1,
-        name: "Kettlebell Swing",
-        muscleGroups: ["Glutes", "Hamstrings", "Core"],
-      },
-      { id: 2, name: "Turkish Get-up", muscleGroups: ["Full Body"] },
-    ];
+    return prisma.exercise.findMany({ orderBy: { createdAt: "desc" } });
   }),
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ input }) => {
+      return prisma.exercise.findUnique({ where: { id: input.id } });
+    }),
+  create: publicProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        type: z.enum(ExerciseType),
+        subExercises: z.array(z.string()).optional(),
+        description: z.string().optional(),
+      }),
+    )
+    .mutation(({ input }) => {
+      return prisma.exercise.create({
+        data: {
+          ...input,
+          subExercises: input.subExercises
+            ? JSON.stringify(input.subExercises)
+            : null,
+        },
+      });
+    }),
+  update: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        type: z.enum(ExerciseType),
+        subExercises: z.array(z.string()).optional(),
+        description: z.string().optional(),
+      }),
+    )
+    .mutation(({ input }) => {
+      const { id, ...exercise } = input;
+      return prisma.exercise.update({
+        where: { id },
+        data: {
+          ...exercise,
+          subExercises: exercise.subExercises
+            ? JSON.stringify(exercise.subExercises)
+            : undefined,
+        },
+      });
+    }),
+  delete: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ input }) => {
+      return prisma.exercise.delete({ where: { id: input.id } });
+    }),
 });
