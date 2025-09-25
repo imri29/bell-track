@@ -72,3 +72,4 @@ This project uses two separate server-side layers:
 - **Testability**: Can test procedures without HTTP layer
 - **Flexibility**: Could add other endpoints (GraphQL, WebSocket) using same logic
 - **Organization**: Keeps API logic separate from Next.js routing
+- file names needs to be kebab-case
