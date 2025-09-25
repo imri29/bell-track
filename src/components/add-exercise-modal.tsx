@@ -19,16 +19,16 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
+import {
+  EXERCISE_TYPES,
+  EXERCISE_TYPE_LABELS,
+  type ExerciseType,
+  type SubExercise,
+} from "@/types";
 
-type SubExercise = {
-  exerciseId: string;
-  exerciseName: string;
-  reps: number;
-};
-
-type FormData = {
+type ExerciseFormData = {
   name: string;
-  type: "EXERCISE" | "COMPLEX";
+  type: ExerciseType;
   description: string;
   subExercises: SubExercise[];
 };
@@ -59,10 +59,10 @@ export function AddExerciseModal({
     reset,
     control,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<ExerciseFormData>({
     defaultValues: {
       name: "",
-      type: "EXERCISE",
+      type: EXERCISE_TYPES.EXERCISE,
       description: "",
       subExercises: [],
     },
@@ -85,25 +85,23 @@ export function AddExerciseModal({
     },
   });
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = (data: ExerciseFormData) => {
     // Transform subExercises to match API format
     const subExercises =
-      data.type === "COMPLEX"
+      data.type === EXERCISE_TYPES.COMPLEX
         ? data.subExercises.map((subEx) => ({
             exerciseName: subEx.exerciseName,
             reps: subEx.reps,
           }))
         : undefined;
 
-    // Create submission data
-    const submitData = {
+    // Submit data directly - no transformation needed
+    createExercise.mutate({
       name: data.name,
       type: data.type,
       description: data.description,
       subExercises,
-    };
-
-    createExercise.mutate(submitData);
+    });
   };
 
   return (
@@ -140,8 +138,12 @@ export function AddExerciseModal({
                     <SelectValue placeholder="Select exercise type" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
-                    <SelectItem value="EXERCISE">Exercise</SelectItem>
-                    <SelectItem value="COMPLEX">Complex</SelectItem>
+                    <SelectItem value={EXERCISE_TYPES.EXERCISE}>
+                      {EXERCISE_TYPE_LABELS.EXERCISE}
+                    </SelectItem>
+                    <SelectItem value={EXERCISE_TYPES.COMPLEX}>
+                      {EXERCISE_TYPE_LABELS.COMPLEX}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               )}
@@ -149,7 +151,7 @@ export function AddExerciseModal({
           </div>
 
           {/* Complex Exercise Fields */}
-          {watchedType === "COMPLEX" && (
+          {watchedType === EXERCISE_TYPES.COMPLEX && (
             <div className="space-y-4 border-t pt-4">
               <h4 className="font-medium text-sm">Complex Exercise Setup</h4>
 
@@ -186,7 +188,7 @@ export function AddExerciseModal({
                     {exercises
                       ?.filter(
                         (ex) =>
-                          ex.type === "EXERCISE" &&
+                          ex.type === EXERCISE_TYPES.EXERCISE &&
                           !fields.some((field) => field.exerciseId === ex.id),
                       )
                       .map((exercise) => (
