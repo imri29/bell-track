@@ -3,6 +3,91 @@ import { ExerciseType, type Prisma, PrismaClient } from "@/generated/prisma";
 const prisma = new PrismaClient();
 
 const exercises: Prisma.ExerciseCreateInput[] = [
+  // Individual Exercises
+  {
+    name: "Ballistic Rows",
+    type: ExerciseType.EXERCISE,
+    description: "Explosive rowing movement",
+    subExercises: null,
+  },
+  {
+    name: "Clean & Press",
+    type: ExerciseType.EXERCISE,
+    description: "Clean followed immediately by press",
+    subExercises: null,
+  },
+  {
+    name: "Clean & Thruster",
+    type: ExerciseType.EXERCISE,
+    description: "Clean followed immediately by thruster",
+    subExercises: null,
+  },
+  {
+    name: "Cleans",
+    type: ExerciseType.EXERCISE,
+    description: "Explosive movement from floor to rack position",
+    subExercises: null,
+  },
+  {
+    name: "Dead Clean",
+    type: ExerciseType.EXERCISE,
+    description: "Clean from dead stop position",
+    subExercises: null,
+  },
+  {
+    name: "Deadlift High Pulls",
+    type: ExerciseType.EXERCISE,
+    description: "Deadlift with high pull finish",
+    subExercises: null,
+  },
+  {
+    name: "Single Arm Front Squats",
+    type: ExerciseType.EXERCISE,
+    description: "Front squat with kettlebell in rack position",
+    subExercises: null,
+  },
+  {
+    name: "Goblet Squats",
+    type: ExerciseType.EXERCISE,
+    description: "Squat holding kettlebell at chest",
+    subExercises: null,
+  },
+  {
+    name: "Gorilla Rows",
+    type: ExerciseType.EXERCISE,
+    description: "Bent-over rowing with alternating arms",
+    subExercises: null,
+  },
+  {
+    name: "Gunslingers",
+    type: ExerciseType.EXERCISE,
+    description: "Lateral swing movement",
+    subExercises: null,
+  },
+  {
+    name: "High Pulls",
+    type: ExerciseType.EXERCISE,
+    description: "Pulling movement to chest height",
+    subExercises: null,
+  },
+  {
+    name: "Lunges",
+    type: ExerciseType.EXERCISE,
+    description: "Forward or reverse stepping lunge",
+    subExercises: null,
+  },
+  {
+    name: "Offset Squat Cleans",
+    type: ExerciseType.EXERCISE,
+    description: "Squat clean with offset grip",
+    subExercises: null,
+  },
+  {
+    name: "Overhead Lunges",
+    type: ExerciseType.EXERCISE,
+    description: "Lunge with kettlebell held overhead",
+    subExercises: null,
+  },
   {
     name: "Push Press",
     type: ExerciseType.EXERCISE,
@@ -10,37 +95,285 @@ const exercises: Prisma.ExerciseCreateInput[] = [
     subExercises: null,
   },
   {
-    name: "Turkish Get-up",
+    name: "Rows",
     type: ExerciseType.EXERCISE,
-    description: "Full body movement from lying to standing",
+    description: "Single arm rowing movement",
     subExercises: null,
   },
   {
-    name: "Single Arm Row",
+    name: "Single Arm Deadlifts",
     type: ExerciseType.EXERCISE,
-    description: "Pulling movement targeting back muscles",
+    description: "Deadlift with single kettlebell",
     subExercises: null,
   },
   {
-    name: "Clean",
+    name: "Snatches",
     type: ExerciseType.EXERCISE,
-    description: "Explosive movement from floor to rack position",
+    description: "Explosive movement from floor to overhead",
     subExercises: null,
   },
   {
-    name: "Single Arm Squat",
+    name: "Squat Clean & Thruster",
     type: ExerciseType.EXERCISE,
-    description: "Unilateral squat movement (bell in rack position)",
+    description: "Squat clean followed by thruster",
     subExercises: null,
   },
   {
-    name: "Zeus Complex",
+    name: "Squats",
+    type: ExerciseType.EXERCISE,
+    description: "Basic squat with kettlebell",
+    subExercises: null,
+  },
+  {
+    name: "Swing Clean & Thruster",
+    type: ExerciseType.EXERCISE,
+    description: "Swing into clean and thruster",
+    subExercises: null,
+  },
+  {
+    name: "Swings",
+    type: ExerciseType.EXERCISE,
+    description: "Hip hinge swinging movement",
+    subExercises: null,
+  },
+  {
+    name: "Tactical Cleans",
+    type: ExerciseType.EXERCISE,
+    description: "Clean with controlled tempo",
+    subExercises: null,
+  },
+  {
+    name: "Tactical Snatches",
+    type: ExerciseType.EXERCISE,
+    description: "Snatch with controlled tempo",
+    subExercises: null,
+  },
+  {
+    name: "Thrusters",
+    type: ExerciseType.EXERCISE,
+    description: "Front squat to press combination",
+    subExercises: null,
+  },
+  {
+    name: "Two Hand Squat Cleans",
+    type: ExerciseType.EXERCISE,
+    description: "Squat clean using both hands on bell",
+    subExercises: null,
+  },
+  {
+    name: "Windmill",
+    type: ExerciseType.EXERCISE,
+    description: "Overhead stability movement with side bend",
+    subExercises: null,
+  },
+
+  // Complexes
+  {
+    name: "PD Special",
     type: ExerciseType.COMPLEX,
-    description: "6 single arm rows, 5 cleans, 4 single arm squats",
+    description: "5 Rows + 5 Swings + 5 Thrusters",
     subExercises: JSON.stringify([
-      { exerciseName: "Single Arm Row", reps: 6 },
-      { exerciseName: "Clean", reps: 5 },
-      { exerciseName: "Single Arm Squat", reps: 4 },
+      { exerciseName: "Rows", reps: 5 },
+      { exerciseName: "Swings", reps: 5 },
+      { exerciseName: "Thrusters", reps: 5 },
+    ]),
+  },
+  {
+    name: "Zeus",
+    type: ExerciseType.COMPLEX,
+    description: "6 Rows + 5 Cleans + 4 Single Arm Front Squats",
+    subExercises: JSON.stringify([
+      { exerciseName: "Rows", reps: 6 },
+      { exerciseName: "Cleans", reps: 5 },
+      { exerciseName: "Single Arm Front Squats", reps: 4 },
+    ]),
+  },
+  {
+    name: "Hercules",
+    type: ExerciseType.COMPLEX,
+    description: "3 Swings + 3 Cleans + 3 Push Press",
+    subExercises: JSON.stringify([
+      { exerciseName: "Swings", reps: 3 },
+      { exerciseName: "Cleans", reps: 3 },
+      { exerciseName: "Push Press", reps: 3 },
+    ]),
+  },
+  {
+    name: "Poseidon",
+    type: ExerciseType.COMPLEX,
+    description: "4 Swings + 3 High Pulls + 2 Snatches",
+    subExercises: JSON.stringify([
+      { exerciseName: "Swings", reps: 4 },
+      { exerciseName: "High Pulls", reps: 3 },
+      { exerciseName: "Snatches", reps: 2 },
+    ]),
+  },
+  {
+    name: "Achilles",
+    type: ExerciseType.COMPLEX,
+    description: "3 Swings + 3 Snatches + 3 Overhead Lunges",
+    subExercises: JSON.stringify([
+      { exerciseName: "Swings", reps: 3 },
+      { exerciseName: "Snatches", reps: 3 },
+      { exerciseName: "Overhead Lunges", reps: 3 },
+    ]),
+  },
+  {
+    name: "Sisyphus (2 hands on bell)",
+    type: ExerciseType.COMPLEX,
+    description:
+      "5 Two Hand Squat Cleans + 4 Goblet Squats + 3/leg Lunges",
+    subExercises: JSON.stringify([
+      { exerciseName: "Two Hand Squat Cleans", reps: 5 },
+      { exerciseName: "Goblet Squats", reps: 4 },
+      { exerciseName: "Lunges", reps: 3, note: "per leg" },
+    ]),
+  },
+  {
+    name: "Gimli (2 hands on bell)",
+    type: ExerciseType.COMPLEX,
+    description:
+      "5 Swings + 4 Deadlift High Pulls + 3 Goblet Squats",
+    subExercises: JSON.stringify([
+      { exerciseName: "Swings", reps: 5 },
+      { exerciseName: "Deadlift High Pulls", reps: 4 },
+      { exerciseName: "Goblet Squats", reps: 3 },
+    ]),
+  },
+  {
+    name: "Aragorn",
+    type: ExerciseType.COMPLEX,
+    description: "6 Rows + 5 Cleans + 4 Push Press",
+    subExercises: JSON.stringify([
+      { exerciseName: "Rows", reps: 6 },
+      { exerciseName: "Cleans", reps: 5 },
+      { exerciseName: "Push Press", reps: 4 },
+    ]),
+  },
+  {
+    name: "Legolas",
+    type: ExerciseType.COMPLEX,
+    description: "4 Ballistic Rows + 4 Tactical Cleans + 4 Tactical Snatches",
+    subExercises: JSON.stringify([
+      { exerciseName: "Ballistic Rows", reps: 4 },
+      { exerciseName: "Tactical Cleans", reps: 4 },
+      { exerciseName: "Tactical Snatches", reps: 4 },
+    ]),
+  },
+  {
+    name: "Elrond",
+    type: ExerciseType.COMPLEX,
+    description: "5 Single Arm Deadlifts + 4 Cleans + 3 Push Press",
+    subExercises: JSON.stringify([
+      { exerciseName: "Single Arm Deadlifts", reps: 5 },
+      { exerciseName: "Cleans", reps: 4 },
+      { exerciseName: "Push Press", reps: 3 },
+    ]),
+  },
+  {
+    name: "Gandalf",
+    type: ExerciseType.COMPLEX,
+    description:
+      "Swing + Tactical Clean & Thruster + Tactical Snatch + Windmill x2 reps",
+    subExercises: JSON.stringify([
+      { exerciseName: "Swings", reps: 2 },
+      { exerciseName: "Clean & Thruster", reps: 2, note: "tactical" },
+      { exerciseName: "Tactical Snatches", reps: 2 },
+      { exerciseName: "Windmill", reps: 2 },
+    ]),
+  },
+  {
+    name: "Leonidas",
+    type: ExerciseType.COMPLEX,
+    description: "4 Cleans + 3 Push Press + 2 Thrusters",
+    subExercises: JSON.stringify([
+      { exerciseName: "Cleans", reps: 4 },
+      { exerciseName: "Push Press", reps: 3 },
+      { exerciseName: "Thrusters", reps: 2 },
+    ]),
+  },
+  {
+    name: "Codi Special",
+    type: ExerciseType.COMPLEX,
+    description: "4 Rows + 3 Swings + 2 Snatches",
+    subExercises: JSON.stringify([
+      { exerciseName: "Rows", reps: 4 },
+      { exerciseName: "Swings", reps: 3 },
+      { exerciseName: "Snatches", reps: 2 },
+    ]),
+  },
+  {
+    name: "Starky Boy",
+    type: ExerciseType.COMPLEX,
+    description: "Row + Dead Clean + Swing Clean & Thruster x5 reps",
+    subExercises: JSON.stringify([
+      { exerciseName: "Rows", reps: 5 },
+      { exerciseName: "Dead Clean", reps: 5 },
+      { exerciseName: "Swing Clean & Thruster", reps: 5 },
+    ]),
+  },
+  {
+    name: "Big Mick",
+    type: ExerciseType.COMPLEX,
+    description: "3 Rows + 4 Swings + 5 Snatches",
+    subExercises: JSON.stringify([
+      { exerciseName: "Rows", reps: 3 },
+      { exerciseName: "Swings", reps: 4 },
+      { exerciseName: "Snatches", reps: 5 },
+    ]),
+  },
+  {
+    name: "King Kong (double bell)",
+    type: ExerciseType.COMPLEX,
+    description:
+      "Gorilla Row + Gorilla Row + Squat Clean & Thruster x5 reps",
+    subExercises: JSON.stringify([
+      { exerciseName: "Gorilla Rows", reps: 5 },
+      { exerciseName: "Gorilla Rows", reps: 5 },
+      { exerciseName: "Squat Clean & Thruster", reps: 5 },
+    ]),
+  },
+  {
+    name: "Devil's Tricycle (2 hands on bell)",
+    type: ExerciseType.COMPLEX,
+    description:
+      "6 Swings + 6 Deadlift High Pull + 3/side Offset Squat Cleans",
+    subExercises: JSON.stringify([
+      { exerciseName: "Swings", reps: 6 },
+      { exerciseName: "Deadlift High Pulls", reps: 6 },
+      { exerciseName: "Offset Squat Cleans", reps: 3, note: "per side" },
+    ]),
+  },
+  {
+    name: "4x4 (double bell)",
+    type: ExerciseType.COMPLEX,
+    description:
+      "4/side Gorilla Rows + 4 Gunslingers + 4 Squats + 4 Push Press",
+    subExercises: JSON.stringify([
+      { exerciseName: "Gorilla Rows", reps: 4, note: "per side" },
+      { exerciseName: "Gunslingers", reps: 4 },
+      { exerciseName: "Squats", reps: 4 },
+      { exerciseName: "Push Press", reps: 4 },
+    ]),
+  },
+  {
+    name: "Bledsoe",
+    type: ExerciseType.COMPLEX,
+    description: "5 Rows + 5 Cleans + 5 Thrusters",
+    subExercises: JSON.stringify([
+      { exerciseName: "Rows", reps: 5 },
+      { exerciseName: "Cleans", reps: 5 },
+      { exerciseName: "Thrusters", reps: 5 },
+    ]),
+  },
+  {
+    name: "Toga",
+    type: ExerciseType.COMPLEX,
+    description: "5 Swings + 4 Gunslingers + 3 Clean & Press",
+    subExercises: JSON.stringify([
+      { exerciseName: "Swings", reps: 5 },
+      { exerciseName: "Gunslingers", reps: 4 },
+      { exerciseName: "Clean & Press", reps: 3 },
     ]),
   },
 ];

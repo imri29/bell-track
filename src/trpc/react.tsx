@@ -46,7 +46,9 @@ const trpcClient = api.createClient({
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
-  window.__TANSTACK_QUERY_CLIENT__ = queryClient;
+  if (typeof window !== "undefined") {
+    window.__TANSTACK_QUERY_CLIENT__ = queryClient;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -1,12 +1,15 @@
 "use client";
 
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AddExerciseModal } from "@/components/add-exercise-modal";
 import { Button } from "@/components/ui/button";
+import { useConfirm } from "@/contexts/confirm-context";
 import { api } from "@/trpc/react";
 
 export default function Home() {
   const utils = api.useUtils();
+  const { confirm } = useConfirm();
 
   const {
     data: exercises,
@@ -14,21 +17,36 @@ export default function Home() {
     error: exercisesError,
   } = api.exercise.getAll.useQuery();
 
-  const { mutate: deleteExercise } = api.exercise.delete.useMutation({
-    onSuccess: () => {
-      utils.exercise.getAll.invalidate();
-    },
-  });
+  const { mutate: deleteExercise, isPending: isDeleting } =
+    api.exercise.delete.useMutation({
+      onSuccess: () => {
+        utils.exercise.getAll.invalidate();
+      },
+    });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleDelete = async ({ name, id }: { name: string; id: string }) => {
+    const confirmed = await confirm({
+      title: "Delete Exercise",
+      description: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    });
+
+    if (confirmed) {
+      deleteExercise({ id });
+    }
+  };
 
   return (
     <div className="font-sans min-h-screen p-8">
       <main className="max-w-4xl mx-auto">
         <Button
-          className="fixed top-4 right-4"
+          className="fixed top-4 right-4 gap-1.5"
           onClick={() => setIsModalOpen(true)}
         >
+          <Plus />
           Add Exercise
         </Button>
 
@@ -60,9 +78,11 @@ export default function Home() {
                               "opacity-0 group-hover:opacity-100 transition-opacity duration-500 h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
                             }
                             variant={"ghost"}
-                            onClick={() => deleteExercise({ id: exercise.id })}
+                            onClick={() => handleDelete(exercise)}
+                            disabled={isDeleting}
                           >
-                            <span className={"text-black"}> × </span>
+                            {/*<span className={"text-black"}> × </span>*/}
+                            <Trash2 />
                           </Button>
                         </div>
                         {!!exercise.subExercises?.length && (
@@ -72,6 +92,7 @@ export default function Home() {
                                 key={`${exercise.id}-${index}`}
                                 className="text-gray-600"
                               >
+                                <strong>{subExercise.reps}</strong>{" "}
                                 {subExercise.exerciseName}
                               </li>
                             ))}
