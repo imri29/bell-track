@@ -13,24 +13,28 @@ type SubExercise = z.infer<typeof subExerciseSchema>;
 
 export const exerciseRouter = createTRPCRouter({
   getAll: publicProcedure.query(async () => {
-    const exercises = await prisma.exercise.findMany({ orderBy: { createdAt: "desc" } });
-    return exercises.map(exercise => ({
+    const exercises = await prisma.exercise.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return exercises.map((exercise) => ({
       ...exercise,
-      subExercises: exercise.subExercises ?
-        JSON.parse(exercise.subExercises) as SubExercise[] :
-        null
+      subExercises: exercise.subExercises
+        ? (JSON.parse(exercise.subExercises) as SubExercise[])
+        : null,
     }));
   }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
-      const exercise = await prisma.exercise.findUnique({ where: { id: input.id } });
+      const exercise = await prisma.exercise.findUnique({
+        where: { id: input.id },
+      });
       if (!exercise) return null;
       return {
         ...exercise,
-        subExercises: exercise.subExercises ?
-          JSON.parse(exercise.subExercises) as SubExercise[] :
-          null
+        subExercises: exercise.subExercises
+          ? (JSON.parse(exercise.subExercises) as SubExercise[])
+          : null,
       };
     }),
   create: publicProcedure
