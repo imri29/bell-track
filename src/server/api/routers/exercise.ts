@@ -4,29 +4,41 @@ import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 
 const prisma = new PrismaClient();
 
-export const exerciseRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
+const subExerciseSchema = z.object({
+  exerciseName: z.string(),
+  reps: z.number().positive(),
+});
 
-  getAll: publicProcedure.query(() => {
-    return prisma.exercise.findMany({ orderBy: { createdAt: "desc" } });
+type SubExercise = z.infer<typeof subExerciseSchema>;
+
+export const exerciseRouter = createTRPCRouter({
+  getAll: publicProcedure.query(async () => {
+    const exercises = await prisma.exercise.findMany({ orderBy: { createdAt: "desc" } });
+    return exercises.map(exercise => ({
+      ...exercise,
+      subExercises: exercise.subExercises ?
+        JSON.parse(exercise.subExercises) as SubExercise[] :
+        null
+    }));
   }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ input }) => {
-      return prisma.exercise.findUnique({ where: { id: input.id } });
+    .query(async ({ input }) => {
+      const exercise = await prisma.exercise.findUnique({ where: { id: input.id } });
+      if (!exercise) return null;
+      return {
+        ...exercise,
+        subExercises: exercise.subExercises ?
+          JSON.parse(exercise.subExercises) as SubExercise[] :
+          null
+      };
     }),
   create: publicProcedure
     .input(
       z.object({
         name: z.string(),
         type: z.enum(ExerciseType),
-        subExercises: z.array(z.string()).optional(),
+        subExercises: z.array(subExerciseSchema).optional(),
         description: z.string().optional(),
       }),
     )
@@ -46,7 +58,7 @@ export const exerciseRouter = createTRPCRouter({
         id: z.string(),
         name: z.string(),
         type: z.enum(ExerciseType),
-        subExercises: z.array(z.string()).optional(),
+        subExercises: z.array(subExerciseSchema).optional(),
         description: z.string().optional(),
       }),
     )

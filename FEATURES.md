@@ -3,27 +3,33 @@
 ## Current Sprint: Exercise Library Foundation
 
 ### 🚀 Feature 1: Exercise Library CRUD
-**Status**: Ready to Start
+**Status**: ✅ COMPLETED
 **Priority**: P0 (Foundational)
 
 **Description**: Build the core exercise management system where users can create, view, and delete kettlebell exercises with type classification.
 
 **Technical Tasks**:
-- [ ] Set up Prisma schema for Exercise model
-- [ ] Create tRPC procedures: `exercise.getAll()`, `exercise.create()`, `exercise.delete()`
-- [ ] Build exercise form component (name, description, muscle groups, type)
-- [ ] Create exercise list/grid view
-- [ ] Add basic validation and error handling
+- [x] Set up Prisma schema for Exercise model
+- [x] Create tRPC procedures: `exercise.getAll()`, `exercise.create()`, `exercise.delete()`
+- [x] Build exercise form component (name, description, type)
+- [x] Create exercise list view with complex sub-exercise support
+- [x] Add shadcn/ui components and styling
+- [x] Fix JSON parsing for subExercises array
+- [x] Add proper TypeScript types for complex exercises
 
 **Database Schema**:
 ```prisma
+enum ExerciseType {
+  EXERCISE
+  COMPLEX
+}
+
 model Exercise {
   id            String   @id @default(cuid())
-  name          String
+  name          String   @unique
+  type          ExerciseType
+  subExercises  String?  // JSON array of exercise IDs for complex types
   description   String?
-  muscleGroups  String[] // ["legs", "shoulders", "core"]
-  equipment     String   @default("kettlebell")
-  type          String   // "exercise" | "complex"
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -37,15 +43,55 @@ model Exercise {
 
 ---
 
-## Backlog
+## Current Sprint: Workout Logging
 
 ### 🔄 Feature 2: Basic Workout Logging
-**Status**: Not Started
-**Priority**: P1
+**Status**: Ready to Start
+**Priority**: P1 (Next Up!)
 
-- Select exercises from library
-- Log sets (reps, weight, rest time)
-- Save workout with date and notes
+**Description**: Build workout logging functionality where users can select exercises and log their workout sessions.
+
+**Technical Tasks**:
+- [ ] Create Workout and WorkoutExercise models in Prisma
+- [ ] Build workout creation form with exercise selection
+- [ ] Add set logging (reps, weight, rest time)
+- [ ] Create workout session management
+- [ ] Save workout with date and notes
+- [ ] Display current workout in progress
+
+**Database Schema Additions Needed**:
+```prisma
+model Workout {
+  id              String   @id @default(cuid())
+  date            DateTime @default(now())
+  duration        Int?     // minutes
+  notes           String?
+  workoutExercises WorkoutExercise[]
+  createdAt       DateTime @default(now())
+}
+
+model WorkoutExercise {
+  id          String   @id @default(cuid())
+  workoutId   String
+  exerciseId  String
+  sets        Int
+  reps        Int
+  weight      Float?   // kg
+  restTime    Int?     // seconds
+  workout     Workout  @relation(fields: [workoutId], references: [id])
+  exercise    Exercise @relation(fields: [exerciseId], references: [id])
+}
+```
+
+**Learning Goals**:
+- Complex form handling with dynamic arrays
+- Multi-model database relationships
+- State management for workout sessions
+- Time tracking and session management
+
+---
+
+## Backlog
 
 ### 📊 Feature 3: Workout History
 **Status**: Not Started
@@ -58,7 +104,8 @@ model Exercise {
 ---
 
 ## Technical Debt / Infrastructure
-- [ ] Set up database (SQLite for development)
-- [ ] Configure tRPC client/server setup
-- [ ] Basic app layout and navigation
-- [ ] TypeScript configuration optimization
+- [x] Set up database (SQLite for development)
+- [x] Configure tRPC client/server setup
+- [x] Basic app layout and navigation
+- [x] TypeScript configuration optimization
+- [x] shadcn/ui component system setup

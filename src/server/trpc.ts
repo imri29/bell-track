@@ -11,8 +11,7 @@ const t = initTRPC.create({
       ...shape,
       data: {
         ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause : null,
+        zodError: error.cause instanceof ZodError ? error.cause : null,
       },
     };
   },

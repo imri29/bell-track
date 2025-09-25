@@ -15,8 +15,9 @@ This project is designed to help me practice and learn full-stack app developmen
 
 **Core Features:**
 1. Exercise database management
-   - Add/edit kettlebell exercises
-   - Store exercise details (name, muscle groups, equipment needed)
+   - Add/edit kettlebell exercises and complexes
+   - Store exercise details (name, type, description)
+   - Support for complex exercises (multiple sub-exercises)
 2. Workout logging
    - Select exercises for workout
    - Log sets, reps, weight, rest time
@@ -26,7 +27,7 @@ This project is designed to help me practice and learn full-stack app developmen
    - Track progress over time
 
 **Database Models Needed:**
-- Exercise (id, name, description, muscle_groups, equipment)
+- Exercise (id, name, type, description, subExercises)
 - Workout (id, date, duration, notes)
 - WorkoutExercise (workout_id, exercise_id, sets, reps, weight)
 

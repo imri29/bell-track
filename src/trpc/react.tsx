@@ -3,9 +3,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
-import { useState } from "react";
-
 import type { AppRouter } from "@/server/api/root";
+
+// This code is only for TypeScript
+declare global {
+  interface Window {
+    __TANSTACK_QUERY_CLIENT__: import("@tanstack/query-core").QueryClient;
+  }
+}
 
 const createQueryClient = () => new QueryClient();
 
@@ -25,23 +30,23 @@ const getQueryClient = () => {
 
 export const api = createTRPCReact<AppRouter>();
 
+const trpcClient = api.createClient({
+  links: [
+    httpBatchLink({
+      url: `${getBaseUrl()}/api/trpc`,
+      headers() {
+        const headers = new Headers();
+        headers.set("x-trpc-source", "nextjs-react");
+        return headers;
+      },
+    }),
+  ],
+});
+
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
-  const [trpcClient] = useState(() =>
-    api.createClient({
-      links: [
-        httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
-          headers() {
-            const headers = new Headers();
-            headers.set("x-trpc-source", "nextjs-react");
-            return headers;
-          },
-        }),
-      ],
-    }),
-  );
+  window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 
   return (
     <QueryClientProvider client={queryClient}>
