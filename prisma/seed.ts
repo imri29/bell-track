@@ -379,6 +379,7 @@ const exercises: Prisma.ExerciseCreateInput[] = [
 ];
 
 async function main() {
+  console.log("🌱 Seeding exercises...");
   for (const exercise of exercises) {
     await prisma.exercise.upsert({
       where: { name: exercise.name },
@@ -386,6 +387,101 @@ async function main() {
       create: exercise,
     });
   }
+  console.log("✅ Exercises seeded!");
+
+  // Add sample workout
+  console.log("🏋️ Seeding sample workout...");
+
+  // Find the exercises we need for the workout
+  const leonidaComplex = await prisma.exercise.findUnique({
+    where: { name: "Leonidas" }
+  });
+  const swings = await prisma.exercise.findUnique({
+    where: { name: "Swings" }
+  });
+
+  // Create Pull-ups and Farmers Carry if they don't exist
+  const pullups = await prisma.exercise.upsert({
+    where: { name: "Pull-ups" },
+    update: {},
+    create: {
+      name: "Pull-ups",
+      type: ExerciseType.EXERCISE,
+      description: "Bodyweight pulling exercise",
+      subExercises: null,
+    },
+  });
+
+  const farmersCarry = await prisma.exercise.upsert({
+    where: { name: "Farmers Carry" },
+    update: {},
+    create: {
+      name: "Farmers Carry",
+      type: ExerciseType.EXERCISE,
+      description: "Carrying heavy weights for time or distance",
+      subExercises: null,
+    },
+  });
+
+  // Create the sample workout
+  const workout = await prisma.workout.create({
+    data: {
+      date: new Date(),
+      duration: 45, // 45 minutes
+      notes: "Sample workout with A/B grouping - Leonidas complex + accessory work",
+      exercises: {
+        create: [
+          // A1: Leonidas Complex
+          {
+            exerciseId: leonidaComplex!.id,
+            group: "A",
+            order: 1,
+            sets: 5,
+            reps: "[1,1,1,1,1]", // 1 complex per set
+            weight: 24, // 24kg kettlebell
+            restTime: 90, // 1:30 minutes = 90 seconds
+            notes: "Focus on form, rest 1:30 between sets",
+          },
+          // B1: Swings
+          {
+            exerciseId: swings!.id,
+            group: "B",
+            order: 1,
+            sets: 3,
+            reps: "[8,8,8]", // 8 each arm = 16 total per set
+            weight: 20, // 20kg
+            restTime: 30,
+            notes: "8 each arm, alternate arms",
+          },
+          // B2: Pull-ups
+          {
+            exerciseId: pullups.id,
+            group: "B",
+            order: 2,
+            sets: 3,
+            reps: "[8,8,8]",
+            weight: 0, // Bodyweight
+            restTime: 30,
+            notes: "Full range of motion",
+          },
+          // B3: Farmers Carry
+          {
+            exerciseId: farmersCarry.id,
+            group: "B",
+            order: 3,
+            sets: 3,
+            reps: "[20,20,20]", // 20 seconds each arm
+            weight: 24, // 24kg per hand
+            restTime: 60,
+            notes: "20 seconds each arm, maintain posture",
+          },
+        ],
+      },
+    },
+  });
+
+  console.log("✅ Sample workout created!");
+  console.log(`Workout ID: ${workout.id}`);
 }
 
 main()
