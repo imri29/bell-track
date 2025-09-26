@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ConfirmProvider } from "@/contexts/confirm-context";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/react";
 
@@ -28,7 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <ConfirmProvider>{children}</ConfirmProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );

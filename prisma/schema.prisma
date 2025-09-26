@@ -20,11 +20,41 @@ enum ExerciseType {
 }
 
 model Exercise {
-  id            String   @id @default(cuid())
-  name          String   @unique
-  type          ExerciseType
-  subExercises  String?  // JSON array of exercise IDs for complex types
-  description   String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String            @id @default(cuid())
+  name             String            @unique
+  type             ExerciseType
+  subExercises     String?           // JSON array of exercise IDs for complex types
+  description      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  workoutExercises WorkoutExercise[]
+}
+
+model Workout {
+  id        String            @id @default(cuid())
+  date      DateTime
+  duration  Int?              // Duration in minutes
+  notes     String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  exercises WorkoutExercise[]
+}
+
+model WorkoutExercise {
+  id         String   @id @default(cuid())
+  workoutId  String
+  exerciseId String
+  sets       Int
+  reps       String   // JSON array to handle different reps per set: "[12, 10, 8]"
+  weight     Float    // Weight in kg
+  restTime   Int?     // Rest time in seconds
+  notes      String?
+  group      String?  // Exercise group for notation (A, B, C, etc.)
+  order      Int      // Order of exercise within group
+  createdAt  DateTime @default(now())
+
+  workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id])
+
+  @@unique([workoutId, exerciseId, order])
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { ExerciseType, PrismaClient } from "@/generated/prisma";
+import { PrismaClient } from "@/generated/prisma";
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import { EXERCISE_TYPES } from "@/types";
 
 const prisma = new PrismaClient();
 
@@ -41,7 +42,7 @@ export const exerciseRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        type: z.enum(ExerciseType),
+        type: z.enum([EXERCISE_TYPES.EXERCISE, EXERCISE_TYPES.COMPLEX]),
         subExercises: z.array(subExerciseSchema).optional(),
         description: z.string().optional(),
       }),
@@ -61,7 +62,7 @@ export const exerciseRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         name: z.string(),
-        type: z.enum(ExerciseType),
+        type: z.enum([EXERCISE_TYPES.EXERCISE, EXERCISE_TYPES.COMPLEX]),
         subExercises: z.array(subExerciseSchema).optional(),
         description: z.string().optional(),
       }),

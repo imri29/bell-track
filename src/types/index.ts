@@ -22,10 +22,10 @@ export type Exercise = {
   id: string;
   name: string;
   type: ExerciseType;
-  description?: string;
-  subExercises?: SubExercise[] | null;
-  createdAt: Date;
-  updatedAt: Date;
+  description: string | null;
+  subExercises: SubExercise[] | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 // API response types
