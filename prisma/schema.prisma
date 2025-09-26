@@ -20,14 +20,15 @@ enum ExerciseType {
 }
 
 model Exercise {
-  id               String            @id @default(cuid())
-  name             String            @unique
-  type             ExerciseType
-  subExercises     String?           // JSON array of exercise IDs for complex types
-  description      String?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  workoutExercises WorkoutExercise[]
+  id                        String                     @id @default(cuid())
+  name                      String                     @unique
+  type                      ExerciseType
+  subExercises              String?                    // JSON array of exercise IDs for complex types
+  description               String?
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+  workoutExercises          WorkoutExercise[]
+  workoutTemplateExercises  WorkoutTemplateExercise[]
 }
 
 model Workout {
@@ -57,4 +58,32 @@ model WorkoutExercise {
   exercise Exercise @relation(fields: [exerciseId], references: [id])
 
   @@unique([workoutId, exerciseId, order])
+}
+
+model WorkoutTemplate {
+  id          String                     @id @default(cuid())
+  name        String                     @unique
+  description String?
+  exercises   WorkoutTemplateExercise[]
+  createdAt   DateTime                   @default(now())
+  updatedAt   DateTime                   @updatedAt
+}
+
+model WorkoutTemplateExercise {
+  id         String          @id @default(cuid())
+  templateId String
+  exerciseId String
+  sets       Int
+  reps       String          // JSON array like "[12, 10, 8]"
+  weight     Float?          // Optional default weight
+  restTime   Int?            // Rest time in seconds
+  notes      String?
+  group      String?         // Exercise group (A, B, C, etc.)
+  order      Int             // Order of exercise within group
+  createdAt  DateTime        @default(now())
+
+  template WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  exercise Exercise        @relation(fields: [exerciseId], references: [id])
+
+  @@unique([templateId, exerciseId, order])
 }

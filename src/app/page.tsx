@@ -15,19 +15,25 @@ export default function Home() {
             <p className="text-muted-foreground mb-4">
               Ready to start your workout?
             </p>
-            <Link href="/workouts">
-              <Button>Start Workout</Button>
+            <Link href="/templates">
+              <Button className={"gap-1"}>Select Workout</Button>
             </Link>
           </div>
           <div className="p-6 bg-muted rounded-lg">
             <h3 className="text-lg font-semibold mb-2">Exercises</h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mb-4">
               Manage your exercise library
             </p>
+            <Link href="/exercises">
+              <Button className={"gap-1"}>View exercises</Button>
+            </Link>
           </div>
           <div className="p-6 bg-muted rounded-lg">
             <h3 className="text-lg font-semibold mb-2">History</h3>
-            <p className="text-muted-foreground">View past workouts</p>
+            <p className="text-muted-foreground mb-4">View past workouts</p>
+            <Link href="/workouts">
+              <Button className={"gap-1"}>View workouts</Button>
+            </Link>
           </div>
         </div>
       </main>

@@ -40,22 +40,22 @@ export default function ExercisesPage() {
   };
 
   return (
-    <div className="p-4 md:p-8">
+    <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
-        <Button
-          className="fixed top-4 right-4 gap-1.5"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <Plus />
-          Add Exercise
-        </Button>
-
         <AddExerciseModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
 
-        <h1 className="text-4xl font-bold mb-8">Bell Track</h1>
-        <p className="text-xl text-muted-foreground mb-8">
-          Kettlebell Workout Tracker
-        </p>
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Bell Track</h1>
+            <p className="text-xl text-muted-foreground">
+              Kettlebell Workout Tracker
+            </p>
+          </div>
+          <Button className="gap-1.5" onClick={() => setIsModalOpen(true)}>
+            <Plus />
+            Add Exercise
+          </Button>
+        </div>
 
         <div className="space-y-6">
           <div className="p-6 bg-muted rounded-lg">

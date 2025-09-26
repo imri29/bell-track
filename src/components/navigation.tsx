@@ -1,6 +1,12 @@
 "use client";
 
-import { BookIcon, DumbbellIcon, History, HomeIcon } from "lucide-react";
+import {
+  BookIcon,
+  DumbbellIcon,
+  FileText,
+  History,
+  HomeIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -8,8 +14,8 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { name: "Dashboard", href: "/", icon: HomeIcon },
   { name: "Workouts", href: "/workouts", icon: DumbbellIcon },
+  { name: "Templates", href: "/templates", icon: FileText },
   { name: "Exercises", href: "/exercises", icon: BookIcon },
-  { name: "History", href: "/history", icon: History },
 ];
 
 export function Navigation() {
@@ -29,7 +35,7 @@ export function Navigation() {
                 "flex-1 md:flex-none flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 p-3 md:px-4 md:py-3 text-sm font-medium transition-colors",
                 isActive
                   ? "text-primary bg-accent/10 md:bg-accent/5"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/5",
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/10",
               )}
             >
               <item.icon className="h-5 w-5" />

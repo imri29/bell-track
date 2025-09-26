@@ -1,102 +1,117 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Play, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { AddWorkoutModal } from "@/components/add-workout-modal";
+import { AddTemplateModal } from "@/components/add-template-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
 import { api } from "@/trpc/react";
 
-export default function WorkoutsPage() {
+export default function TemplatesPage() {
   const utils = api.useUtils();
   const { confirm } = useConfirm();
 
   const {
-    data: workouts,
-    isPending: workoutsPending,
-    error: workoutsError,
-  } = api.workout.getAll.useQuery();
+    data: templates,
+    isPending: templatesPending,
+    error: templatesError,
+  } = api.template.getAll.useQuery();
 
-  const { mutate: deleteWorkout, isPending: isDeleting } =
-    api.workout.delete.useMutation({
+  const { mutate: deleteTemplate, isPending: isDeleting } =
+    api.template.delete.useMutation({
       onSuccess: () => {
-        utils.workout.getAll.invalidate();
+        utils.template.getAll.invalidate();
       },
     });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleDelete = async (workout: { id: string; date: string }) => {
+  const handleDelete = async (template: { id: string; name: string }) => {
     const confirmed = await confirm({
-      title: "Delete Workout",
-      description: `Are you sure you want to delete the workout from ${new Date(workout.date).toLocaleDateString()}? This action cannot be undone.`,
+      title: "Delete Template",
+      description: `Are you sure you want to delete the template "${template.name}"? This action cannot be undone.`,
       confirmText: "Delete",
       cancelText: "Cancel",
     });
 
     if (confirmed) {
-      deleteWorkout({ id: workout.id });
+      deleteTemplate({ id: template.id });
     }
+  };
+
+  const handleUseTemplate = (templateId: string) => {
+    // TODO: Navigate to workout creation with pre-filled template data
+    console.log("Use template:", templateId);
   };
 
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
-        <AddWorkoutModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
+        <AddTemplateModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
 
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Workouts</h1>
+            <h1 className="text-4xl font-bold mb-2">Templates</h1>
             <p className="text-xl text-muted-foreground">
-              Create and manage your workout plans
+              Create and manage reusable workout templates
             </p>
           </div>
           <Button className="gap-1.5" onClick={() => setIsModalOpen(true)}>
             <Plus />
-            Add Workout
+            Add Template
           </Button>
         </div>
 
         <div className="space-y-6">
           <div className="p-6 bg-muted rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4">Your Workouts</h2>
+            <h2 className="text-2xl font-semibold mb-4">Your Templates</h2>
             <div className="space-y-4">
-              {workoutsPending ? (
-                <p>Loading workouts...</p>
-              ) : workoutsError ? (
-                <p>Error loading workouts</p>
-              ) : workouts && workouts.length > 0 ? (
+              {templatesPending ? (
+                <p>Loading templates...</p>
+              ) : templatesError ? (
+                <p>Error loading templates</p>
+              ) : templates && templates.length > 0 ? (
                 <div className="space-y-3">
-                  {workouts.map((workout) => (
+                  {templates.map((template) => (
                     <div
-                      key={workout.id}
+                      key={template.id}
                       className="p-4 bg-background rounded border group"
                     >
                       <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold">
-                            {new Date(workout.date).toLocaleDateString()}
-                            {workout.duration && ` • ${workout.duration} min`}
-                          </h3>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">{template.name}</h3>
                           <p className="text-sm text-muted-foreground mt-1">
-                            {workout.exercises.length} exercise
-                            {workout.exercises.length !== 1 ? "s" : ""}
+                            {template.exercises.length} exercise
+                            {template.exercises.length !== 1 ? "s" : ""}
                           </p>
-                          {workout.notes && (
-                            <p className="text-sm mt-2">{workout.notes}</p>
+                          {template.description && (
+                            <p className="text-sm mt-2">
+                              {template.description}
+                            </p>
                           )}
                         </div>
-                        <Button
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-500 h-8 w-8 p-0 hover:bg-red-50 hover:text-red-700"
-                          variant="ghost"
-                          onClick={() => handleDelete(workout)}
-                          disabled={isDeleting}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleUseTemplate(template.id)}
+                            className="gap-1.5"
+                          >
+                            <Play className="h-4 w-4" />
+                            Use Template
+                          </Button>
+                          <Button
+                            className="h-8 w-8 p-0"
+                            variant="destructive"
+                            onClick={() => handleDelete(template)}
+                            disabled={isDeleting}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       <div className="mt-3 space-y-1">
-                        {workout.exercises
+                        {template.exercises
                           .sort((a, b) => {
                             if (a.group && b.group && a.group !== b.group) {
                               return a.group.localeCompare(b.group);
@@ -132,7 +147,8 @@ export default function WorkoutsPage() {
                                     </span>
                                   )}
                                   {exercise.exercise.name} • {exercise.sets}{" "}
-                                  sets • {exercise.weight}kg
+                                  sets
+                                  {exercise.weight && ` • ${exercise.weight}kg`}
                                 </div>
                               </div>
                             );
@@ -143,8 +159,8 @@ export default function WorkoutsPage() {
                 </div>
               ) : (
                 <p className="text-muted-foreground">
-                  No workouts yet. Click "Add Workout" to create your first
-                  workout plan.
+                  No templates yet. Click "Add Template" to create your first
+                  workout template.
                 </p>
               )}
             </div>

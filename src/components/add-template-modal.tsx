@@ -20,43 +20,40 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
 
-type WorkoutExerciseFormData = {
+type TemplateExerciseFormData = {
   exerciseId: string;
   sets: number;
   reps: string;
-  weight: number;
+  weight?: number;
   restTime?: number;
   notes?: string;
   group?: string;
   order: number;
 };
 
-type WorkoutFormData = {
-  date: string;
-  duration?: number;
-  notes?: string;
-  exercises: WorkoutExerciseFormData[];
+type TemplateFormData = {
+  name: string;
+  description?: string;
+  exercises: TemplateExerciseFormData[];
 };
 
-interface AddWorkoutModalProps {
+interface AddTemplateModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function AddWorkoutModal({
+export function AddTemplateModal({
   isOpen,
   onOpenChange,
-}: AddWorkoutModalProps) {
+}: AddTemplateModalProps) {
   const utils = api.useUtils();
 
   const { data: exercises } = api.exercise.getAll.useQuery();
 
   // Form IDs for accessibility
-  const dateId = useId();
-  const durationId = useId();
-  const notesId = useId();
+  const nameId = useId();
+  const descriptionId = useId();
   const exerciseSelectId = useId();
-  const complexSelectId = useId();
 
   const {
     register,
@@ -64,11 +61,10 @@ export function AddWorkoutModal({
     reset,
     control,
     formState: { errors },
-  } = useForm<WorkoutFormData>({
+  } = useForm<TemplateFormData>({
     defaultValues: {
-      date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
-      duration: undefined,
-      notes: "",
+      name: "",
+      description: "",
       exercises: [],
     },
   });
@@ -79,26 +75,24 @@ export function AddWorkoutModal({
     name: "exercises",
   });
 
-  const createWorkout = api.workout.create.useMutation({
+  const createTemplate = api.template.create.useMutation({
     onSuccess: () => {
-      utils.workout.getAll.invalidate();
+      utils.template.getAll.invalidate();
       reset();
       onOpenChange(false);
     },
   });
 
-  const onSubmit = (data: WorkoutFormData) => {
-    // Transform reps from string to JSON array format expected by API
+  const onSubmit = (data: TemplateFormData) => {
+    // Transform exercises with proper order
     const exercises = data.exercises.map((exercise, index) => ({
       ...exercise,
-      reps: exercise.reps, // Keep as string for now, API expects JSON string
       order: index,
     }));
 
-    createWorkout.mutate({
-      date: data.date,
-      duration: data.duration || undefined, // Convert null/empty to undefined
-      notes: data.notes || undefined,
+    createTemplate.mutate({
+      name: data.name,
+      description: data.description || undefined,
       exercises,
     });
   };
@@ -123,45 +117,32 @@ export function AddWorkoutModal({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Workout</DialogTitle>
+          <DialogTitle>Create New Template</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor={dateId} className="text-sm font-medium">
-                Workout Date
-              </label>
-              <Input
-                id={dateId}
-                type="date"
-                {...register("date", { required: "Date is required" })}
-                className={errors.date ? "border-red-500" : ""}
-              />
-              {errors.date && (
-                <p className="text-sm text-red-500">{errors.date.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <label htmlFor={durationId} className="text-sm font-medium">
-                Duration (minutes)
-              </label>
-              <Input
-                id={durationId}
-                type="number"
-                placeholder="Optional"
-                {...register("duration", { valueAsNumber: true, min: 1 })}
-              />
-            </div>
+          <div className="space-y-2">
+            <label htmlFor={nameId} className="text-sm font-medium">
+              Template Name
+            </label>
+            <Input
+              id={nameId}
+              placeholder="e.g., Upper Body Push, Leg Day"
+              {...register("name", { required: "Template name is required" })}
+              className={errors.name ? "border-red-500" : ""}
+            />
+            {errors.name && (
+              <p className="text-sm text-red-500">{errors.name.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <label htmlFor={notesId} className="text-sm font-medium">
-              Notes
+            <label htmlFor={descriptionId} className="text-sm font-medium">
+              Description
             </label>
             <Textarea
-              id={notesId}
-              placeholder="Optional workout notes"
-              {...register("notes")}
+              id={descriptionId}
+              placeholder="Optional description of this template"
+              {...register("description")}
             />
           </div>
 
@@ -171,10 +152,7 @@ export function AddWorkoutModal({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label
-                  htmlFor={exerciseSelectId}
-                  className="text-sm font-medium"
-                >
+                <label htmlFor={exerciseSelectId} className="text-sm font-medium">
                   Select Exercise
                 </label>
                 <Select
@@ -185,10 +163,7 @@ export function AddWorkoutModal({
                     }
                   }}
                 >
-                  <SelectTrigger
-                    id={exerciseSelectId}
-                    className="bg-background"
-                  >
+                  <SelectTrigger id={exerciseSelectId} className="bg-background">
                     <SelectValue placeholder="Add individual exercise" />
                   </SelectTrigger>
                   <SelectContent className="bg-background">
@@ -208,10 +183,7 @@ export function AddWorkoutModal({
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor={complexSelectId}
-                  className="text-sm font-medium"
-                >
+                <label className="text-sm font-medium">
                   Select Complex
                 </label>
                 <Select
@@ -222,7 +194,7 @@ export function AddWorkoutModal({
                     }
                   }}
                 >
-                  <SelectTrigger id={complexSelectId} className="bg-background">
+                  <SelectTrigger className="bg-background">
                     <SelectValue placeholder="Add complex exercise" />
                   </SelectTrigger>
                   <SelectContent className="bg-background">
@@ -245,7 +217,7 @@ export function AddWorkoutModal({
             {/* Selected Exercises */}
             {fields.length > 0 && (
               <div className="space-y-3">
-                <p className="text-sm font-medium">Workout Exercises</p>
+                <p className="text-sm font-medium">Template Exercises</p>
                 <div className="space-y-3">
                   {fields.map((field, index) => {
                     const exercise = exercises?.find(
@@ -269,9 +241,7 @@ export function AddWorkoutModal({
                           </Button>
                         </div>
 
-                        <div
-                          className={`grid gap-3 ${exercise?.type === "COMPLEX" ? "grid-cols-2" : "grid-cols-3"}`}
-                        >
+                        <div className={`grid gap-3 ${exercise?.type === "COMPLEX" ? "grid-cols-2" : "grid-cols-3"}`}>
                           <div className="space-y-1">
                             <label
                               htmlFor={`sets-${index}`}
@@ -333,9 +303,9 @@ export function AddWorkoutModal({
                               type="number"
                               min="0"
                               step="0.5"
+                              placeholder="Optional default"
                               {...register(`exercises.${index}.weight`, {
                                 valueAsNumber: true,
-                                required: "Weight required",
                                 min: { value: 0, message: "Min 0kg" },
                               })}
                             />
@@ -387,8 +357,8 @@ export function AddWorkoutModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={createWorkout.isPending}>
-              {createWorkout.isPending ? "Creating..." : "Create Workout"}
+            <Button type="submit" disabled={createTemplate.isPending}>
+              {createTemplate.isPending ? "Creating..." : "Create Template"}
             </Button>
           </div>
         </form>
