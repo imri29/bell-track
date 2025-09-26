@@ -18,8 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/trpc/react";
 import type { RouterOutputs } from "@/server/api/root";
+import { api } from "@/trpc/react";
 
 type WorkoutExerciseFormData = {
   id?: string; // Include existing exercise ID for updates
@@ -103,10 +103,10 @@ export function EditWorkoutModal({
             exerciseId: ex.exerciseId,
             sets: ex.sets,
             reps: ex.reps,
-            weight: ex.weight,
-            restTime: ex.restTime || undefined,
-            notes: ex.notes || "",
-            group: ex.group || "",
+            weight: ex.weight ?? 0,
+            restTime: ex.restTime ?? undefined,
+            notes: ex.notes ?? "",
+            group: ex.group ?? "",
             order: ex.order,
           })),
       });
@@ -140,8 +140,8 @@ export function EditWorkoutModal({
     updateWorkout.mutate({
       id: workout.id,
       date: data.date,
-      duration: data.duration,
-      notes: data.notes,
+      duration: data.duration || undefined,
+      notes: data.notes || undefined,
       exercises,
     });
   };
@@ -327,9 +327,7 @@ export function EditWorkoutModal({
                           </Button>
                         </div>
 
-                        <div
-                          className={`grid gap-4 ${exercise?.type === "COMPLEX" ? "grid-cols-2 md:grid-cols-4" : "grid-cols-2 md:grid-cols-5"}`}
-                        >
+                        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
                           <div className="space-y-2">
                             <label
                               htmlFor={`sets-${index}`}

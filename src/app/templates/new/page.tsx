@@ -258,9 +258,7 @@ export default function NewTemplatePage() {
                           </Button>
                         </div>
 
-                        <div
-                          className={`grid gap-4 ${exercise?.type === "COMPLEX" ? "grid-cols-2 md:grid-cols-4" : "grid-cols-2 md:grid-cols-5"}`}
-                        >
+                        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
                           <div className="space-y-2">
                             <label
                               htmlFor={`sets-${index}`}

@@ -20,8 +20,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
 import {
-  EXERCISE_TYPES,
   EXERCISE_TYPE_LABELS,
+  EXERCISE_TYPES,
   type ExerciseType,
   type SubExercise,
 } from "@/types";

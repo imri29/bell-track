@@ -304,9 +304,7 @@ export function AddWorkoutModal({
                           </Button>
                         </div>
 
-                        <div
-                          className={`grid gap-3 ${exercise?.type === "COMPLEX" ? "grid-cols-2" : "grid-cols-3"}`}
-                        >
+                        <div className="grid gap-3 grid-cols-2">
                           <div className="space-y-1">
                             <label
                               htmlFor={`sets-${index}`}

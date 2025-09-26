@@ -20,21 +20,20 @@ enum ExerciseType {
 }
 
 model Exercise {
-  id                        String                     @id @default(cuid())
-  name                      String                     @unique
-  type                      ExerciseType
-  subExercises              String?                    // JSON array of exercise IDs for complex types
-  description               String?
-  createdAt                 DateTime                   @default(now())
-  updatedAt                 DateTime                   @updatedAt
-  workoutExercises          WorkoutExercise[]
-  workoutTemplateExercises  WorkoutTemplateExercise[]
+  id               String            @id @default(cuid())
+  name             String            @unique
+  type             ExerciseType
+  subExercises     String? // JSON array of exercise IDs for complex types
+  description      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  workoutExercises WorkoutExercise[]
 }
 
 model Workout {
   id        String            @id @default(cuid())
   date      DateTime
-  duration  Int?              // Duration in minutes
+  duration  Int? // Duration in minutes
   notes     String?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
@@ -43,47 +42,31 @@ model Workout {
 
 model WorkoutExercise {
   id         String   @id @default(cuid())
-  workoutId  String
+  workoutId  String?
+  templateId String?
   exerciseId String
   sets       Int
-  reps       String   // JSON array to handle different reps per set: "[12, 10, 8]"
-  weight     Float    // Weight in kg
-  restTime   Int?     // Rest time in seconds
+  reps       String // JSON array to handle different reps per set: "[12, 10, 8]"
+  weight     Float? // Weight in kg
+  restTime   Int? // Rest time in seconds
   notes      String?
-  group      String?  // Exercise group for notation (A, B, C, etc.)
-  order      Int      // Order of exercise within group
+  group      String? // Exercise group for notation (A, B, C, etc.)
+  order      Int // Order of exercise within group
   createdAt  DateTime @default(now())
 
-  workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-  exercise Exercise @relation(fields: [exerciseId], references: [id])
+  workout  Workout?         @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  template WorkoutTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  exercise Exercise         @relation(fields: [exerciseId], references: [id])
 
   @@unique([workoutId, exerciseId, order])
+  @@unique([templateId, exerciseId, order])
 }
 
 model WorkoutTemplate {
-  id          String                     @id @default(cuid())
-  name        String                     @unique
+  id          String            @id @default(cuid())
+  name        String
   description String?
-  exercises   WorkoutTemplateExercise[]
-  createdAt   DateTime                   @default(now())
-  updatedAt   DateTime                   @updatedAt
-}
-
-model WorkoutTemplateExercise {
-  id         String          @id @default(cuid())
-  templateId String
-  exerciseId String
-  sets       Int
-  reps       String          // JSON array like "[12, 10, 8]"
-  weight     Float?          // Optional default weight
-  restTime   Int?            // Rest time in seconds
-  notes      String?
-  group      String?         // Exercise group (A, B, C, etc.)
-  order      Int             // Order of exercise within group
-  createdAt  DateTime        @default(now())
-
-  template WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  exercise Exercise        @relation(fields: [exerciseId], references: [id])
-
-  @@unique([templateId, exerciseId, order])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  exercises   WorkoutExercise[]
 }

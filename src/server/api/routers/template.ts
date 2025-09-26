@@ -104,7 +104,7 @@ export const templateRouter = createTRPCRouter({
 
       // If exercises are provided, replace all template exercises
       if (exercises) {
-        await prisma.workoutTemplateExercise.deleteMany({
+        await prisma.workoutExercise.deleteMany({
           where: { templateId: id },
         });
       }

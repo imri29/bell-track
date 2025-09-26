@@ -7,6 +7,7 @@ import { useState } from "react";
 import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
+import { templateToFormData } from "@/lib/template-utils";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
@@ -96,23 +97,7 @@ export default function TemplatesPage() {
   };
 
   const handleUseTemplate = (template: TemplateWithExercises) => {
-    // Transform template data for workout modal
-    const templateData = {
-      id: template.id,
-      name: template.name,
-      exercises: template.exercises.map((ex) => ({
-        exerciseId: ex.exerciseId,
-        sets: ex.sets,
-        reps: ex.reps,
-        weight: ex.weight ?? undefined,
-        restTime: ex.restTime ?? undefined,
-        notes: ex.notes ?? undefined,
-        group: ex.group ?? undefined,
-        order: ex.order,
-      })),
-    };
-
-    setWorkoutModalTemplate(templateData);
+    setWorkoutModalTemplate(templateToFormData(template));
   };
 
   return (
