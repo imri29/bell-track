@@ -7,7 +7,58 @@ import { useState } from "react";
 import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
+import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
+import type { TemplateData } from "@/types";
+
+type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
+
+function TemplateExercisesList({
+  exercises,
+}: {
+  exercises: TemplateWithExercises["exercises"];
+}) {
+  const sortedExercises = [...exercises].sort((a, b) => {
+    if (a.group && b.group && a.group !== b.group) {
+      return a.group.localeCompare(b.group);
+    }
+    return a.order - b.order;
+  });
+
+  return (
+    <div className="mt-3 space-y-1">
+      {sortedExercises.map((exercise, index) => {
+        let displayLabel = "";
+        const showDivider =
+          index > 0 &&
+          exercise.group &&
+          sortedExercises[index - 1]?.group !== exercise.group;
+
+        if (exercise.group) {
+          const groupIndex = sortedExercises
+            .slice(0, index + 1)
+            .filter((ex) => ex.group === exercise.group).length;
+          displayLabel = `${exercise.group}${groupIndex}`;
+        }
+
+        return (
+          <div key={exercise.id}>
+            {showDivider && <div className="border-t border-border my-2" />}
+            <div className="text-sm text-muted-foreground">
+              {displayLabel && (
+                <span className="font-medium text-foreground mr-1">
+                  {displayLabel}:
+                </span>
+              )}
+              {exercise.exercise.name} • {exercise.sets} sets
+              {exercise.weight && ` • ${exercise.weight}kg`}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function TemplatesPage() {
   const utils = api.useUtils();
@@ -27,21 +78,9 @@ export default function TemplatesPage() {
       },
     });
 
-  const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<{
-    id: string;
-    name: string;
-    exercises: Array<{
-      exerciseId: string;
-      sets: number;
-      reps: string;
-      weight?: number;
-      restTime?: number;
-      notes?: string;
-      group?: string;
-      order: number;
-    }>;
-  } | null>(null);
+  const [workoutModalTemplate, setWorkoutModalTemplate] = useState<
+    TemplateData | undefined
+  >(undefined);
 
   const handleDelete = async (template: { id: string; name: string }) => {
     const confirmed = await confirm({
@@ -56,20 +95,7 @@ export default function TemplatesPage() {
     }
   };
 
-  const handleUseTemplate = (template: {
-    id: string;
-    name: string;
-    exercises: Array<{
-      exerciseId: string;
-      sets: number;
-      reps: string;
-      weight?: number;
-      restTime?: number;
-      notes?: string;
-      group?: string;
-      order: number;
-    }>;
-  }) => {
+  const handleUseTemplate = (template: TemplateWithExercises) => {
     // Transform template data for workout modal
     const templateData = {
       id: template.id,
@@ -78,30 +104,28 @@ export default function TemplatesPage() {
         exerciseId: ex.exerciseId,
         sets: ex.sets,
         reps: ex.reps,
-        weight: ex.weight,
-        restTime: ex.restTime,
-        notes: ex.notes,
-        group: ex.group,
+        weight: ex.weight ?? undefined,
+        restTime: ex.restTime ?? undefined,
+        notes: ex.notes ?? undefined,
+        group: ex.group ?? undefined,
         order: ex.order,
       })),
     };
 
-    setSelectedTemplate(templateData);
-    setIsWorkoutModalOpen(true);
+    setWorkoutModalTemplate(templateData);
   };
 
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
         <AddWorkoutModal
-          isOpen={isWorkoutModalOpen}
+          isOpen={!!workoutModalTemplate}
           onOpenChange={(open) => {
-            setIsWorkoutModalOpen(open);
             if (!open) {
-              setSelectedTemplate(null); // Clear template when modal closes
+              setWorkoutModalTemplate(undefined); // Clear template when modal closes
             }
           }}
-          templateData={selectedTemplate}
+          templateData={workoutModalTemplate}
           onConfirm={() => router.push(`/history`)}
         />
 
@@ -179,50 +203,7 @@ export default function TemplatesPage() {
                           </Button>
                         </div>
                       </div>
-                      <div className="mt-3 space-y-1">
-                        {template.exercises
-                          .sort((a, b) => {
-                            if (a.group && b.group && a.group !== b.group) {
-                              return a.group.localeCompare(b.group);
-                            }
-                            return a.order - b.order;
-                          })
-                          .map((exercise, index, sortedExercises) => {
-                            let displayLabel = "";
-                            const showDivider =
-                              index > 0 &&
-                              exercise.group &&
-                              sortedExercises[index - 1].group !==
-                                exercise.group;
-
-                            if (exercise.group) {
-                              const groupIndex = sortedExercises
-                                .slice(0, index + 1)
-                                .filter(
-                                  (ex) => ex.group === exercise.group,
-                                ).length;
-                              displayLabel = `${exercise.group}${groupIndex}`;
-                            }
-
-                            return (
-                              <div key={exercise.id}>
-                                {showDivider && (
-                                  <div className="border-t border-border my-2" />
-                                )}
-                                <div className="text-sm text-muted-foreground">
-                                  {displayLabel && (
-                                    <span className="font-medium text-foreground mr-1">
-                                      {displayLabel}:
-                                    </span>
-                                  )}
-                                  {exercise.exercise.name} • {exercise.sets}{" "}
-                                  sets
-                                  {exercise.weight && ` • ${exercise.weight}kg`}
-                                </div>
-                              </div>
-                            );
-                          })}
-                      </div>
+                      <TemplateExercisesList exercises={template.exercises} />
                     </div>
                   ))}
                 </div>

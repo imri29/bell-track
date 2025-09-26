@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
+import type { TemplateData } from "@/types";
 
 type WorkoutExerciseFormData = {
   exerciseId: string;
@@ -41,20 +42,7 @@ type WorkoutFormData = {
 interface AddWorkoutModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  templateData?: {
-    id: string;
-    name: string;
-    exercises: Array<{
-      exerciseId: string;
-      sets: number;
-      reps: string;
-      weight?: number;
-      restTime?: number;
-      notes?: string;
-      group?: string;
-      order: number;
-    }>;
-  };
+  templateData?: TemplateData;
   onConfirm?: () => void;
 }
 

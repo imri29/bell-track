@@ -38,3 +38,18 @@ export type CreateExerciseInput = {
     reps: number;
   }>;
 };
+
+export type TemplateData = {
+  id: string;
+  name: string;
+  exercises: Array<{
+    exerciseId: string;
+    sets: number;
+    reps: string;
+    weight?: number;
+    restTime?: number;
+    notes?: string;
+    group?: string;
+    order: number;
+  }>;
+};

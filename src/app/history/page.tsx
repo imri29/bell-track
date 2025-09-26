@@ -6,7 +6,57 @@ import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { EditWorkoutModal } from "@/components/edit-workout-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
+import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
+
+type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
+
+function WorkoutExercisesList({
+  exercises,
+}: {
+  exercises: WorkoutWithExercises["exercises"];
+}) {
+  const sortedExercises = [...exercises].sort((a, b) => {
+    if (a.group && b.group && a.group !== b.group) {
+      return a.group.localeCompare(b.group);
+    }
+    return a.order - b.order;
+  });
+
+  return (
+    <div className="mt-3 space-y-1">
+      {sortedExercises.map((exercise, index) => {
+        let displayLabel = "";
+        const showDivider =
+          index > 0 &&
+          exercise.group &&
+          sortedExercises[index - 1]?.group !== exercise.group;
+
+        if (exercise.group) {
+          const groupIndex = sortedExercises
+            .slice(0, index + 1)
+            .filter((ex) => ex.group === exercise.group).length;
+          displayLabel = `${exercise.group}${groupIndex}`;
+        }
+
+        return (
+          <div key={exercise.id}>
+            {showDivider && <div className="border-t border-border my-2" />}
+            <div className="text-sm text-muted-foreground">
+              {displayLabel && (
+                <span className="font-medium text-foreground mr-1">
+                  {displayLabel}:
+                </span>
+              )}
+              {exercise.exercise.name} • {exercise.sets} sets •{" "}
+              {exercise.weight}kg
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function WorkoutsPage() {
   const utils = api.useUtils();
@@ -26,33 +76,15 @@ export default function WorkoutsPage() {
     });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedWorkout, setSelectedWorkout] = useState<{
-    id: string;
-    date: string;
-    duration?: number;
-    notes?: string;
-    exercises: Array<{
-      id: string;
-      exerciseId: string;
-      sets: number;
-      reps: string;
-      weight: number;
-      restTime?: number;
-      notes?: string;
-      group?: string;
-      order: number;
-      exercise: {
-        id: string;
-        name: string;
-        type: string;
-      };
-    }>;
-  } | null>(null);
+  const [editingWorkout, setEditingWorkout] =
+    useState<WorkoutWithExercises | null>(null);
 
-  const handleEdit = (workout: typeof selectedWorkout) => {
-    setSelectedWorkout(workout);
-    setIsEditModalOpen(true);
+  const handleEdit = (workout: WorkoutWithExercises) => {
+    setEditingWorkout(workout);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditingWorkout(null);
   };
 
   const handleDelete = async (workout: { id: string; date: string }) => {
@@ -73,9 +105,11 @@ export default function WorkoutsPage() {
       <main className="max-w-4xl mx-auto">
         <AddWorkoutModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
         <EditWorkoutModal
-          isOpen={isEditModalOpen}
-          onOpenChange={setIsEditModalOpen}
-          workout={selectedWorkout}
+          isOpen={editingWorkout !== null}
+          onOpenChange={(open) => {
+            if (!open) handleCloseEditModal();
+          }}
+          workout={editingWorkout}
         />
 
         <div className="flex justify-between items-start mb-8">
@@ -140,49 +174,7 @@ export default function WorkoutsPage() {
                           </Button>
                         </div>
                       </div>
-                      <div className="mt-3 space-y-1">
-                        {workout.exercises
-                          .sort((a, b) => {
-                            if (a.group && b.group && a.group !== b.group) {
-                              return a.group.localeCompare(b.group);
-                            }
-                            return a.order - b.order;
-                          })
-                          .map((exercise, index, sortedExercises) => {
-                            let displayLabel = "";
-                            const showDivider =
-                              index > 0 &&
-                              exercise.group &&
-                              sortedExercises[index - 1].group !==
-                                exercise.group;
-
-                            if (exercise.group) {
-                              const groupIndex = sortedExercises
-                                .slice(0, index + 1)
-                                .filter(
-                                  (ex) => ex.group === exercise.group,
-                                ).length;
-                              displayLabel = `${exercise.group}${groupIndex}`;
-                            }
-
-                            return (
-                              <div key={exercise.id}>
-                                {showDivider && (
-                                  <div className="border-t border-border my-2" />
-                                )}
-                                <div className="text-sm text-muted-foreground">
-                                  {displayLabel && (
-                                    <span className="font-medium text-foreground mr-1">
-                                      {displayLabel}:
-                                    </span>
-                                  )}
-                                  {exercise.exercise.name} • {exercise.sets}{" "}
-                                  sets • {exercise.weight}kg
-                                </div>
-                              </div>
-                            );
-                          })}
-                      </div>
+                      <WorkoutExercisesList exercises={workout.exercises} />
                     </div>
                   ))}
                 </div>

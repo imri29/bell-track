@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
+import type { RouterOutputs } from "@/server/api/root";
 
 type WorkoutExerciseFormData = {
   id?: string; // Include existing exercise ID for updates
@@ -42,28 +43,7 @@ type WorkoutFormData = {
 type EditWorkoutModalProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  workout: {
-    id: string;
-    date: string;
-    duration?: number;
-    notes?: string;
-    exercises: Array<{
-      id: string;
-      exerciseId: string;
-      sets: number;
-      reps: string;
-      weight: number;
-      restTime?: number;
-      notes?: string;
-      group?: string;
-      order: number;
-      exercise: {
-        id: string;
-        name: string;
-        type: string;
-      };
-    }>;
-  } | null;
+  workout: RouterOutputs["workout"]["getAll"][number] | null;
   onConfirm?: () => void;
 };
 
