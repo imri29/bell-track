@@ -15,8 +15,10 @@ const workoutExerciseSchema = z.object({
   order: z.number().min(0),
 });
 
+const transformDate = z.string().transform((str) => new Date(str));
+
 const createWorkoutSchema = z.object({
-  date: z.date(),
+  date: transformDate,
   duration: z.number().optional(),
   notes: z.string().optional(),
   exercises: z.array(workoutExerciseSchema),
@@ -24,7 +26,7 @@ const createWorkoutSchema = z.object({
 
 const updateWorkoutSchema = z.object({
   id: z.string(),
-  date: z.date().optional(),
+  date: transformDate.optional(),
   duration: z.number().optional(),
   notes: z.string().optional(),
   exercises: z.array(workoutExerciseSchema).optional(),

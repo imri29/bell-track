@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ConfirmProvider } from "@/contexts/confirm-context";
 import "./globals.css";
+import { Navigation } from "@/components/navigation";
 import { TRPCReactProvider } from "@/trpc/react";
 
 const geistSans = Geist({
@@ -27,10 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 md:pb-0 md:flex`}
       >
         <TRPCReactProvider>
-          <ConfirmProvider>{children}</ConfirmProvider>
+          <ConfirmProvider>
+            <Navigation />
+            {children}
+          </ConfirmProvider>
         </TRPCReactProvider>
       </body>
     </html>

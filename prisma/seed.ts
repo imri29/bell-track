@@ -221,8 +221,7 @@ const exercises: Prisma.ExerciseCreateInput[] = [
   {
     name: "Sisyphus (2 hands on bell)",
     type: ExerciseType.COMPLEX,
-    description:
-      "5 Two Hand Squat Cleans + 4 Goblet Squats + 3/leg Lunges",
+    description: "5 Two Hand Squat Cleans + 4 Goblet Squats + 3/leg Lunges",
     subExercises: JSON.stringify([
       { exerciseName: "Two Hand Squat Cleans", reps: 5 },
       { exerciseName: "Goblet Squats", reps: 4 },
@@ -232,8 +231,7 @@ const exercises: Prisma.ExerciseCreateInput[] = [
   {
     name: "Gimli (2 hands on bell)",
     type: ExerciseType.COMPLEX,
-    description:
-      "5 Swings + 4 Deadlift High Pulls + 3 Goblet Squats",
+    description: "5 Swings + 4 Deadlift High Pulls + 3 Goblet Squats",
     subExercises: JSON.stringify([
       { exerciseName: "Swings", reps: 5 },
       { exerciseName: "Deadlift High Pulls", reps: 4 },
@@ -325,8 +323,7 @@ const exercises: Prisma.ExerciseCreateInput[] = [
   {
     name: "King Kong (double bell)",
     type: ExerciseType.COMPLEX,
-    description:
-      "Gorilla Row + Gorilla Row + Squat Clean & Thruster x5 reps",
+    description: "Gorilla Row + Gorilla Row + Squat Clean & Thruster x5 reps",
     subExercises: JSON.stringify([
       { exerciseName: "Gorilla Rows", reps: 5 },
       { exerciseName: "Gorilla Rows", reps: 5 },
@@ -336,8 +333,7 @@ const exercises: Prisma.ExerciseCreateInput[] = [
   {
     name: "Devil's Tricycle (2 hands on bell)",
     type: ExerciseType.COMPLEX,
-    description:
-      "6 Swings + 6 Deadlift High Pull + 3/side Offset Squat Cleans",
+    description: "6 Swings + 6 Deadlift High Pull + 3/side Offset Squat Cleans",
     subExercises: JSON.stringify([
       { exerciseName: "Swings", reps: 6 },
       { exerciseName: "Deadlift High Pulls", reps: 6 },
@@ -394,10 +390,10 @@ async function main() {
 
   // Find the exercises we need for the workout
   const leonidaComplex = await prisma.exercise.findUnique({
-    where: { name: "Leonidas" }
+    where: { name: "Leonidas" },
   });
   const swings = await prisma.exercise.findUnique({
-    where: { name: "Swings" }
+    where: { name: "Swings" },
   });
 
   // Create Pull-ups and Farmers Carry if they don't exist
@@ -428,7 +424,8 @@ async function main() {
     data: {
       date: new Date(),
       duration: 45, // 45 minutes
-      notes: "Sample workout with A/B grouping - Leonidas complex + accessory work",
+      notes:
+        "Sample workout with A/B grouping - Leonidas complex + accessory work",
       exercises: {
         create: [
           // A1: Leonidas Complex

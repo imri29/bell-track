@@ -134,10 +134,10 @@ export function AddExerciseModal({
               control={control}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="bg-white">
+                  <SelectTrigger className="bg-background">
                     <SelectValue placeholder="Select exercise type" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white">
+                  <SelectContent className="bg-background">
                     <SelectItem value={EXERCISE_TYPES.EXERCISE}>
                       {EXERCISE_TYPE_LABELS.EXERCISE}
                     </SelectItem>
@@ -181,10 +181,13 @@ export function AddExerciseModal({
                     }
                   }}
                 >
-                  <SelectTrigger id={exerciseSelectId} className="bg-white">
+                  <SelectTrigger
+                    id={exerciseSelectId}
+                    className="bg-background"
+                  >
                     <SelectValue placeholder="Add exercises to complex" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white">
+                  <SelectContent className="bg-background">
                     {exercises
                       ?.filter(
                         (ex) =>
@@ -210,7 +213,7 @@ export function AddExerciseModal({
                     {fields.map((field, index) => (
                       <div
                         key={field.id}
-                        className="flex items-center gap-2 p-2 bg-gray-50 rounded"
+                        className="flex items-center gap-2 p-2 bg-muted rounded"
                       >
                         <span className="text-sm font-medium w-4">
                           {index + 1}.

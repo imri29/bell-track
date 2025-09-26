@@ -115,7 +115,7 @@ function ConfirmModal({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <p className="text-sm text-gray-600">{description}</p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

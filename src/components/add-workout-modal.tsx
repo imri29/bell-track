@@ -1,0 +1,351 @@
+"use client";
+
+import { useId } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/trpc/react";
+
+type WorkoutExerciseFormData = {
+  exerciseId: string;
+  sets: number;
+  reps: string;
+  weight: number;
+  restTime?: number;
+  notes?: string;
+  group?: string;
+  order: number;
+};
+
+type WorkoutFormData = {
+  date: string;
+  duration?: number;
+  notes?: string;
+  exercises: WorkoutExerciseFormData[];
+};
+
+interface AddWorkoutModalProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function AddWorkoutModal({
+  isOpen,
+  onOpenChange,
+}: AddWorkoutModalProps) {
+  const utils = api.useUtils();
+
+  const { data: exercises } = api.exercise.getAll.useQuery();
+
+  // Form IDs for accessibility
+  const dateId = useId();
+  const durationId = useId();
+  const notesId = useId();
+  const exerciseSelectId = useId();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm<WorkoutFormData>({
+    defaultValues: {
+      date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
+      duration: undefined,
+      notes: "",
+      exercises: [],
+    },
+  });
+
+  // useFieldArray for managing exercises
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "exercises",
+  });
+
+  const createWorkout = api.workout.create.useMutation({
+    onSuccess: () => {
+      utils.workout.getAll.invalidate();
+      reset();
+      onOpenChange(false);
+    },
+  });
+
+  const onSubmit = (data: WorkoutFormData) => {
+    // Transform reps from string to JSON array format expected by API
+    const exercises = data.exercises.map((exercise, index) => ({
+      ...exercise,
+      reps: exercise.reps, // Keep as string for now, API expects JSON string
+      order: index,
+    }));
+
+    createWorkout.mutate({
+      date: data.date,
+      duration: data.duration || undefined, // Convert null/empty to undefined
+      notes: data.notes || undefined,
+      exercises,
+    });
+  };
+
+  const addExercise = (exerciseId: string) => {
+    const exercise = exercises?.find((ex) => ex.id === exerciseId);
+    if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
+      append({
+        exerciseId: exercise.id,
+        sets: 3,
+        reps: "12",
+        weight: 16, // Default kettlebell weight
+        restTime: 60,
+        notes: "",
+        group: "",
+        order: fields.length,
+      });
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Add New Workout</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor={dateId} className="text-sm font-medium">
+                Workout Date
+              </label>
+              <Input
+                id={dateId}
+                type="date"
+                {...register("date", { required: "Date is required" })}
+                className={errors.date ? "border-red-500" : ""}
+              />
+              {errors.date && (
+                <p className="text-sm text-red-500">{errors.date.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label htmlFor={durationId} className="text-sm font-medium">
+                Duration (minutes)
+              </label>
+              <Input
+                id={durationId}
+                type="number"
+                placeholder="Optional"
+                {...register("duration", { valueAsNumber: true, min: 1 })}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor={notesId} className="text-sm font-medium">
+              Notes
+            </label>
+            <Textarea
+              id={notesId}
+              placeholder="Optional workout notes"
+              {...register("notes")}
+            />
+          </div>
+
+          {/* Exercise Selection */}
+          <div className="space-y-4 border-t pt-4">
+            <h4 className="font-medium text-sm">Add Exercises</h4>
+
+            <div className="space-y-2">
+              <label htmlFor={exerciseSelectId} className="text-sm font-medium">
+                Select Exercise
+              </label>
+              <Select
+                value=""
+                onValueChange={(value) => {
+                  if (value) {
+                    addExercise(value);
+                  }
+                }}
+              >
+                <SelectTrigger id={exerciseSelectId} className="bg-background">
+                  <SelectValue placeholder="Add exercises to workout" />
+                </SelectTrigger>
+                <SelectContent className="bg-background">
+                  {exercises
+                    ?.filter(
+                      (ex) =>
+                        ex.type === "EXERCISE" &&
+                        !fields.some((field) => field.exerciseId === ex.id),
+                    )
+                    .map((exercise) => (
+                      <SelectItem key={exercise.id} value={exercise.id}>
+                        {exercise.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Selected Exercises */}
+            {fields.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-sm font-medium">Workout Exercises</p>
+                <div className="space-y-3">
+                  {fields.map((field, index) => {
+                    const exercise = exercises?.find(
+                      (ex) => ex.id === field.exerciseId,
+                    );
+                    return (
+                      <div
+                        key={field.id}
+                        className="p-3 bg-muted rounded border space-y-3"
+                      >
+                        <div className="flex justify-between items-center">
+                          <h5 className="font-medium">{exercise?.name}</h5>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => remove(index)}
+                            className="text-red-500"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="space-y-1">
+                            <label
+                              htmlFor={`sets-${index}`}
+                              className="text-xs font-medium"
+                            >
+                              Sets
+                            </label>
+                            <Input
+                              id={`sets-${index}`}
+                              type="number"
+                              min="1"
+                              {...register(`exercises.${index}.sets`, {
+                                valueAsNumber: true,
+                                required: "Sets required",
+                                min: { value: 1, message: "Min 1 set" },
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label
+                              htmlFor={`reps-${index}`}
+                              className="text-xs font-medium"
+                            >
+                              Reps
+                            </label>
+                            <Input
+                              id={`reps-${index}`}
+                              placeholder="12 or 12,10,8"
+                              {...register(`exercises.${index}.reps`, {
+                                required: "Reps required",
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label
+                              htmlFor={`group-${index}`}
+                              className="text-xs font-medium"
+                            >
+                              Group
+                            </label>
+                            <Input
+                              id={`group-${index}`}
+                              placeholder="A, B, C..."
+                              maxLength={1}
+                              {...register(`exercises.${index}.group`)}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label
+                              htmlFor={`weight-${index}`}
+                              className="text-xs font-medium"
+                            >
+                              Weight (kg)
+                            </label>
+                            <Input
+                              id={`weight-${index}`}
+                              type="number"
+                              min="0"
+                              step="0.5"
+                              {...register(`exercises.${index}.weight`, {
+                                valueAsNumber: true,
+                                required: "Weight required",
+                                min: { value: 0, message: "Min 0kg" },
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label
+                              htmlFor={`rest-${index}`}
+                              className="text-xs font-medium"
+                            >
+                              Rest (sec)
+                            </label>
+                            <Input
+                              id={`rest-${index}`}
+                              type="number"
+                              min="0"
+                              placeholder="Optional"
+                              {...register(`exercises.${index}.restTime`, {
+                                valueAsNumber: true,
+                              })}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label
+                              htmlFor={`notes-${index}`}
+                              className="text-xs font-medium"
+                            >
+                              Notes
+                            </label>
+                            <Input
+                              id={`notes-${index}`}
+                              placeholder="Optional exercise notes"
+                              {...register(`exercises.${index}.notes`)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4 border-t">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={createWorkout.isPending}>
+              {createWorkout.isPending ? "Creating..." : "Create Workout"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
