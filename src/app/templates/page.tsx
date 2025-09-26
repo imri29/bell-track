@@ -2,7 +2,8 @@
 
 import { Play, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { AddTemplateModal } from "@/components/add-template-modal";
+import Link from "next/link";
+import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
 import { api } from "@/trpc/react";
@@ -24,7 +25,8 @@ export default function TemplatesPage() {
       },
     });
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
 
   const handleDelete = async (template: { id: string; name: string }) => {
     const confirmed = await confirm({
@@ -39,15 +41,35 @@ export default function TemplatesPage() {
     }
   };
 
-  const handleUseTemplate = (templateId: string) => {
-    // TODO: Navigate to workout creation with pre-filled template data
-    console.log("Use template:", templateId);
+  const handleUseTemplate = (template: any) => {
+    // Transform template data for workout modal
+    const templateData = {
+      id: template.id,
+      name: template.name,
+      exercises: template.exercises.map((ex: any) => ({
+        exerciseId: ex.exerciseId,
+        sets: ex.sets,
+        reps: ex.reps,
+        weight: ex.weight,
+        restTime: ex.restTime,
+        notes: ex.notes,
+        group: ex.group,
+        order: ex.order,
+      })),
+    };
+
+    setSelectedTemplate(templateData);
+    setIsWorkoutModalOpen(true);
   };
 
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
-        <AddTemplateModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
+        <AddWorkoutModal
+          isOpen={isWorkoutModalOpen}
+          onOpenChange={setIsWorkoutModalOpen}
+          templateData={selectedTemplate}
+        />
 
         <div className="flex justify-between items-start mb-8">
           <div>
@@ -56,9 +78,11 @@ export default function TemplatesPage() {
               Create and manage reusable workout templates
             </p>
           </div>
-          <Button className="gap-1.5" onClick={() => setIsModalOpen(true)}>
-            <Plus />
-            Add Template
+          <Button asChild className="gap-1.5">
+            <Link href="/templates/new">
+              <Plus />
+              Add Template
+            </Link>
           </Button>
         </div>
 
@@ -94,7 +118,7 @@ export default function TemplatesPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleUseTemplate(template.id)}
+                            onClick={() => handleUseTemplate(template)}
                             className="gap-1.5"
                           >
                             <Play className="h-4 w-4" />

@@ -41,11 +41,26 @@ type WorkoutFormData = {
 interface AddWorkoutModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  templateData?: {
+    id: string;
+    name: string;
+    exercises: Array<{
+      exerciseId: string;
+      sets: number;
+      reps: string;
+      weight?: number;
+      restTime?: number;
+      notes?: string;
+      group?: string;
+      order: number;
+    }>;
+  };
 }
 
 export function AddWorkoutModal({
   isOpen,
   onOpenChange,
+  templateData,
 }: AddWorkoutModalProps) {
   const utils = api.useUtils();
 
@@ -68,8 +83,8 @@ export function AddWorkoutModal({
     defaultValues: {
       date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
       duration: undefined,
-      notes: "",
-      exercises: [],
+      notes: templateData ? `From template: ${templateData.name}` : "",
+      exercises: templateData?.exercises || [],
     },
   });
 

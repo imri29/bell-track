@@ -430,6 +430,7 @@ async function main() {
         create: [
           // A1: Leonidas Complex
           {
+            // biome-ignore lint/style/noNonNullAssertion: <leave me alone>
             exerciseId: leonidaComplex!.id,
             group: "A",
             order: 1,
@@ -441,6 +442,7 @@ async function main() {
           },
           // B1: Swings
           {
+            // biome-ignore lint/style/noNonNullAssertion: <leave me alone>
             exerciseId: swings!.id,
             group: "B",
             order: 1,

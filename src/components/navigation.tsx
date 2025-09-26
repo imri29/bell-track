@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  BookIcon,
-  DumbbellIcon,
-  FileText,
-  History,
-  HomeIcon,
-} from "lucide-react";
+import { BookIcon, DumbbellIcon, FileText, HomeIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
