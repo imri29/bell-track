@@ -1,8 +1,9 @@
 "use client";
 
-import { Play, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Edit, Play, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
@@ -11,6 +12,7 @@ import { api } from "@/trpc/react";
 export default function TemplatesPage() {
   const utils = api.useUtils();
   const { confirm } = useConfirm();
+  const router = useRouter();
 
   const {
     data: templates,
@@ -26,7 +28,20 @@ export default function TemplatesPage() {
     });
 
   const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<{
+    id: string;
+    name: string;
+    exercises: Array<{
+      exerciseId: string;
+      sets: number;
+      reps: string;
+      weight?: number;
+      restTime?: number;
+      notes?: string;
+      group?: string;
+      order: number;
+    }>;
+  } | null>(null);
 
   const handleDelete = async (template: { id: string; name: string }) => {
     const confirmed = await confirm({
@@ -41,12 +56,25 @@ export default function TemplatesPage() {
     }
   };
 
-  const handleUseTemplate = (template: any) => {
+  const handleUseTemplate = (template: {
+    id: string;
+    name: string;
+    exercises: Array<{
+      exerciseId: string;
+      sets: number;
+      reps: string;
+      weight?: number;
+      restTime?: number;
+      notes?: string;
+      group?: string;
+      order: number;
+    }>;
+  }) => {
     // Transform template data for workout modal
     const templateData = {
       id: template.id,
       name: template.name,
-      exercises: template.exercises.map((ex: any) => ({
+      exercises: template.exercises.map((ex) => ({
         exerciseId: ex.exerciseId,
         sets: ex.sets,
         reps: ex.reps,
@@ -67,8 +95,14 @@ export default function TemplatesPage() {
       <main className="max-w-4xl mx-auto">
         <AddWorkoutModal
           isOpen={isWorkoutModalOpen}
-          onOpenChange={setIsWorkoutModalOpen}
+          onOpenChange={(open) => {
+            setIsWorkoutModalOpen(open);
+            if (!open) {
+              setSelectedTemplate(null); // Clear template when modal closes
+            }
+          }}
           templateData={selectedTemplate}
+          onConfirm={() => router.push(`/history`)}
         />
 
         <div className="flex justify-between items-start mb-8">
@@ -123,6 +157,17 @@ export default function TemplatesPage() {
                           >
                             <Play className="h-4 w-4" />
                             Use Template
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            asChild
+                            className="gap-1.5"
+                          >
+                            <Link href={`/templates/${template.id}/edit`}>
+                              <Edit className="h-4 w-4" />
+                              Edit
+                            </Link>
                           </Button>
                           <Button
                             className="h-8 w-8 p-0"

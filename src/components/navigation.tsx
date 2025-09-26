@@ -1,14 +1,14 @@
 "use client";
 
-import { BookIcon, DumbbellIcon, FileText, HomeIcon } from "lucide-react";
+import { BookIcon, DumbbellIcon, HistoryIcon, HomeIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: HomeIcon },
-  { name: "Workouts", href: "/workouts", icon: DumbbellIcon },
-  { name: "Templates", href: "/templates", icon: FileText },
+  { name: "History", href: "/history", icon: HistoryIcon },
+  { name: "Templates", href: "/templates", icon: DumbbellIcon },
   { name: "Exercises", href: "/exercises", icon: BookIcon },
 ];
 

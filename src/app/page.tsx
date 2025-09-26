@@ -13,7 +13,7 @@ export default function Home() {
           <div className="p-6 bg-muted rounded-lg">
             <h3 className="text-lg font-semibold mb-2">Quick Start</h3>
             <p className="text-muted-foreground mb-4">
-              Ready to start your workout?
+              Select a workout to get started
             </p>
             <Button asChild className={"gap-1"}>
               <Link href="/templates">Select Workout</Link>
@@ -32,7 +32,7 @@ export default function Home() {
             <h3 className="text-lg font-semibold mb-2">History</h3>
             <p className="text-muted-foreground mb-4">View past workouts</p>
             <Button asChild className={"gap-1"}>
-              <Link href="/workouts">View workouts</Link>
+              <Link href="/history">View workout history</Link>
             </Button>
           </div>
         </div>

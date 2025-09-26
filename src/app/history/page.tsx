@@ -1,8 +1,9 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AddWorkoutModal } from "@/components/add-workout-modal";
+import { EditWorkoutModal } from "@/components/edit-workout-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
 import { api } from "@/trpc/react";
@@ -25,6 +26,34 @@ export default function WorkoutsPage() {
     });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedWorkout, setSelectedWorkout] = useState<{
+    id: string;
+    date: string;
+    duration?: number;
+    notes?: string;
+    exercises: Array<{
+      id: string;
+      exerciseId: string;
+      sets: number;
+      reps: string;
+      weight: number;
+      restTime?: number;
+      notes?: string;
+      group?: string;
+      order: number;
+      exercise: {
+        id: string;
+        name: string;
+        type: string;
+      };
+    }>;
+  } | null>(null);
+
+  const handleEdit = (workout: typeof selectedWorkout) => {
+    setSelectedWorkout(workout);
+    setIsEditModalOpen(true);
+  };
 
   const handleDelete = async (workout: { id: string; date: string }) => {
     const confirmed = await confirm({
@@ -43,12 +72,17 @@ export default function WorkoutsPage() {
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
         <AddWorkoutModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
+        <EditWorkoutModal
+          isOpen={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+          workout={selectedWorkout}
+        />
 
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Workouts</h1>
+            <h1 className="text-4xl font-bold mb-2">Workout history</h1>
             <p className="text-xl text-muted-foreground">
-              Create and manage your workout plans
+              View and manage your workout history
             </p>
           </div>
           <Button className="gap-1.5" onClick={() => setIsModalOpen(true)}>
@@ -86,14 +120,25 @@ export default function WorkoutsPage() {
                             <p className="text-sm mt-2">{workout.notes}</p>
                           )}
                         </div>
-                        <Button
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-500 h-8 w-8 p-0 hover:bg-red-50 hover:text-red-700"
-                          variant="ghost"
-                          onClick={() => handleDelete(workout)}
-                          disabled={isDeleting}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(workout)}
+                            className="gap-1.5"
+                          >
+                            <Edit className="h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(workout)}
+                            disabled={isDeleting}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       <div className="mt-3 space-y-1">
                         {workout.exercises

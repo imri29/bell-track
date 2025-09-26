@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
 
 type WorkoutExerciseFormData = {
+  id?: string; // Include existing exercise ID for updates
   exerciseId: string;
   sets: number;
   reps: string;
@@ -38,32 +39,40 @@ type WorkoutFormData = {
   exercises: WorkoutExerciseFormData[];
 };
 
-interface AddWorkoutModalProps {
+type EditWorkoutModalProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  templateData?: {
+  workout: {
     id: string;
-    name: string;
+    date: string;
+    duration?: number;
+    notes?: string;
     exercises: Array<{
+      id: string;
       exerciseId: string;
       sets: number;
       reps: string;
-      weight?: number;
+      weight: number;
       restTime?: number;
       notes?: string;
       group?: string;
       order: number;
+      exercise: {
+        id: string;
+        name: string;
+        type: string;
+      };
     }>;
-  };
+  } | null;
   onConfirm?: () => void;
-}
+};
 
-export function AddWorkoutModal({
+export function EditWorkoutModal({
   isOpen,
   onOpenChange,
-  templateData,
+  workout,
   onConfirm,
-}: AddWorkoutModalProps) {
+}: EditWorkoutModalProps) {
   const utils = api.useUtils();
 
   const { data: exercises } = api.exercise.getAll.useQuery();
@@ -73,20 +82,19 @@ export function AddWorkoutModal({
   const durationId = useId();
   const notesId = useId();
   const exerciseSelectId = useId();
-  const complexSelectId = useId();
 
   const {
     register,
     handleSubmit,
-    reset,
     control,
+    reset,
     formState: { errors },
   } = useForm<WorkoutFormData>({
     defaultValues: {
-      date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
+      date: "",
       duration: undefined,
-      notes: templateData ? `From template: ${templateData.name}` : "",
-      exercises: templateData?.exercises || [],
+      notes: "",
+      exercises: [],
     },
   });
 
@@ -96,56 +104,64 @@ export function AddWorkoutModal({
     name: "exercises",
   });
 
-  // Reset form when templateData changes
+  // Reset form when workout data loads
   useEffect(() => {
-    if (templateData) {
+    if (workout) {
       reset({
-        date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
-        duration: undefined,
-        notes: `From template: ${templateData.name}`,
-        exercises: templateData.exercises.map((ex) => ({
-          exerciseId: ex.exerciseId,
-          sets: ex.sets,
-          reps: ex.reps,
-          weight: ex.weight || 16, // Default weight if not specified
-          restTime: ex.restTime,
-          notes: ex.notes || "",
-          group: ex.group || "",
-          order: ex.order,
-        })),
-      });
-    } else if (isOpen) {
-      // Reset to empty form when opening without template
-      reset({
-        date: new Date().toLocaleDateString("en-CA"),
-        duration: undefined,
-        notes: "",
-        exercises: [],
+        date: new Date(workout.date).toISOString().split("T")[0], // Convert to YYYY-MM-DD format
+        duration: workout.duration || undefined,
+        notes: workout.notes || "",
+        exercises: workout.exercises
+          .sort((a, b) => {
+            if (a.group && b.group && a.group !== b.group) {
+              return a.group.localeCompare(b.group);
+            }
+            return a.order - b.order;
+          })
+          .map((ex) => ({
+            id: ex.id,
+            exerciseId: ex.exerciseId,
+            sets: ex.sets,
+            reps: ex.reps,
+            weight: ex.weight,
+            restTime: ex.restTime || undefined,
+            notes: ex.notes || "",
+            group: ex.group || "",
+            order: ex.order,
+          })),
       });
     }
-  }, [templateData, isOpen, reset]);
+  }, [workout, reset]);
 
-  const createWorkout = api.workout.create.useMutation({
+  const updateWorkout = api.workout.update.useMutation({
     onSuccess: () => {
       utils.workout.getAll.invalidate();
-      reset();
       onOpenChange(false);
+      reset();
       onConfirm?.();
     },
   });
 
   const onSubmit = (data: WorkoutFormData) => {
-    // Transform reps from string to JSON array format expected by API
+    if (!workout) return;
+
+    // Transform exercises with proper order
     const exercises = data.exercises.map((exercise, index) => ({
-      ...exercise,
-      reps: exercise.reps, // Keep as string for now, API expects JSON string
+      exerciseId: exercise.exerciseId,
+      sets: exercise.sets,
+      reps: exercise.reps,
+      weight: exercise.weight,
+      restTime: exercise.restTime,
+      notes: exercise.notes,
+      group: exercise.group,
       order: index,
     }));
 
-    createWorkout.mutate({
+    updateWorkout.mutate({
+      id: workout.id,
       date: data.date,
-      duration: data.duration || undefined, // Convert null/empty to undefined
-      notes: data.notes || undefined,
+      duration: data.duration,
+      notes: data.notes,
       exercises,
     });
   };
@@ -155,10 +171,10 @@ export function AddWorkoutModal({
     if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
       append({
         exerciseId: exercise.id,
-        sets: exercise.type === "COMPLEX" ? 5 : 3, // Complexes default to 5 sets
-        reps: exercise.type === "COMPLEX" ? "1" : "12", // Complexes = 1 round, exercises = 12 reps
-        weight: 16, // Default kettlebell weight
-        restTime: exercise.type === "COMPLEX" ? 90 : 60, // Complexes need more rest
+        sets: exercise.type === "COMPLEX" ? 5 : 3,
+        reps: exercise.type === "COMPLEX" ? "1" : "12",
+        weight: 16,
+        restTime: exercise.type === "COMPLEX" ? 90 : 60,
         notes: "",
         group: "",
         order: fields.length,
@@ -166,17 +182,20 @@ export function AddWorkoutModal({
     }
   };
 
+  if (!workout) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Workout</DialogTitle>
+          <DialogTitle>Edit Workout</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label htmlFor={dateId} className="text-sm font-medium">
-                Workout Date
+                Date *
               </label>
               <Input
                 id={dateId}
@@ -188,6 +207,7 @@ export function AddWorkoutModal({
                 <p className="text-sm text-red-500">{errors.date.message}</p>
               )}
             </div>
+
             <div className="space-y-2">
               <label htmlFor={durationId} className="text-sm font-medium">
                 Duration (minutes)
@@ -195,28 +215,40 @@ export function AddWorkoutModal({
               <Input
                 id={durationId}
                 type="number"
+                min="1"
                 placeholder="Optional"
-                {...register("duration", { valueAsNumber: true, min: 1 })}
+                {...register("duration", {
+                  valueAsNumber: true,
+                  min: {
+                    value: 1,
+                    message: "Duration must be at least 1 minute",
+                  },
+                })}
+                className={errors.duration ? "border-red-500" : ""}
+              />
+              {errors.duration && (
+                <p className="text-sm text-red-500">
+                  {errors.duration.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor={notesId} className="text-sm font-medium">
+                Notes
+              </label>
+              <Textarea
+                id={notesId}
+                placeholder="Optional workout notes"
+                {...register("notes")}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor={notesId} className="text-sm font-medium">
-              Notes
-            </label>
-            <Textarea
-              id={notesId}
-              placeholder="Optional workout notes"
-              {...register("notes")}
-            />
-          </div>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Add Exercise</h3>
 
-          {/* Exercise Selection */}
-          <div className="space-y-4 border-t pt-4">
-            <h4 className="font-medium text-sm">Add Exercises</h4>
-
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label
                   htmlFor={exerciseSelectId}
@@ -232,13 +264,10 @@ export function AddWorkoutModal({
                     }
                   }}
                 >
-                  <SelectTrigger
-                    id={exerciseSelectId}
-                    className="bg-background"
-                  >
+                  <SelectTrigger id={exerciseSelectId}>
                     <SelectValue placeholder="Add individual exercise" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background">
+                  <SelectContent>
                     {exercises
                       ?.filter(
                         (ex) =>
@@ -256,7 +285,7 @@ export function AddWorkoutModal({
 
               <div className="space-y-2">
                 <label
-                  htmlFor={complexSelectId}
+                  htmlFor={exerciseSelectId}
                   className="text-sm font-medium"
                 >
                   Select Complex
@@ -269,10 +298,10 @@ export function AddWorkoutModal({
                     }
                   }}
                 >
-                  <SelectTrigger id={complexSelectId} className="bg-background">
+                  <SelectTrigger id={exerciseSelectId}>
                     <SelectValue placeholder="Add complex exercise" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background">
+                  <SelectContent>
                     {exercises
                       ?.filter(
                         (ex) =>
@@ -289,11 +318,11 @@ export function AddWorkoutModal({
               </div>
             </div>
 
-            {/* Selected Exercises */}
+            {/* Workout Exercises */}
             {fields.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-sm font-medium">Workout Exercises</p>
-                <div className="space-y-3">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Workout Exercises</h3>
+                <div className="space-y-4">
                   {fields.map((field, index) => {
                     const exercise = exercises?.find(
                       (ex) => ex.id === field.exerciseId,
@@ -301,10 +330,12 @@ export function AddWorkoutModal({
                     return (
                       <div
                         key={field.id}
-                        className="p-3 bg-muted rounded border space-y-3"
+                        className="p-4 border rounded space-y-4"
                       >
                         <div className="flex justify-between items-center">
-                          <h5 className="font-medium">{exercise?.name}</h5>
+                          <h4 className="font-medium text-lg">
+                            {exercise?.name}
+                          </h4>
                           <Button
                             type="button"
                             variant="ghost"
@@ -317,12 +348,12 @@ export function AddWorkoutModal({
                         </div>
 
                         <div
-                          className={`grid gap-3 ${exercise?.type === "COMPLEX" ? "grid-cols-2" : "grid-cols-3"}`}
+                          className={`grid gap-4 ${exercise?.type === "COMPLEX" ? "grid-cols-2 md:grid-cols-4" : "grid-cols-2 md:grid-cols-5"}`}
                         >
-                          <div className="space-y-1">
+                          <div className="space-y-2">
                             <label
                               htmlFor={`sets-${index}`}
-                              className="text-xs font-medium"
+                              className="text-sm font-medium"
                             >
                               Sets
                             </label>
@@ -338,10 +369,10 @@ export function AddWorkoutModal({
                             />
                           </div>
                           {exercise?.type !== "COMPLEX" && (
-                            <div className="space-y-1">
+                            <div className="space-y-2">
                               <label
                                 htmlFor={`reps-${index}`}
-                                className="text-xs font-medium"
+                                className="text-sm font-medium"
                               >
                                 Reps
                               </label>
@@ -354,10 +385,10 @@ export function AddWorkoutModal({
                               />
                             </div>
                           )}
-                          <div className="space-y-1">
+                          <div className="space-y-2">
                             <label
                               htmlFor={`group-${index}`}
-                              className="text-xs font-medium"
+                              className="text-sm font-medium"
                             >
                               Group
                             </label>
@@ -368,10 +399,10 @@ export function AddWorkoutModal({
                               {...register(`exercises.${index}.group`)}
                             />
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-2">
                             <label
                               htmlFor={`weight-${index}`}
-                              className="text-xs font-medium"
+                              className="text-sm font-medium"
                             >
                               Weight (kg)
                             </label>
@@ -387,10 +418,10 @@ export function AddWorkoutModal({
                               })}
                             />
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-2">
                             <label
                               htmlFor={`rest-${index}`}
-                              className="text-xs font-medium"
+                              className="text-sm font-medium"
                             >
                               Rest (sec)
                             </label>
@@ -404,19 +435,20 @@ export function AddWorkoutModal({
                               })}
                             />
                           </div>
-                          <div className="space-y-1">
-                            <label
-                              htmlFor={`notes-${index}`}
-                              className="text-xs font-medium"
-                            >
-                              Notes
-                            </label>
-                            <Input
-                              id={`notes-${index}`}
-                              placeholder="Optional exercise notes"
-                              {...register(`exercises.${index}.notes`)}
-                            />
-                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label
+                            htmlFor={`notes-${index}`}
+                            className="text-sm font-medium"
+                          >
+                            Notes
+                          </label>
+                          <Input
+                            id={`notes-${index}`}
+                            placeholder="Optional exercise notes"
+                            {...register(`exercises.${index}.notes`)}
+                          />
                         </div>
                       </div>
                     );
@@ -426,7 +458,7 @@ export function AddWorkoutModal({
             )}
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4 border-t">
+          <div className="flex justify-end space-x-4 pt-6 border-t">
             <Button
               type="button"
               variant="outline"
@@ -434,8 +466,8 @@ export function AddWorkoutModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={createWorkout.isPending}>
-              {createWorkout.isPending ? "Creating..." : "Create Workout"}
+            <Button type="submit" disabled={updateWorkout.isPending}>
+              {updateWorkout.isPending ? "Updating..." : "Update Workout"}
             </Button>
           </div>
         </form>
