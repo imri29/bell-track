@@ -1,6 +1,9 @@
 "use client";
 
+import { format } from "date-fns";
 import { BookOpen, Calendar, List, Plus } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { CalendarView } from "@/components/calendar-view";
@@ -26,6 +29,8 @@ type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
 export default function WorkoutsPage() {
   const utils = api.useUtils();
   const { confirm } = useConfirm();
+  const searchParams = useSearchParams();
+  const view = searchParams.get("view");
 
   const {
     data: workouts,
@@ -46,7 +51,6 @@ export default function WorkoutsPage() {
   const [isCreatingWorkout, setIsCreatingWorkout] = useState(false);
   const [editingWorkout, setEditingWorkout] =
     useState<WorkoutWithExercises | null>(null);
-
   // Derived state
   const isAddModalOpen = isCreatingWorkout || selectedTemplate !== null;
 
@@ -78,7 +82,7 @@ export default function WorkoutsPage() {
   const handleDelete = async (workout: { id: string; date: string }) => {
     const confirmed = await confirm({
       title: "Delete Workout",
-      description: `Are you sure you want to delete the workout from ${new Date(workout.date).toLocaleDateString()}? This action cannot be undone.`,
+      description: `Are you sure you want to delete the workout from ${format(new Date(workout.date), "dd/MM/yyyy")}? This action cannot be undone.`,
       confirmText: "Delete",
       cancelText: "Cancel",
     });
@@ -86,11 +90,6 @@ export default function WorkoutsPage() {
     if (confirmed) {
       deleteWorkout({ id: workout.id });
     }
-  };
-
-  const handleCalendarDateClick = (date: Date) => {
-    // For now, just log the date. Later we can open the add workout modal with this date
-    console.log("Calendar date clicked:", date);
   };
 
   // Convert workout dates to Date objects for calendar
@@ -120,11 +119,14 @@ export default function WorkoutsPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button className="gap-1.5" onClick={() => setIsCreatingWorkout(true)}>
+            <Button
+              className="gap-1.5"
+              onClick={() => setIsCreatingWorkout(true)}
+            >
               <Plus />
               Add Workout
             </Button>
-            <Select value="" onValueChange={handleTemplateSelect}>
+            <Select onValueChange={handleTemplateSelect}>
               <SelectTrigger className="w-auto gap-1.5 px-3 py-2 h-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer">
                 <BookOpen className="h-4 w-4" />
                 <SelectValue placeholder="Add from Template" />
@@ -140,15 +142,17 @@ export default function WorkoutsPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="list" className="w-full">
+        <Tabs defaultValue="list" value={view ?? "list"} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="list" className="gap-2">
-              <List className="h-4 w-4" />
-              List View
+            <TabsTrigger asChild value="list" className="w-full gap-2">
+              <Link className="w-full" href="/history?view=list">
+                List View
+              </Link>
             </TabsTrigger>
             <TabsTrigger value="calendar" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              Calendar View
+              <Link className="w-full" href="/history?view=calendar">
+                Calendar View
+              </Link>
             </TabsTrigger>
           </TabsList>
 
@@ -167,10 +171,7 @@ export default function WorkoutsPage() {
           </TabsContent>
 
           <TabsContent value="calendar" className="space-y-6">
-            <CalendarView
-              onDateClick={handleCalendarDateClick}
-              workoutDates={workoutDates}
-            />
+            <CalendarView workoutDates={workoutDates} />
           </TabsContent>
         </Tabs>
       </main>

@@ -15,16 +15,24 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useState } from "react";
+import { AddWorkoutModal } from "@/components/add-workout-modal";
+import { TemplateSelect } from "@/components/template-select";
 import { Button } from "@/components/ui/button";
+import { templateToFormData } from "@/lib/template-utils";
+import { api } from "@/trpc/react";
+import type { TemplateData } from "@/types";
 
 type CalendarViewProps = {
-  onDateClick: (date: Date) => void;
   workoutDates: Date[];
 };
 
-export function CalendarView({ onDateClick, workoutDates }: CalendarViewProps) {
+export function CalendarView({ workoutDates }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(null);
+  const [isCreatingWorkout, setIsCreatingWorkout] = useState(false);
+
+  const { data: templates } = api.template.getAll.useQuery();
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -42,9 +50,32 @@ export function CalendarView({ onDateClick, workoutDates }: CalendarViewProps) {
     return workoutDates.some((workoutDate) => isSameDay(workoutDate, date));
   };
 
+  // Derived state
+  const isAddModalOpen = isCreatingWorkout || selectedTemplate !== null;
+
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
-    onDateClick(date);
+  };
+
+  const handleAddWorkout = () => {
+    if (selectedDate) {
+      setIsCreatingWorkout(true);
+    }
+  };
+
+  const handleTemplateSelect = (templateId: string) => {
+    const template = templates?.find((t) => t.id === templateId);
+    if (template) {
+      const formData = templateToFormData(template);
+      setSelectedTemplate(formData);
+    }
+  };
+
+  const handleModalClose = (open: boolean) => {
+    if (!open) {
+      setSelectedTemplate(null);
+      setIsCreatingWorkout(false);
+    }
   };
 
   const goToPreviousMonth = () => {
@@ -59,11 +90,17 @@ export function CalendarView({ onDateClick, workoutDates }: CalendarViewProps) {
     const today = new Date();
     setCurrentMonth(today);
     setSelectedDate(today);
-    onDateClick(today);
   };
 
   return (
     <div className="w-full">
+      <AddWorkoutModal
+        isOpen={isAddModalOpen}
+        onOpenChange={handleModalClose}
+        templateData={selectedTemplate || undefined}
+        initialDate={selectedDate}
+      />
+
       <div className="p-6 bg-muted rounded-lg">
         <div className="bg-background rounded-lg p-4">
           {/* Header with navigation */}
@@ -111,11 +148,11 @@ export function CalendarView({ onDateClick, workoutDates }: CalendarViewProps) {
                   onClick={() => handleDateClick(date)}
                   className={`
                     relative min-h-20 p-3 border rounded-md cursor-pointer
-                    transition-all duration-200 hover:bg-accent/50 hover:scale-[1.02]
+                    transition-all duration-200  hover:scale-[1.02]
                     ${
                       !isCurrentMonth
-                        ? "text-muted-foreground/60 bg-muted/50 border-muted-foreground/20"
-                        : "bg-background border-border"
+                        ? "text-muted-foreground/30 bg-muted/20 border-muted-foreground/10 hover:bg-accent/10"
+                        : "hover:bg-accent/50 bg-background border-border"
                     }
                     ${isTodayDate && isCurrentMonth ? "bg-accent text-red-700" : ""}
                     ${isSelected && isCurrentMonth ? "bg-primary/10 border-primary border-2" : ""}
@@ -141,12 +178,19 @@ export function CalendarView({ onDateClick, workoutDates }: CalendarViewProps) {
         {selectedDate && (
           <div className="mt-4 text-center">
             <p className="text-sm text-muted-foreground mb-2">
-              Selected: {selectedDate.toLocaleDateString()}
+              Selected: {format(selectedDate, "dd/MM/yyyy")}
             </p>
-            <Button className="gap-2" onClick={() => onDateClick(selectedDate)}>
-              <Plus className="h-4 w-4" />
-              Add Workout for {selectedDate.toLocaleDateString()}
-            </Button>
+            <div className="flex items-center justify-center gap-2">
+              <Button className="gap-2" onClick={handleAddWorkout}>
+                <Plus className="h-4 w-4" />
+                Add Workout
+              </Button>
+              <TemplateSelect
+                onTemplateSelect={handleTemplateSelect}
+                variant="button"
+                className="gap-2"
+              />
+            </div>
           </div>
         )}
       </div>

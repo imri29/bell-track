@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { RouterOutputs } from "@/server/api/root";
@@ -86,7 +87,7 @@ export function WorkoutListView({
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-semibold">
-                    {new Date(workout.date).toLocaleDateString()}
+                    {format(new Date(workout.date), "dd/MM/yyyy")}
                     {workout.duration && ` • ${workout.duration} min`}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
