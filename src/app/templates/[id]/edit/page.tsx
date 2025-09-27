@@ -75,16 +75,7 @@ export default function EditTemplatePage({
       reset({
         name: template.name,
         description: template.description || "",
-        exercises: template.exercises.map((ex) => ({
-          exerciseId: ex.exerciseId,
-          sets: ex.sets,
-          reps: ex.reps,
-          weight: ex.weight || undefined,
-          restTime: ex.restTime || undefined,
-          notes: ex.notes || "",
-          group: ex.group || "",
-          order: ex.order,
-        })),
+        exercises: template.exercises,
       });
     }
   }, [template, reset]);

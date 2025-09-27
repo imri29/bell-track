@@ -1,53 +1,74 @@
 import { z } from "zod";
 import { PrismaClient } from "@/generated/prisma";
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import {
+  idSchema,
+  workoutExerciseInputSchema,
+  workoutExerciseOutputSchema,
+} from "../schemas";
 
 const prisma = new PrismaClient();
 
-const workoutExerciseSchema = z.object({
-  exerciseId: z.string(),
-  sets: z.number().min(1),
-  reps: z.string(), // JSON array like "[12, 10, 8]"
-  weight: z.number().min(0),
-  restTime: z.number().optional(),
-  notes: z.string().optional(),
-  group: z.string().optional(), // Exercise group (A, B, C, etc.)
-  order: z.number().min(0),
-});
-
-const transformDate = z.string().transform((str) => new Date(str));
-
-const createWorkoutSchema = z.object({
-  date: transformDate,
-  duration: z.number().optional(),
-  notes: z.string().optional(),
-  exercises: z.array(workoutExerciseSchema),
-});
-
-const updateWorkoutSchema = z.object({
+// Full workout output schema used by both getAll and getById
+const workoutOutputSchema = z.object({
   id: z.string(),
-  date: transformDate.optional(),
+  date: z.date(),
+  duration: z.number().nullish(),
+  notes: z.string().nullish(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  exercises: z.array(workoutExerciseOutputSchema),
+});
+
+// Base workout schema for shared fields
+const baseWorkoutSchema = z.object({
+  date: z.string().transform((str) => new Date(str)),
   duration: z.number().optional(),
   notes: z.string().optional(),
-  exercises: z.array(workoutExerciseSchema).optional(),
+  exercises: z.array(workoutExerciseInputSchema),
+});
+
+const createWorkoutSchema = baseWorkoutSchema;
+
+const updateWorkoutSchema = baseWorkoutSchema.partial().extend({
+  id: z.string(),
 });
 
 export const workoutRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async () => {
-    return prisma.workout.findMany({
-      orderBy: { createdAt: "desc" },
-      include: {
-        exercises: {
-          include: {
-            exercise: true,
+  getAll: publicProcedure.output(z.array(workoutOutputSchema))
+    .query(async () => {
+      const workouts = await prisma.workout.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+          exercises: {
+            include: {
+              exercise: true,
+            },
+            orderBy: [{ group: "asc" }, { order: "asc" }],
           },
         },
-      },
-    });
-  }),
+      });
+
+      return workouts.map((workout) => ({
+        ...workout,
+        exercises: workout.exercises.map((ex) => ({
+          id: ex.id,
+          exerciseId: ex.exerciseId,
+          sets: ex.sets,
+          reps: ex.reps,
+          weight: ex.weight ?? 0,
+          restTime: ex.restTime,
+          notes: ex.notes ?? "",
+          group: ex.group ?? "",
+          order: ex.order,
+          exercise: ex.exercise,
+        })),
+      }));
+    }),
 
   getById: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(idSchema)
+    .output(workoutOutputSchema.nullable())
     .query(async ({ input }) => {
       const workout = await prisma.workout.findUnique({
         where: { id: input.id },
@@ -65,7 +86,21 @@ export const workoutRouter = createTRPCRouter({
         return null;
       }
 
-      return workout;
+      return {
+        ...workout,
+        exercises: workout.exercises.map((ex) => ({
+          id: ex.id,
+          exerciseId: ex.exerciseId,
+          sets: ex.sets,
+          reps: ex.reps,
+          weight: ex.weight ?? 0,
+          restTime: ex.restTime,
+          notes: ex.notes ?? "",
+          group: ex.group ?? "",
+          order: ex.order,
+          exercise: ex.exercise,
+        })),
+      };
     }),
 
   create: publicProcedure.input(createWorkoutSchema).mutation(({ input }) => {
@@ -140,7 +175,7 @@ export const workoutRouter = createTRPCRouter({
     }),
 
   delete: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(idSchema)
     .mutation(async ({ input }) => {
       await prisma.workout.delete({
         where: { id: input.id },

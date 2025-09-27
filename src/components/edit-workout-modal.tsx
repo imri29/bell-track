@@ -91,24 +91,12 @@ export function EditWorkoutModal({
         date: new Date(workout.date).toISOString().split("T")[0], // Convert to YYYY-MM-DD format
         duration: workout.duration || undefined,
         notes: workout.notes || "",
-        exercises: workout.exercises
-          .sort((a, b) => {
-            if (a.group && b.group && a.group !== b.group) {
-              return a.group.localeCompare(b.group);
-            }
-            return a.order - b.order;
-          })
-          .map((ex) => ({
-            id: ex.id,
-            exerciseId: ex.exerciseId,
-            sets: ex.sets,
-            reps: ex.reps,
-            weight: ex.weight ?? 0,
-            restTime: ex.restTime ?? undefined,
-            notes: ex.notes ?? "",
-            group: ex.group ?? "",
-            order: ex.order,
-          })),
+        exercises: workout.exercises.sort((a, b) => {
+          if (a.group && b.group && a.group !== b.group) {
+            return a.group.localeCompare(b.group);
+          }
+          return a.order - b.order;
+        }),
       });
     }
   }, [workout, reset]);

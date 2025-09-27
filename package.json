@@ -9,7 +9,8 @@
     "lint": "biome check",
     "format": "biome format --write",
     "db:seed": "npx tsx prisma/seed.ts",
-    "db:studio": "npx prisma studio"
+    "db:studio": "npx prisma studio",
+    "ts": "yarn tsc --noEmit"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

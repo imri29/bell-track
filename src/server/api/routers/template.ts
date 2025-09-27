@@ -15,17 +15,39 @@ const templateExerciseSchema = z.object({
   order: z.number().min(0),
 });
 
-const createTemplateSchema = z.object({
+// Output schema for template exercises to match workout input format
+const templateExerciseOutputSchema = z.object({
+  exerciseId: z.string(),
+  sets: z.number(),
+  reps: z.string(),
+  weight: z.number().nullable().transform(val => val ?? 16), // Default weight for forms
+  restTime: z.number().nullable().transform(val => val || undefined),
+  notes: z.string().nullable().transform(val => val ?? ""), // Default empty string for forms
+  group: z.string().nullable().transform(val => val ?? ""), // Default empty string for forms
+  order: z.number(),
+});
+
+// Base template schema for shared fields
+const baseTemplateSchema = z.object({
   name: z.string().min(1, "Template name is required"),
   description: z.string().optional(),
   exercises: z.array(templateExerciseSchema),
 });
 
-const updateTemplateSchema = z.object({
+const createTemplateSchema = baseTemplateSchema;
+
+const updateTemplateSchema = baseTemplateSchema.partial().extend({
   id: z.string(),
-  name: z.string().min(1, "Template name is required").optional(),
-  description: z.string().optional(),
-  exercises: z.array(templateExerciseSchema).optional(),
+});
+
+// Template output schema
+const templateOutputSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullish(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  exercises: z.array(templateExerciseOutputSchema),
 });
 
 export const templateRouter = createTRPCRouter({
@@ -45,6 +67,7 @@ export const templateRouter = createTRPCRouter({
 
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
+    .output(templateOutputSchema.nullable())
     .query(async ({ input }) => {
       const template = await prisma.workoutTemplate.findUnique({
         where: { id: input.id },
@@ -62,7 +85,19 @@ export const templateRouter = createTRPCRouter({
         return null;
       }
 
-      return template;
+      return {
+        ...template,
+        exercises: template.exercises.map(ex => ({
+          exerciseId: ex.exerciseId,
+          sets: ex.sets,
+          reps: ex.reps,
+          weight: ex.weight || 16,
+          restTime: ex.restTime,
+          notes: ex.notes || "",
+          group: ex.group || "",
+          order: ex.order,
+        })),
+      };
     }),
 
   create: publicProcedure
@@ -113,6 +148,7 @@ export const templateRouter = createTRPCRouter({
         where: { id },
         data: {
           ...templateData,
+
           ...(exercises && {
             exercises: {
               create: exercises.map((exercise) => ({

@@ -91,16 +91,7 @@ export function AddWorkoutModal({
         date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
         duration: undefined,
         notes: `From template: ${templateData.name}`,
-        exercises: templateData.exercises.map((ex) => ({
-          exerciseId: ex.exerciseId,
-          sets: ex.sets,
-          reps: ex.reps,
-          weight: ex.weight || 16, // Default weight if not specified
-          restTime: ex.restTime,
-          notes: ex.notes || "",
-          group: ex.group || "",
-          order: ex.order,
-        })),
+        exercises: templateData.exercises,
       });
     } else if (isOpen) {
       // Reset to empty form when opening without template

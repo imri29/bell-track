@@ -102,3 +102,8 @@ This project uses two separate server-side layers:
 
 ### 🚧 In Progress / Next Steps
 - History page tabs (list view and calendar view) - **Added to PRD**
+
+## Development Commands
+
+### Type Checking
+- `yarn ts` - Run TypeScript type checking without emitting files

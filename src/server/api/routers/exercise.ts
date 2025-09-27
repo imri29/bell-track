@@ -12,41 +12,53 @@ const subExerciseSchema = z.object({
 
 type SubExercise = z.infer<typeof subExerciseSchema>;
 
+// Helper function to transform exercise with parsed subExercises
+const transformExercise = (exercise: any) => ({
+  ...exercise,
+  subExercises: exercise.subExercises
+    ? (JSON.parse(exercise.subExercises) as SubExercise[])
+    : null,
+});
+
+// Exercise input schema for create/update
+const exerciseInputSchema = z.object({
+  name: z.string(),
+  type: z.enum([EXERCISE_TYPES.EXERCISE, EXERCISE_TYPES.COMPLEX]),
+  subExercises: z.array(subExerciseSchema).optional(),
+  description: z.string().optional(),
+});
+
+// Exercise output schema with properly typed subExercises
+const exerciseOutputSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  description: z.string().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  subExercises: z.array(subExerciseSchema).nullable(),
+});
+
 export const exerciseRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async () => {
-    const exercises = await prisma.exercise.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    return exercises.map((exercise) => ({
-      ...exercise,
-      subExercises: exercise.subExercises
-        ? (JSON.parse(exercise.subExercises) as SubExercise[])
-        : null,
-    }));
-  }),
+  getAll: publicProcedure
+    .output(z.array(exerciseOutputSchema))
+    .query(async () => {
+      const exercises = await prisma.exercise.findMany({
+        orderBy: { createdAt: "desc" },
+      });
+      return exercises.map(transformExercise);
+    }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
+    .output(exerciseOutputSchema.nullable())
     .query(async ({ input }) => {
       const exercise = await prisma.exercise.findUnique({
         where: { id: input.id },
       });
-      if (!exercise) return null;
-      return {
-        ...exercise,
-        subExercises: exercise.subExercises
-          ? (JSON.parse(exercise.subExercises) as SubExercise[])
-          : null,
-      };
+      return exercise ? transformExercise(exercise) : null;
     }),
   create: publicProcedure
-    .input(
-      z.object({
-        name: z.string(),
-        type: z.enum([EXERCISE_TYPES.EXERCISE, EXERCISE_TYPES.COMPLEX]),
-        subExercises: z.array(subExerciseSchema).optional(),
-        description: z.string().optional(),
-      }),
-    )
+    .input(exerciseInputSchema)
     .mutation(({ input }) => {
       return prisma.exercise.create({
         data: {
@@ -58,15 +70,7 @@ export const exerciseRouter = createTRPCRouter({
       });
     }),
   update: publicProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        type: z.enum([EXERCISE_TYPES.EXERCISE, EXERCISE_TYPES.COMPLEX]),
-        subExercises: z.array(subExerciseSchema).optional(),
-        description: z.string().optional(),
-      }),
-    )
+    .input(exerciseInputSchema.extend({ id: z.string() }))
     .mutation(({ input }) => {
       const { id, ...exercise } = input;
       return prisma.exercise.update({
