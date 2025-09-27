@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { BookOpen, Calendar, List, Plus } from "lucide-react";
+import { BookOpen, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -37,6 +37,8 @@ export default function WorkoutsPage() {
     isPending: workoutsPending,
     error: workoutsError,
   } = api.workout.getAll.useQuery();
+
+  console.log(workouts);
 
   const { mutate: deleteWorkout, isPending: isDeleting } =
     api.workout.delete.useMutation({
@@ -92,9 +94,6 @@ export default function WorkoutsPage() {
     }
   };
 
-  // Convert workout dates to Date objects for calendar
-  const workoutDates = workouts?.map((workout) => new Date(workout.date)) || [];
-
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
@@ -118,47 +117,49 @@ export default function WorkoutsPage() {
               View and manage your workout history
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              className="gap-1.5"
-              onClick={() => setIsCreatingWorkout(true)}
-            >
-              <Plus />
-              Add Workout
-            </Button>
-            <Select onValueChange={handleTemplateSelect}>
-              <SelectTrigger className="w-auto gap-1.5 px-3 py-2 h-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer">
-                <BookOpen className="h-4 w-4" />
-                <SelectValue placeholder="Add from Template" />
-              </SelectTrigger>
-              <SelectContent>
-                {templates?.map((template) => (
-                  <SelectItem key={template.id} value={template.id}>
-                    {template.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         <Tabs defaultValue="list" value={view ?? "list"} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger asChild value="list" className="w-full gap-2">
               <Link className="w-full" href="/history?view=list">
-                List View
+                List view
               </Link>
             </TabsTrigger>
             <TabsTrigger value="calendar" className="gap-2">
               <Link className="w-full" href="/history?view=calendar">
-                Calendar View
+                Calendar view
               </Link>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="list" className="space-y-6">
             <div className="p-6 bg-muted rounded-lg">
-              <h2 className="text-2xl font-semibold mb-4">Your Workouts</h2>
+              <div className={"flex md:flex-row flex-col justify-between mb-3"}>
+                <h2 className="text-2xl font-semibold mb-4">Your Workouts</h2>
+                <div className="flex gap-2">
+                  <Button
+                    className="gap-1.5"
+                    onClick={() => setIsCreatingWorkout(true)}
+                  >
+                    <Plus />
+                    Add Workout
+                  </Button>
+                  <Select onValueChange={handleTemplateSelect}>
+                    <SelectTrigger className="w-auto gap-1.5 px-3 py-2 h-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                      <BookOpen className="h-4 w-4" />
+                      <SelectValue placeholder="Add from Template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {templates?.map((template) => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <WorkoutListView
                 workouts={workouts}
                 workoutsPending={workoutsPending}
@@ -171,7 +172,11 @@ export default function WorkoutsPage() {
           </TabsContent>
 
           <TabsContent value="calendar" className="space-y-6">
-            <CalendarView workoutDates={workoutDates} />
+            <CalendarView
+              workouts={workouts || []}
+              onEditWorkout={handleEdit}
+              onDeleteWorkout={handleDelete}
+            />
           </TabsContent>
         </Tabs>
       </main>

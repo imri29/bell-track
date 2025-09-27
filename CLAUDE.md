@@ -37,6 +37,7 @@ This project is designed to help me practice and learn full-stack app developmen
 - Prisma + PostgreSQL (or SQLite to start simple)
 - React Query (via tRPC) for client state
 - Tailwind CSS for styling
+- shadcn/ui for UI components
 
 **Future Features (Later):**
 - Workout templates
