@@ -1,13 +1,22 @@
 "use client";
 
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { BookOpen, Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { EditWorkoutModal } from "@/components/edit-workout-modal";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useConfirm } from "@/contexts/confirm-context";
+import { templateToFormData } from "@/lib/template-utils";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
+import type { TemplateData } from "@/types";
 
 type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
 
@@ -75,9 +84,17 @@ export default function WorkoutsPage() {
       },
     });
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(
+    null,
+  );
+  const [isCreatingWorkout, setIsCreatingWorkout] = useState(false);
   const [editingWorkout, setEditingWorkout] =
     useState<WorkoutWithExercises | null>(null);
+
+  // Derived state
+  const isAddModalOpen = isCreatingWorkout || selectedTemplate !== null;
+
+  const { data: templates } = api.template.getAll.useQuery();
 
   const handleEdit = (workout: WorkoutWithExercises) => {
     setEditingWorkout(workout);
@@ -85,6 +102,21 @@ export default function WorkoutsPage() {
 
   const handleCloseEditModal = () => {
     setEditingWorkout(null);
+  };
+
+  const handleTemplateSelect = (templateId: string) => {
+    const template = templates?.find((t) => t.id === templateId);
+    if (template) {
+      const formData = templateToFormData(template);
+      setSelectedTemplate(formData);
+    }
+  };
+
+  const handleModalClose = (open: boolean) => {
+    if (!open) {
+      setSelectedTemplate(null);
+      setIsCreatingWorkout(false);
+    }
   };
 
   const handleDelete = async (workout: { id: string; date: string }) => {
@@ -103,7 +135,11 @@ export default function WorkoutsPage() {
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
-        <AddWorkoutModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
+        <AddWorkoutModal
+          isOpen={isAddModalOpen}
+          onOpenChange={handleModalClose}
+          templateData={selectedTemplate || undefined}
+        />
         <EditWorkoutModal
           isOpen={editingWorkout !== null}
           onOpenChange={(open) => {
@@ -119,10 +155,25 @@ export default function WorkoutsPage() {
               View and manage your workout history
             </p>
           </div>
-          <Button className="gap-1.5" onClick={() => setIsModalOpen(true)}>
-            <Plus />
-            Add Workout
-          </Button>
+          <div className="flex gap-2">
+            <Button className="gap-1.5" onClick={() => setIsCreatingWorkout(true)}>
+              <Plus />
+              Add Workout
+            </Button>
+            <Select value="" onValueChange={handleTemplateSelect}>
+              <SelectTrigger className="w-auto gap-1.5 px-3 py-2 h-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                <BookOpen className="h-4 w-4" />
+                <SelectValue placeholder="Add from Template" />
+              </SelectTrigger>
+              <SelectContent>
+                {templates?.map((template) => (
+                  <SelectItem key={template.id} value={template.id}>
+                    {template.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="space-y-6">

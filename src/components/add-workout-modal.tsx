@@ -145,6 +145,7 @@ export function AddWorkoutModal({
     }
   };
 
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
