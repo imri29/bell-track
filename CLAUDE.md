@@ -107,3 +107,4 @@ This project uses two separate server-side layers:
 
 ### Type Checking
 - `yarn ts` - Run TypeScript type checking without emitting files
+- always prefer to derive state instead of adding useless useState

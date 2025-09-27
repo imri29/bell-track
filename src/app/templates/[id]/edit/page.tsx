@@ -108,9 +108,9 @@ export default function EditTemplatePage({
     if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
       append({
         exerciseId: exercise.id,
-        sets: exercise.type === "COMPLEX" ? 5 : 3, // Complexes default to 5 sets
-        reps: exercise.type === "COMPLEX" ? "1" : "12", // Complexes = 1 round, exercises = 12 reps
-        weight: 16, // Default kettlebell weight
+        sets: 5,
+        reps: exercise.type === "COMPLEX" ? "1" : "8",
+        weight: 16,
         restTime: exercise.type === "COMPLEX" ? 90 : 60, // Complexes need more rest
         notes: "",
         group: "",
@@ -157,7 +157,22 @@ export default function EditTemplatePage({
           </Button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              // Prevent form submission on Enter unless it's the submit button
+              const target = event.target as HTMLElement;
+              if (
+                target.tagName !== "BUTTON" ||
+                (target as HTMLButtonElement).type !== "submit"
+              ) {
+                event.preventDefault();
+              }
+            }
+          }}
+          className="space-y-8"
+        >
           <div className="p-6 bg-muted rounded-lg space-y-6">
             <h2 className="text-2xl font-semibold">Template Details</h2>
 

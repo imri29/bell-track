@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId } from "react";
+import { useCallback, useEffect, useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +43,7 @@ interface AddWorkoutModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   templateData?: TemplateData;
+  initialDate?: Date;
   onConfirm?: () => void;
 }
 
@@ -50,6 +51,7 @@ export function AddWorkoutModal({
   isOpen,
   onOpenChange,
   templateData,
+  initialDate,
   onConfirm,
 }: AddWorkoutModalProps) {
   const utils = api.useUtils();
@@ -63,6 +65,11 @@ export function AddWorkoutModal({
   const exerciseSelectId = useId();
   const complexSelectId = useId();
 
+  const getInitialDate = useCallback(() => {
+    const dateToUse = initialDate || new Date();
+    return dateToUse.toLocaleDateString("en-CA"); // YYYY-MM-DD format
+  }, [initialDate]);
+
   const {
     register,
     handleSubmit,
@@ -71,7 +78,7 @@ export function AddWorkoutModal({
     formState: { errors },
   } = useForm<WorkoutFormData>({
     defaultValues: {
-      date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
+      date: getInitialDate(),
       duration: undefined,
       notes: templateData ? `From template: ${templateData.name}` : "",
       exercises: templateData?.exercises || [],
@@ -84,11 +91,11 @@ export function AddWorkoutModal({
     name: "exercises",
   });
 
-  // Reset form when templateData changes
+  // Reset form when templateData or initialDate changes
   useEffect(() => {
     if (templateData) {
       reset({
-        date: new Date().toLocaleDateString("en-CA"), // Today's date in YYYY-MM-DD format
+        date: getInitialDate(),
         duration: undefined,
         notes: `From template: ${templateData.name}`,
         exercises: templateData.exercises,
@@ -96,13 +103,13 @@ export function AddWorkoutModal({
     } else if (isOpen) {
       // Reset to empty form when opening without template
       reset({
-        date: new Date().toLocaleDateString("en-CA"),
+        date: getInitialDate(),
         duration: undefined,
         notes: "",
         exercises: [],
       });
     }
-  }, [templateData, isOpen, reset]);
+  }, [templateData, isOpen, reset, getInitialDate]);
 
   const createWorkout = api.workout.create.useMutation({
     onSuccess: () => {
