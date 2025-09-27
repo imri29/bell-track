@@ -4,15 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { ComplexSelect } from "@/components/complex-select";
+import { ExerciseSelect } from "@/components/exercise-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
 
@@ -43,6 +38,7 @@ export default function NewTemplatePage() {
   const nameId = useId();
   const descriptionId = useId();
   const exerciseSelectId = useId();
+  const complexSelectId = useId();
 
   const {
     register,
@@ -115,7 +111,22 @@ export default function NewTemplatePage() {
           </Button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              // Prevent form submission on Enter unless it's the submit button
+              const target = event.target as HTMLElement;
+              if (
+                target.tagName !== "BUTTON" ||
+                (target as HTMLButtonElement).type !== "submit"
+              ) {
+                event.preventDefault();
+              }
+            }
+          }}
+          className="space-y-8"
+        >
           <div className="p-6 bg-muted rounded-lg space-y-6">
             <h2 className="text-2xl font-semibold">Template Details</h2>
 
@@ -161,34 +172,17 @@ export default function NewTemplatePage() {
                 >
                   Select Exercise
                 </label>
-                <Select
-                  value=""
+                <ExerciseSelect
                   onValueChange={(value) => {
                     if (value) {
                       addExercise(value);
                     }
                   }}
-                >
-                  <SelectTrigger
-                    id={exerciseSelectId}
-                    className="bg-background"
-                  >
-                    <SelectValue placeholder="Add individual exercise" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background">
-                    {exercises
-                      ?.filter(
-                        (ex) =>
-                          ex.type === "EXERCISE" &&
-                          !fields.some((field) => field.exerciseId === ex.id),
-                      )
-                      .map((exercise) => (
-                        <SelectItem key={exercise.id} value={exercise.id}>
-                          {exercise.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                  excludeIds={fields.map((field) => field.exerciseId)}
+                  id={exerciseSelectId}
+                  className="bg-background"
+                  placeholder="Add individual exercise"
+                />
               </div>
 
               <div className="space-y-2">
@@ -198,34 +192,17 @@ export default function NewTemplatePage() {
                 >
                   Select Complex
                 </label>
-                <Select
-                  value=""
+                <ComplexSelect
                   onValueChange={(value) => {
                     if (value) {
                       addExercise(value);
                     }
                   }}
-                >
-                  <SelectTrigger
-                    id={exerciseSelectId}
-                    className="bg-background"
-                  >
-                    <SelectValue placeholder="Add complex exercise" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background">
-                    {exercises
-                      ?.filter(
-                        (ex) =>
-                          ex.type === "COMPLEX" &&
-                          !fields.some((field) => field.exerciseId === ex.id),
-                      )
-                      .map((exercise) => (
-                        <SelectItem key={exercise.id} value={exercise.id}>
-                          {exercise.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                  excludeIds={fields.map((field) => field.exerciseId)}
+                  id={complexSelectId}
+                  className="bg-background"
+                  placeholder="Add complex exercise"
+                />
               </div>
             </div>
 

@@ -36,11 +36,13 @@ type ExerciseFormData = {
 interface AddExerciseModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onExerciseCreated?: (exerciseId: string) => void;
 }
 
 export function AddExerciseModal({
   isOpen,
   onOpenChange,
+  onExerciseCreated,
 }: AddExerciseModalProps) {
   const utils = api.useUtils();
 
@@ -77,8 +79,10 @@ export function AddExerciseModal({
   });
 
   const createExercise = api.exercise.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       utils.exercise.getAll.invalidate();
+      // Call the callback with the new exercise ID
+      onExerciseCreated?.(data.id);
       // Reset form and close modal
       reset();
       onOpenChange(false);

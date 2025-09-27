@@ -13,24 +13,30 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { AddWorkoutModal } from "@/components/add-workout-modal";
-import { TemplateSelect } from "@/components/template-select";
+import { CalendarDayMenu } from "@/components/calendar-day-menu";
 import { Button } from "@/components/ui/button";
 import { templateToFormData } from "@/lib/template-utils";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
+import type { RouterOutputs } from "@/server/api/root";
+
+type WorkoutData = RouterOutputs["workout"]["getAll"][number];
 
 type CalendarViewProps = {
-  workoutDates: Date[];
+  workouts: WorkoutData[];
+  onEditWorkout?: (workout: WorkoutData) => void;
+  onDeleteWorkout?: (workout: WorkoutData) => void;
 };
 
-export function CalendarView({ workoutDates }: CalendarViewProps) {
+export function CalendarView({ workouts, onEditWorkout, onDeleteWorkout }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(null);
   const [isCreatingWorkout, setIsCreatingWorkout] = useState(false);
+  const [openMenuDate, setOpenMenuDate] = useState<Date | null>(null);
 
   const { data: templates } = api.template.getAll.useQuery();
 
@@ -46,8 +52,12 @@ export function CalendarView({ workoutDates }: CalendarViewProps) {
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+  const getWorkoutsForDate = (date: Date) => {
+    return workouts.filter((workout) => isSameDay(new Date(workout.date), date));
+  };
+
   const hasWorkout = (date: Date) => {
-    return workoutDates.some((workoutDate) => isSameDay(workoutDate, date));
+    return getWorkoutsForDate(date).length > 0;
   };
 
   // Derived state
@@ -55,11 +65,17 @@ export function CalendarView({ workoutDates }: CalendarViewProps) {
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
+    setOpenMenuDate(date);
+  };
+
+  const handleMenuClose = () => {
+    setOpenMenuDate(null);
   };
 
   const handleAddWorkout = () => {
     if (selectedDate) {
       setIsCreatingWorkout(true);
+      setOpenMenuDate(null);
     }
   };
 
@@ -68,6 +84,7 @@ export function CalendarView({ workoutDates }: CalendarViewProps) {
     if (template) {
       const formData = templateToFormData(template);
       setSelectedTemplate(formData);
+      setOpenMenuDate(null);
     }
   };
 
@@ -140,59 +157,60 @@ export function CalendarView({ workoutDates }: CalendarViewProps) {
               const isTodayDate = isToday(date);
               const isSelected = selectedDate && isSameDay(date, selectedDate);
               const hasWorkoutOnDate = hasWorkout(date);
+              const dayWorkouts = getWorkoutsForDate(date);
+              const isMenuOpen = openMenuDate && isSameDay(openMenuDate, date);
 
               return (
-                <button
+                <CalendarDayMenu
                   key={date.toISOString()}
-                  type="button"
-                  onClick={() => handleDateClick(date)}
-                  className={`
-                    relative min-h-20 p-3 border rounded-md cursor-pointer
-                    transition-all duration-200  hover:scale-[1.02]
-                    ${
-                      !isCurrentMonth
-                        ? "text-muted-foreground/30 bg-muted/20 border-muted-foreground/10 hover:bg-accent/10"
-                        : "hover:bg-accent/50 bg-background border-border"
+                  date={date}
+                  workouts={dayWorkouts}
+                  templates={templates || []}
+                  isOpen={isMenuOpen || false}
+                  onOpenChange={(open) => {
+                    if (open) {
+                      handleDateClick(date);
+                    } else {
+                      handleMenuClose();
                     }
-                    ${isTodayDate && isCurrentMonth ? "bg-accent text-red-700" : ""}
-                    ${isSelected && isCurrentMonth ? "bg-primary/10 border-primary border-2" : ""}
-                    ${isSelected && !isCurrentMonth ? "bg-muted/80 border-muted-foreground/50 border-2" : ""}
-                  `}
+                  }}
+                  onAddWorkout={handleAddWorkout}
+                  onAddFromTemplate={handleTemplateSelect}
+                  onEditWorkout={onEditWorkout}
+                  onDeleteWorkout={onDeleteWorkout}
                 >
-                  <div className="flex items-start justify-between h-full">
-                    <span
-                      className={`text-sm ${isTodayDate && isCurrentMonth ? "font-extrabold" : "font-medium"}`}
-                    >
-                      {format(date, "d")}
-                    </span>
-                    {hasWorkoutOnDate && (
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    )}
-                  </div>
-                </button>
+                  <button
+                    type="button"
+                    className={`
+                      relative min-h-20 p-3 border rounded-md cursor-pointer w-full
+                      transition-all duration-200 hover:scale-[1.02]
+                      ${
+                        !isCurrentMonth
+                          ? "text-muted-foreground/30 bg-muted/20 border-muted-foreground/10 hover:bg-accent/10"
+                          : "hover:bg-accent/50 bg-background border-border"
+                      }
+                      ${isTodayDate && isCurrentMonth ? "bg-accent text-red-700" : ""}
+                      ${isSelected && isCurrentMonth ? "bg-primary/10 border-primary border-2" : ""}
+                      ${isSelected && !isCurrentMonth ? "bg-muted/80 border-muted-foreground/50 border-2" : ""}
+                    `}
+                  >
+                    <div className="flex items-start justify-between h-full">
+                      <span
+                        className={`text-sm ${isTodayDate && isCurrentMonth ? "font-extrabold" : "font-medium"}`}
+                      >
+                        {format(date, "d")}
+                      </span>
+                      {hasWorkoutOnDate && (
+                        <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      )}
+                    </div>
+                  </button>
+                </CalendarDayMenu>
               );
             })}
           </div>
         </div>
 
-        {selectedDate && (
-          <div className="mt-4 text-center">
-            <p className="text-sm text-muted-foreground mb-2">
-              Selected: {format(selectedDate, "dd/MM/yyyy")}
-            </p>
-            <div className="flex items-center justify-center gap-2">
-              <Button className="gap-2" onClick={handleAddWorkout}>
-                <Plus className="h-4 w-4" />
-                Add Workout
-              </Button>
-              <TemplateSelect
-                onTemplateSelect={handleTemplateSelect}
-                variant="button"
-                className="gap-2"
-              />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

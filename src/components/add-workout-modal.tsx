@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { ComplexSelect } from "@/components/complex-select";
+import { ExerciseSelect } from "@/components/exercise-select";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,13 +12,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
@@ -210,34 +205,17 @@ export function AddWorkoutModal({
                 >
                   Select Exercise
                 </label>
-                <Select
-                  value=""
+                <ExerciseSelect
                   onValueChange={(value) => {
                     if (value) {
                       addExercise(value);
                     }
                   }}
-                >
-                  <SelectTrigger
-                    id={exerciseSelectId}
-                    className="bg-background"
-                  >
-                    <SelectValue placeholder="Add individual exercise" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background">
-                    {exercises
-                      ?.filter(
-                        (ex) =>
-                          ex.type === "EXERCISE" &&
-                          !fields.some((field) => field.exerciseId === ex.id),
-                      )
-                      .map((exercise) => (
-                        <SelectItem key={exercise.id} value={exercise.id}>
-                          {exercise.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                  excludeIds={fields.map((field) => field.exerciseId)}
+                  id={exerciseSelectId}
+                  className="bg-background"
+                  placeholder="Add individual exercise"
+                />
               </div>
 
               <div className="space-y-2">
@@ -247,31 +225,17 @@ export function AddWorkoutModal({
                 >
                   Select Complex
                 </label>
-                <Select
-                  value=""
+                <ComplexSelect
                   onValueChange={(value) => {
                     if (value) {
                       addExercise(value);
                     }
                   }}
-                >
-                  <SelectTrigger id={complexSelectId} className="bg-background">
-                    <SelectValue placeholder="Add complex exercise" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background">
-                    {exercises
-                      ?.filter(
-                        (ex) =>
-                          ex.type === "COMPLEX" &&
-                          !fields.some((field) => field.exerciseId === ex.id),
-                      )
-                      .map((exercise) => (
-                        <SelectItem key={exercise.id} value={exercise.id}>
-                          {exercise.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                  excludeIds={fields.map((field) => field.exerciseId)}
+                  id={complexSelectId}
+                  className="bg-background"
+                  placeholder="Add complex exercise"
+                />
               </div>
             </div>
 
@@ -419,7 +383,7 @@ export function AddWorkoutModal({
               Cancel
             </Button>
             <Button type="submit" disabled={createWorkout.isPending}>
-              {createWorkout.isPending ? "Creating..." : "Create Workout"}
+              {createWorkout.isPending ? "Creating..." : "Log workout"}
             </Button>
           </div>
         </form>
