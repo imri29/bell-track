@@ -56,7 +56,10 @@ export function CalendarView({ onDateClick, workoutDates }: CalendarViewProps) {
   };
 
   const goToToday = () => {
-    setCurrentMonth(new Date());
+    const today = new Date();
+    setCurrentMonth(today);
+    setSelectedDate(today);
+    onDateClick(today);
   };
 
   return (
@@ -107,15 +110,22 @@ export function CalendarView({ onDateClick, workoutDates }: CalendarViewProps) {
                   type="button"
                   onClick={() => handleDateClick(date)}
                   className={`
-                    relative min-h-20 p-3 border border-border rounded-md cursor-pointer
+                    relative min-h-20 p-3 border rounded-md cursor-pointer
                     transition-all duration-200 hover:bg-accent/50 hover:scale-[1.02]
-                    ${!isCurrentMonth ? "text-muted-foreground bg-muted/30" : "bg-background"}
-                    ${isTodayDate ? "bg-accent text-accent-foreground font-semibold" : ""}
-                    ${isSelected ? "bg-primary/10 border-primary border-2" : ""}
+                    ${
+                      !isCurrentMonth
+                        ? "text-muted-foreground/60 bg-muted/50 border-muted-foreground/20"
+                        : "bg-background border-border"
+                    }
+                    ${isTodayDate && isCurrentMonth ? "bg-accent text-red-700" : ""}
+                    ${isSelected && isCurrentMonth ? "bg-primary/10 border-primary border-2" : ""}
+                    ${isSelected && !isCurrentMonth ? "bg-muted/80 border-muted-foreground/50 border-2" : ""}
                   `}
                 >
                   <div className="flex items-start justify-between h-full">
-                    <span className="text-sm font-medium">
+                    <span
+                      className={`text-sm ${isTodayDate && isCurrentMonth ? "font-extrabold" : "font-medium"}`}
+                    >
                       {format(date, "d")}
                     </span>
                     {hasWorkoutOnDate && (
