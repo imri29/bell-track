@@ -165,7 +165,6 @@ export default function TemplatesPage() {
                             className="gap-1.5"
                           >
                             <Play className="h-4 w-4" />
-                            Use Template
                           </Button>
                           <Button
                             size="sm"
@@ -175,7 +174,6 @@ export default function TemplatesPage() {
                           >
                             <Link href={`/templates/${template.id}/edit`}>
                               <Edit className="h-4 w-4" />
-                              Edit
                             </Link>
                           </Button>
                           <Button

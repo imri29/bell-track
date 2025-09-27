@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { BookOpen, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { CalendarView } from "@/components/calendar-view";
 import { EditWorkoutModal } from "@/components/edit-workout-modal";
@@ -26,7 +26,21 @@ import type { TemplateData } from "@/types";
 
 type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
 
-export default function WorkoutsPage() {
+export default function HistoryPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className={"flex justify-center items-center h-full w-full"}>
+          Loading...
+        </div>
+      }
+    >
+      <HistoryPageComponent />
+    </Suspense>
+  );
+}
+
+function HistoryPageComponent() {
   const utils = api.useUtils();
   const { confirm } = useConfirm();
   const searchParams = useSearchParams();
