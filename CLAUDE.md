@@ -104,6 +104,38 @@ This project uses two separate server-side layers:
 ### 🚧 In Progress / Next Steps
 - History page tabs (list view and calendar view) - **Added to PRD**
 
+## Database Migration to Production (PostgreSQL)
+
+### ✅ Completed Steps (2025-09-28)
+1. **Database Setup**
+   - Created Neon PostgreSQL database in Vercel
+   - Updated Prisma schema: `provider = "sqlite"` → `provider = "postgresql"`
+   - Configured Vercel environment variables with PostgreSQL connection string
+   - Successfully pushed schema to PostgreSQL: `npx prisma db push`
+
+2. **Environment Configuration**
+   - Production: Uses PostgreSQL via Vercel environment variable `DATABASE_URL`
+   - Local Development: Continues using SQLite (`file:./dev.db`)
+   - Database URL: `postgresql://neondb_owner:npg_8ZeIPsFV4wlh@ep-sparkling-lab-ad92a3lk-pooler.c-2.us-east-1.aws.neon.tech/neondb?connect_timeout=15&sslmode=require`
+
+### 🚨 URGENT: Remaining Steps to Complete Migration
+**The production app is still broken - need to deploy the schema changes!**
+
+1. **Commit and Deploy Schema Changes**
+   ```bash
+   git add prisma/schema.prisma
+   git commit -m "Update Prisma schema to use PostgreSQL for production"
+   git push origin main
+   ```
+
+2. **Verify Deployment**
+   - Check that Vercel deployment completes successfully
+   - Test production app - database queries should work
+   - All tables (Exercise, Workout, WorkoutExercise, WorkoutTemplate) are created in PostgreSQL
+
+### Current Issue
+Production deployment has old schema (`provider = "sqlite"`) but production `DATABASE_URL` is PostgreSQL, causing validation errors. Need to deploy the updated schema.
+
 ## Development Commands
 
 ### Type Checking
