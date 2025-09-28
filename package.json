@@ -10,7 +10,8 @@
     "format": "biome format --write",
     "db:seed": "npx tsx prisma/seed.ts",
     "db:studio": "npx prisma studio",
-    "ts": "yarn tsc --noEmit"
+    "ts": "yarn tsc --noEmit",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
