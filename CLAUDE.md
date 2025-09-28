@@ -128,9 +128,6 @@ This project uses two separate server-side layers:
 
 2. **Environment Configuration**
     - Production: Uses PostgreSQL via Vercel environment variable `DATABASE_URL`
-    - Local Development: Continues using SQLite (`file:./dev.db`)
-    - Database URL:
-      `postgresql://neondb_owner:npg_8ZeIPsFV4wlh@ep-sparkling-lab-ad92a3lk-pooler.c-2.us-east-1.aws.neon.tech/neondb?connect_timeout=15&sslmode=require`
 
 ### ✅ COMPLETED: Migration Successfully Deployed (2025-09-28)
 
@@ -199,20 +196,22 @@ This project uses two separate server-side layers:
 ### ✅ COMPLETED: Full PostgreSQL Migration (2025-09-28)
 
 #### Database Migration Completed
+
 - ✅ **Data Migration**: Successfully migrated all local SQLite data to PostgreSQL production
-  - 64 exercises imported
-  - 3 workout templates imported
-  - 2 workouts imported
+    - 64 exercises imported
+    - 3 workout templates imported
+    - 2 workouts imported
 - ✅ **Development Environment**: Switched to PostgreSQL for consistent dev/prod experience
 - ✅ **Build Verification**: All TypeScript compilation and builds working correctly
 
 #### Current Database State
+
 - **Local Development:** PostgreSQL (same database as production)
 - **Production:** PostgreSQL with full data set
 - **Benefits Achieved:**
-  - ✅ Eliminated SQLite vs PostgreSQL differences
-  - ✅ Consistent development and production environments
-  - ✅ All workout data preserved and accessible in both environments
+    - ✅ Eliminated SQLite vs PostgreSQL differences
+    - ✅ Consistent development and production environments
+    - ✅ All workout data preserved and accessible in both environments
 
 ## Development Commands
 
