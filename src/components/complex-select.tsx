@@ -2,7 +2,10 @@
 
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { ExerciseModal } from "@/components/add-exercise-modal";
+import {
+  AddComplexExerciseModal,
+  ExerciseModal,
+} from "@/components/add-exercise-modal";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -44,7 +47,7 @@ export function ComplexSelect({
 
   return (
     <>
-      <ExerciseModal.Complex
+      <AddComplexExerciseModal
         isOpen={isExerciseModalOpen}
         onOpenChange={setIsExerciseModalOpen}
         onExerciseCreated={handleExerciseCreated}

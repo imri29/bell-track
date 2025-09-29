@@ -152,7 +152,7 @@ export function AddWorkoutModal({
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-4 px-4 pb-6 pt-4 md:px-0 md:pb-0 md:pt-0"
         >
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label htmlFor={dateId} className="text-sm font-medium">
                 Workout Date
@@ -161,7 +161,7 @@ export function AddWorkoutModal({
                 id={dateId}
                 type="date"
                 {...register("date", { required: "Date is required" })}
-                className={errors.date ? "border-red-500" : ""}
+                className={`[&::-webkit-calendar-picker-indicator]:invert ${errors.date ? "border-red-500" : ""}`}
               />
               {errors.date && (
                 <p className="text-sm text-red-500">{errors.date.message}</p>
@@ -195,7 +195,7 @@ export function AddWorkoutModal({
           <div className="space-y-4 border-t pt-4">
             <h4 className="font-medium text-sm">Add Exercises</h4>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label
                   htmlFor={exerciseSelectId}
@@ -264,7 +264,7 @@ export function AddWorkoutModal({
                           </Button>
                         </div>
 
-                        <div className="grid gap-3 grid-cols-2">
+                        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                           <div className="space-y-1">
                             <label
                               htmlFor={`sets-${index}`}
@@ -302,20 +302,6 @@ export function AddWorkoutModal({
                           )}
                           <div className="space-y-1">
                             <label
-                              htmlFor={`group-${index}`}
-                              className="text-xs font-medium"
-                            >
-                              Group
-                            </label>
-                            <Input
-                              id={`group-${index}`}
-                              placeholder="A, B, C..."
-                              maxLength={1}
-                              {...register(`exercises.${index}.group`)}
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label
                               htmlFor={`weight-${index}`}
                               className="text-xs font-medium"
                             >
@@ -335,6 +321,20 @@ export function AddWorkoutModal({
                           </div>
                           <div className="space-y-1">
                             <label
+                              htmlFor={`group-${index}`}
+                              className="text-xs font-medium"
+                            >
+                              Group
+                            </label>
+                            <Input
+                              id={`group-${index}`}
+                              placeholder="A, B, C..."
+                              maxLength={1}
+                              {...register(`exercises.${index}.group`)}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label
                               htmlFor={`rest-${index}`}
                               className="text-xs font-medium"
                             >
@@ -350,7 +350,7 @@ export function AddWorkoutModal({
                               })}
                             />
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-1 sm:col-span-2">
                             <label
                               htmlFor={`notes-${index}`}
                               className="text-xs font-medium"

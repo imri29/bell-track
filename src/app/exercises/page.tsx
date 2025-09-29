@@ -2,7 +2,10 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { ExerciseModal } from "@/components/add-exercise-modal";
+import {
+  AddExerciseModal,
+  ExerciseModal,
+} from "@/components/add-exercise-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
 import { api } from "@/trpc/react";
@@ -42,10 +45,7 @@ export default function ExercisesPage() {
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
-        <ExerciseModal.Simple
-          isOpen={isModalOpen}
-          onOpenChange={setIsModalOpen}
-        />
+        <AddExerciseModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
 
         <div className="flex justify-between items-start mb-8">
           <div>

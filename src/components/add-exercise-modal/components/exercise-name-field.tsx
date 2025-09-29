@@ -21,7 +21,7 @@ export function ExerciseNameField<TFieldValues extends FieldValues>({
   const resolvedNamePath = namePath ?? ("name" as Path<TFieldValues>);
 
   return (
-    <div className="space-y-2">
+    <div>
       <label htmlFor={nameId} className="text-sm font-medium">
         Exercise Name
       </label>

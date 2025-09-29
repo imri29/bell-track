@@ -1,13 +1,9 @@
-import { AddComplexExerciseModal } from "./add-complex-modal";
-import { AddExerciseModal } from "./add-exercise-modal";
 import { ComplexExerciseBuilder } from "./components/complex-exercise-builder";
 import { ExerciseDescriptionField } from "./components/exercise-description-field";
 import { ExerciseFormActions } from "./components/exercise-form-actions";
 import { ExerciseNameField } from "./components/exercise-name-field";
 
 export const ExerciseModal = {
-  Simple: AddExerciseModal,
-  Complex: AddComplexExerciseModal,
   NameField: ExerciseNameField,
   DescriptionField: ExerciseDescriptionField,
   ComplexBuilder: ComplexExerciseBuilder,

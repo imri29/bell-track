@@ -65,7 +65,7 @@ export function AddComplexExerciseModal({
   };
 
   return (
-    <Drawer open={isOpen} onOpenChange={onOpenChange} direction="bottom">
+    <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
       <DrawerContent className="max-h-[80vh]">
         <form
           onSubmit={handleSubmit(onSubmit)}
