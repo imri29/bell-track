@@ -3,13 +3,21 @@
 import { isValid, parseISO } from "date-fns";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { AddWorkoutForm } from "@/components/add-workout-form";
 import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
 
 export default function NewWorkoutPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewWorkoutPageComponent />
+    </Suspense>
+  );
+}
+
+function NewWorkoutPageComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
