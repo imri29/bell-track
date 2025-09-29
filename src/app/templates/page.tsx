@@ -3,14 +3,10 @@
 import { Edit, Play, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
-import { templateToFormData } from "@/lib/template-utils";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
-import type { TemplateData } from "@/types";
 
 type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
 
@@ -79,10 +75,6 @@ export default function TemplatesPage() {
       },
     });
 
-  const [workoutModalTemplate, setWorkoutModalTemplate] = useState<
-    TemplateData | undefined
-  >(undefined);
-
   const handleDelete = async (template: { id: string; name: string }) => {
     const confirmed = await confirm({
       title: "Delete Template",
@@ -97,23 +89,13 @@ export default function TemplatesPage() {
   };
 
   const handleUseTemplate = (template: TemplateWithExercises) => {
-    setWorkoutModalTemplate(templateToFormData(template));
+    const params = new URLSearchParams({ templateId: template.id });
+    router.push(`/history/new?${params.toString()}`);
   };
 
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
-        <AddWorkoutModal
-          isOpen={!!workoutModalTemplate}
-          onOpenChange={(open) => {
-            if (!open) {
-              setWorkoutModalTemplate(undefined); // Clear template when modal closes
-            }
-          }}
-          templateData={workoutModalTemplate}
-          onConfirm={() => router.push(`/history`)}
-        />
-
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2">Templates</h1>

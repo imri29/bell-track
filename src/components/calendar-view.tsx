@@ -14,14 +14,12 @@ import {
   subMonths,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { CalendarDayMenu } from "@/components/calendar-day-menu";
 import { Button } from "@/components/ui/button";
-import { templateToFormData } from "@/lib/template-utils";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
-import type { TemplateData } from "@/types";
 
 type WorkoutData = RouterOutputs["workout"]["getAll"][number];
 
@@ -36,12 +34,9 @@ export function CalendarView({
   onEditWorkout,
   onDeleteWorkout,
 }: CalendarViewProps) {
+  const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(
-    null,
-  );
-  const [isCreatingWorkout, setIsCreatingWorkout] = useState(false);
   const [openMenuDate, setOpenMenuDate] = useState<Date | null>(null);
 
   const { data: templates } = api.template.getAll.useQuery();
@@ -68,9 +63,6 @@ export function CalendarView({
     return getWorkoutsForDate(date).length > 0;
   };
 
-  // Derived state
-  const isAddModalOpen = isCreatingWorkout || selectedTemplate !== null;
-
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
     setOpenMenuDate(date);
@@ -81,26 +73,30 @@ export function CalendarView({
   };
 
   const handleAddWorkout = () => {
-    if (selectedDate) {
-      setIsCreatingWorkout(true);
-      setOpenMenuDate(null);
+    if (!selectedDate) {
+      return;
     }
+
+    const params = new URLSearchParams({
+      date: format(selectedDate, "yyyy-MM-dd"),
+    });
+
+    router.push(`/history/new?${params.toString()}`);
+    setOpenMenuDate(null);
   };
 
   const handleTemplateSelect = (templateId: string) => {
-    const template = templates?.find((t) => t.id === templateId);
-    if (template) {
-      const formData = templateToFormData(template);
-      setSelectedTemplate(formData);
-      setOpenMenuDate(null);
+    if (!selectedDate || !templateId) {
+      return;
     }
-  };
 
-  const handleModalClose = (open: boolean) => {
-    if (!open) {
-      setSelectedTemplate(null);
-      setIsCreatingWorkout(false);
-    }
+    const params = new URLSearchParams({
+      date: format(selectedDate, "yyyy-MM-dd"),
+      templateId,
+    });
+
+    router.push(`/history/new?${params.toString()}`);
+    setOpenMenuDate(null);
   };
 
   const goToPreviousMonth = () => {
@@ -119,13 +115,6 @@ export function CalendarView({
 
   return (
     <div className="w-full">
-      <AddWorkoutModal
-        isOpen={isAddModalOpen}
-        onOpenChange={handleModalClose}
-        templateData={selectedTemplate || undefined}
-        initialDate={selectedDate}
-      />
-
       <div className="p-6 bg-muted rounded-lg">
         <div className="bg-background rounded-lg p-4">
           {/* Header with navigation */}

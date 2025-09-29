@@ -2,10 +2,7 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import {
-  AddExerciseModal,
-  ExerciseModal,
-} from "@/components/add-exercise-modal";
+import { AddExerciseModal } from "@/components/add-exercise-modal";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
 import { api } from "@/trpc/react";

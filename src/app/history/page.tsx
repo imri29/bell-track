@@ -3,9 +3,8 @@
 import { format } from "date-fns";
 import { BookOpen, Plus } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { CalendarView } from "@/components/calendar-view";
 import { EditWorkoutModal } from "@/components/edit-workout-modal";
 import { Button } from "@/components/ui/button";
@@ -19,10 +18,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WorkoutListView } from "@/components/workout-list-view";
 import { useConfirm } from "@/contexts/confirm-context";
-import { templateToFormData } from "@/lib/template-utils";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
-import type { TemplateData } from "@/types";
 
 type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
 
@@ -44,6 +41,7 @@ function HistoryPageComponent() {
   const utils = api.useUtils();
   const { confirm } = useConfirm();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const view = searchParams.get("view");
 
   const {
@@ -52,8 +50,6 @@ function HistoryPageComponent() {
     error: workoutsError,
   } = api.workout.getAll.useQuery();
 
-  console.log(workouts);
-
   const { mutate: deleteWorkout, isPending: isDeleting } =
     api.workout.delete.useMutation({
       onSuccess: () => {
@@ -61,14 +57,8 @@ function HistoryPageComponent() {
       },
     });
 
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(
-    null,
-  );
-  const [isCreatingWorkout, setIsCreatingWorkout] = useState(false);
   const [editingWorkout, setEditingWorkout] =
     useState<WorkoutWithExercises | null>(null);
-  // Derived state
-  const isAddModalOpen = isCreatingWorkout || selectedTemplate !== null;
 
   const { data: templates } = api.template.getAll.useQuery();
 
@@ -81,18 +71,12 @@ function HistoryPageComponent() {
   };
 
   const handleTemplateSelect = (templateId: string) => {
-    const template = templates?.find((t) => t.id === templateId);
-    if (template) {
-      const formData = templateToFormData(template);
-      setSelectedTemplate(formData);
+    if (!templateId) {
+      return;
     }
-  };
 
-  const handleModalClose = (open: boolean) => {
-    if (!open) {
-      setSelectedTemplate(null);
-      setIsCreatingWorkout(false);
-    }
+    const params = new URLSearchParams({ templateId });
+    router.push(`/history/new?${params.toString()}`);
   };
 
   const handleDelete = async (workout: { id: string; date: string }) => {
@@ -111,11 +95,6 @@ function HistoryPageComponent() {
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
-        <AddWorkoutModal
-          isOpen={isAddModalOpen}
-          onOpenChange={handleModalClose}
-          templateData={selectedTemplate || undefined}
-        />
         <EditWorkoutModal
           isOpen={editingWorkout !== null}
           onOpenChange={(open) => {
@@ -152,12 +131,11 @@ function HistoryPageComponent() {
               <div className={"flex md:flex-row flex-col justify-between mb-3"}>
                 <h2 className="text-2xl font-semibold mb-4">Your Workouts</h2>
                 <div className="flex gap-2">
-                  <Button
-                    className="gap-1.5"
-                    onClick={() => setIsCreatingWorkout(true)}
-                  >
-                    <Plus />
-                    Add Workout
+                  <Button asChild className="gap-1.5">
+                    <Link href="/history/new">
+                      <Plus />
+                      Add Workout
+                    </Link>
                   </Button>
                   <Select onValueChange={handleTemplateSelect}>
                     <SelectTrigger className="w-auto gap-1.5 px-3 py-2 h-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer">

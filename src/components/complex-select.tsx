@@ -2,10 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import {
-  AddComplexExerciseModal,
-  ExerciseModal,
-} from "@/components/add-exercise-modal";
+import { AddComplexExerciseModal } from "@/components/add-exercise-modal";
 import { Button } from "@/components/ui/button";
 import {
   Select,
