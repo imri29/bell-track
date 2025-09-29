@@ -57,18 +57,16 @@ export const exerciseRouter = createTRPCRouter({
       });
       return exercise ? transformExercise(exercise) : null;
     }),
-  create: publicProcedure
-    .input(exerciseInputSchema)
-    .mutation(({ input }) => {
-      return prisma.exercise.create({
-        data: {
-          ...input,
-          subExercises: input.subExercises
-            ? JSON.stringify(input.subExercises)
-            : null,
-        },
-      });
-    }),
+  create: publicProcedure.input(exerciseInputSchema).mutation(({ input }) => {
+    return prisma.exercise.create({
+      data: {
+        ...input,
+        subExercises: input.subExercises
+          ? JSON.stringify(input.subExercises)
+          : null,
+      },
+    });
+  }),
   update: publicProcedure
     .input(exerciseInputSchema.extend({ id: z.string() }))
     .mutation(({ input }) => {

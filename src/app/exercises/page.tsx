@@ -42,7 +42,10 @@ export default function ExercisesPage() {
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
-        <ExerciseModal.Simple isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
+        <ExerciseModal.Simple
+          isOpen={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        />
 
         <div className="flex justify-between items-start mb-8">
           <div>

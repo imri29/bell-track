@@ -65,8 +65,11 @@ export function AddExerciseModal({
           <DialogTitle>Add New Exercise</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <ExerciseModal.NameField register={register as any} error={errors.name} />
-          <ExerciseModal.DescriptionField register={register as any} />
+          <ExerciseModal.NameField
+            register={register}
+            errorMessage={errors.name?.message}
+          />
+          <ExerciseModal.DescriptionField register={register} />
           <ExerciseModal.Actions
             onCancel={() => onOpenChange(false)}
             isPending={createExercise.isPending}

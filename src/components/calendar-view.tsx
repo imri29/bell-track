@@ -31,10 +31,16 @@ type CalendarViewProps = {
   onDeleteWorkout?: (workout: WorkoutData) => void;
 };
 
-export function CalendarView({ workouts, onEditWorkout, onDeleteWorkout }: CalendarViewProps) {
+export function CalendarView({
+  workouts,
+  onEditWorkout,
+  onDeleteWorkout,
+}: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(
+    null,
+  );
   const [isCreatingWorkout, setIsCreatingWorkout] = useState(false);
   const [openMenuDate, setOpenMenuDate] = useState<Date | null>(null);
 
@@ -53,7 +59,9 @@ export function CalendarView({ workouts, onEditWorkout, onDeleteWorkout }: Calen
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const getWorkoutsForDate = (date: Date) => {
-    return workouts.filter((workout) => isSameDay(new Date(workout.date), date));
+    return workouts.filter((workout) =>
+      isSameDay(new Date(workout.date), date),
+    );
   };
 
   const hasWorkout = (date: Date) => {
@@ -210,7 +218,6 @@ export function CalendarView({ workouts, onEditWorkout, onDeleteWorkout }: Calen
             })}
           </div>
         </div>
-
       </div>
     </div>
   );

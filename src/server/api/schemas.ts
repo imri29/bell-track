@@ -42,10 +42,22 @@ export const workoutExerciseOutputSchema = z.object({
   exerciseId: z.string(),
   sets: z.number(),
   reps: z.string(),
-  weight: z.number().nullable().transform((val) => val ?? 0),
-  restTime: z.number().nullable().transform((val) => val || undefined),
-  notes: z.string().nullable().transform((val) => val ?? ""),
-  group: z.string().nullable().transform((val) => val ?? ""),
+  weight: z
+    .number()
+    .nullable()
+    .transform((val) => val ?? 0),
+  restTime: z
+    .number()
+    .nullable()
+    .transform((val) => val || undefined),
+  notes: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? ""),
+  group: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? ""),
   order: z.number(),
   exercise: exerciseSchema,
 });

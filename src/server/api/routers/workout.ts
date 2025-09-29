@@ -35,7 +35,8 @@ const updateWorkoutSchema = baseWorkoutSchema.partial().extend({
 });
 
 export const workoutRouter = createTRPCRouter({
-  getAll: publicProcedure.output(z.array(workoutOutputSchema))
+  getAll: publicProcedure
+    .output(z.array(workoutOutputSchema))
     .query(async () => {
       const workouts = await prisma.workout.findMany({
         orderBy: { createdAt: "desc" },
@@ -174,13 +175,11 @@ export const workoutRouter = createTRPCRouter({
       });
     }),
 
-  delete: publicProcedure
-    .input(idSchema)
-    .mutation(async ({ input }) => {
-      await prisma.workout.delete({
-        where: { id: input.id },
-      });
+  delete: publicProcedure.input(idSchema).mutation(async ({ input }) => {
+    await prisma.workout.delete({
+      where: { id: input.id },
+    });
 
-      return { success: true };
-    }),
+    return { success: true };
+  }),
 });

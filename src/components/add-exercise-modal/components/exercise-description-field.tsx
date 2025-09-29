@@ -2,18 +2,22 @@
 
 import { useId } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import type { UseFormRegister, FieldValues } from "react-hook-form";
+import type { FieldValues, Path, UseFormRegister } from "react-hook-form";
 
-interface ExerciseDescriptionFieldProps {
-  register: UseFormRegister<FieldValues>;
+interface ExerciseDescriptionFieldProps<TFieldValues extends FieldValues> {
+  register: UseFormRegister<TFieldValues>;
   placeholder?: string;
+  descriptionPath?: Path<TFieldValues>;
 }
 
-export function ExerciseDescriptionField({
+export function ExerciseDescriptionField<TFieldValues extends FieldValues>({
   register,
-  placeholder = "Enter exercise description"
-}: ExerciseDescriptionFieldProps) {
+  placeholder = "Enter exercise description",
+  descriptionPath,
+}: ExerciseDescriptionFieldProps<TFieldValues>) {
   const descriptionId = useId();
+  const resolvedDescriptionPath =
+    descriptionPath ?? ("description" as Path<TFieldValues>);
 
   return (
     <div className="space-y-2">
@@ -23,7 +27,7 @@ export function ExerciseDescriptionField({
       <Textarea
         id={descriptionId}
         placeholder={placeholder}
-        {...register("description")}
+        {...register(resolvedDescriptionPath)}
       />
     </div>
   );

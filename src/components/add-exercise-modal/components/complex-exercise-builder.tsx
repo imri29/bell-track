@@ -18,22 +18,22 @@ interface Exercise {
   type: string;
 }
 
-interface ComplexFormData {
+export type ComplexExerciseFormValues = {
   name: string;
   description: string;
   subExercises: SubExercise[];
-}
+};
 
 interface ComplexExerciseBuilderProps {
-  control: Control<ComplexFormData>;
-  register: UseFormRegister<ComplexFormData>;
+  control: Control<ComplexExerciseFormValues>;
+  register: UseFormRegister<ComplexExerciseFormValues>;
   exercises?: Exercise[];
 }
 
 export function ComplexExerciseBuilder({
   control,
   register,
-  exercises = []
+  exercises = [],
 }: ComplexExerciseBuilderProps) {
   const exerciseSelectId = useId();
 
@@ -48,10 +48,7 @@ export function ComplexExerciseBuilder({
 
       {/* Exercise Selection */}
       <div className="space-y-2">
-        <label
-          htmlFor={exerciseSelectId}
-          className="text-sm font-medium"
-        >
+        <label htmlFor={exerciseSelectId} className="text-sm font-medium">
           Select Exercises
         </label>
         <Select
@@ -72,10 +69,7 @@ export function ComplexExerciseBuilder({
             }
           }}
         >
-          <SelectTrigger
-            id={exerciseSelectId}
-            className="bg-background"
-          >
+          <SelectTrigger id={exerciseSelectId} className="bg-background">
             <SelectValue placeholder="Add exercises to complex" />
           </SelectTrigger>
           <SelectContent className="bg-background">
@@ -97,21 +91,15 @@ export function ComplexExerciseBuilder({
       {/* Selected Exercises with Rep Schemes */}
       {fields.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium">
-            Exercise Sequence & Reps
-          </p>
+          <p className="text-sm font-medium">Exercise Sequence & Reps</p>
           <div className="space-y-2">
             {fields.map((field, index) => (
               <div
                 key={field.id}
                 className="flex items-center gap-2 p-2 bg-muted rounded"
               >
-                <span className="text-sm font-medium w-4">
-                  {index + 1}.
-                </span>
-                <span className="flex-1 text-sm">
-                  {field.exerciseName}
-                </span>
+                <span className="text-sm font-medium w-4">{index + 1}.</span>
+                <span className="flex-1 text-sm">{field.exerciseName}</span>
                 <input
                   type="number"
                   placeholder="Reps"

@@ -19,9 +19,10 @@ export function Navigation() {
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border md:relative md:bottom-auto md:border-t-0 md:border-r md:border-border md:w-64 md:h-screen">
       <div className="flex md:flex-col">
         {navigation.map((item) => {
-          const isActive = item.href === "/"
-            ? pathname === item.href
-            : pathname.startsWith(item.href);
+          const isActive =
+            item.href === "/"
+              ? pathname === item.href
+              : pathname.startsWith(item.href);
 
           return (
             <Link

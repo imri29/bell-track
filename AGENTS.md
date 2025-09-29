@@ -1,29 +1,23 @@
-# Bell Track - Agent Guidelines
+# Repository Guidelines
 
-## Project Purpose
-This project is designed to learn and practice:
-- **Full-stack development** - Complete application architecture from database to UI
-- **Next.js** - App Router, Server Components, API routes, and modern React patterns
-- **tRPC** - End-to-end type safety, API design, and client-server communication
+## Project Structure & Module Organization
+Bell Track runs on Next.js App Router inside `src/app`, with route groups combining server components, `loading.tsx`, and API handlers. Shared UI lives in `src/components` (shadcn primitives in `src/components/ui`), contexts in `src/contexts`, and reusable utilities in `src/lib`. tRPC routers reside in `src/trpc`, while `src/server` contains Prisma-backed domain services consumed by routers and server actions. Database schema and seeds are under `prisma/`, generated artifacts belong in `src/generated`, and static assets sit in `public/`. Place new feature helpers beside the code that imports them.
 
-## Commands
-- **Dev server**: `npm run dev` (Next.js with Turbopack on port 8080)
-- **Build**: `npm run build` (Next.js with Turbopack)
-- **Lint**: `npm run lint` (Biome check)
-- **Format**: `npm run format` (Biome format --write)
-- **Database**: `npm run db:studio` (Prisma Studio), `npm run db:seed` (seed database)
+## Build, Test, and Development Commands
+- `npm run dev` — Next.js + Turbopack on http://localhost:8080.
+- `npm run build` — production bundle; run before pushing deploy branches.
+- `npm run start` — serve the previously built app for smoke checks.
+- `npm run lint` — Biome lint rules (fails on style + simple bugs).
+- `npm run format` — apply Biome's auto-format.
+- `npm run ts` — TypeScript `--noEmit` verification.
+- `npm run db:seed` — execute `prisma/seed.ts` against the configured database.
+- `npm run db:studio` — open Prisma Studio for local data inspection.
 
-## Code Style
-- **Formatting**: Biome (2 spaces, organize imports enabled)
-- **TypeScript**: Strict mode, target ES2017, path aliases `@/*` for `./src/*`
-- **Naming**: kebab-case filenames, camelCase variables/functions
-- **Exports**: Named exports preferred over default exports
-- **Types**: Use `type` over `interface`, const objects with `as const` instead of enums
-- **Imports**: Group by external libraries, then internal (@/*), then relative
-- **Components**: Named functions, arrow functions for internal handlers
-- **UI Components**: Use shadcn/ui components from `src/components/ui/` instead of vanilla HTML elements (e.g., `<Button>` instead of `<button>`, `<Input>` instead of `<input>`)
-- **Validation**: Zod schemas for API inputs and forms
-- **Forms**: React Hook Form with proper error handling
-- **API**: tRPC procedures with React Query integration
-- **Error handling**: Basic error checks in API functions, form validation
-- **Database**: Prisma ORM with proper schema relationships
+## Coding Style & Naming Conventions
+Biome enforces 2-space indentation, organized import blocks, and trailing commas. Prefer named exports, camelCase symbols, and kebab-case filenames (for example, `workout-log-card.tsx`). Reach for the `@/` alias instead of lengthy relative paths. Favor `type` aliases and literal unions with `as const`, and validate inputs with Zod. UI code should compose shadcn components (`<Button>`, `<Input>`) rather than raw elements—stick with the shadcn system unless the design spec says otherwise. Treat TypeScript errors as blockers: do not ignore diagnostics or introduce `any` without explicit approval.
+
+## Testing Guidelines
+Automated tests are not yet standardized; align in your PR when adding them (Vitest + React Testing Library is the expected direction). Co-locate specs as `*.test.ts(x)` near implementation code and seed deterministic data if the scenarios depend on Prisma. Until a test command lands in `package.json`, cover changes through manual flows in `npm run dev` and record the steps or media in the PR.
+
+## Commit & Pull Request Guidelines
+Follow the current history: concise, present-tense subjects (`add workout log card`) and focused diffs. Summaries should mention schema or seed impacts. PR descriptions must call out the problem, solution, and verification, link issues or Linear tickets, and attach screenshots for UI updates. Highlight any required `npm run db:seed` so reviewers can mirror your environment.

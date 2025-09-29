@@ -153,10 +153,10 @@ This project uses two separate server-side layers:
 
 **Steps to switch dev to PostgreSQL:**
 
-1. **Update local .env to use PostgreSQL:**
+1. **Update local .env to use PostgreSQL:** d
    ```bash
    # Replace current SQLite URL with PostgreSQL
-   DATABASE_URL="postgresql://neondb_owner:npg_8ZeIPsFV4wlh@ep-sparkling-lab-ad92a3lk-pooler.c-2.us-east-1.aws.neon.tech/neondb?connect_timeout=15&sslmode=require"
+   DATABASE_URL="<DB_URL>"
    ```
 
 2. **Optional: Create separate dev database (cleaner approach):**
@@ -215,7 +215,20 @@ This project uses two separate server-side layers:
 
 ## Development Commands
 
-### Type Checking
+### Available Scripts
 
-- `yarn ts` - Run TypeScript type checking without emitting files
-- always prefer to derive state instead of adding useless useState
+- `npm run dev` - Start development server (Next.js with Turbopack on port 8080)
+- `npm run build` - Build production application (Next.js with Turbopack)
+- `npm run start` - Start production server
+- `npm run lint` - Run Biome linter checks
+- `npm run format` - Format code with Biome
+- `npm run ts` - Run TypeScript type checking without emitting files
+- `npm run db:seed` - Seed the database with sample data
+- `npm run db:studio` - Open Prisma Studio for database management
+
+### Important Notes
+
+- Always prefer to derive state instead of adding useless useState
+- **TypeScript checking**: Use `npm run ts` (NOT `npm run typecheck`)
+- use shadcn components unless instructed otherwise
+- do not allow "any" or ts erros

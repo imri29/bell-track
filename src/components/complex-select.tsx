@@ -50,28 +50,28 @@ export function ComplexSelect({
         onExerciseCreated={handleExerciseCreated}
       />
       <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger id={id} className={className}>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent className="bg-background">
-        <div className="p-1">
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full justify-start h-8 px-2 py-1.5 text-sm"
-            onClick={() => setIsExerciseModalOpen(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Exercise
-          </Button>
-        </div>
-        {availableComplexes.map((exercise) => (
-          <SelectItem key={exercise.id} value={exercise.id}>
-            {exercise.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+        <SelectTrigger id={id} className={className}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className="bg-background">
+          <div className="p-1">
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full justify-start h-8 px-2 py-1.5 text-sm"
+              onClick={() => setIsExerciseModalOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Exercise
+            </Button>
+          </div>
+          {availableComplexes.map((exercise) => (
+            <SelectItem key={exercise.id} value={exercise.id}>
+              {exercise.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </>
   );
 }

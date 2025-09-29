@@ -1,21 +1,24 @@
 "use client";
 
 import { useId } from "react";
-import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
+import type { FieldValues, Path, UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 
-interface ExerciseNameFieldProps {
-  register: UseFormRegister<FieldValues>;
-  error?: FieldError;
+interface ExerciseNameFieldProps<TFieldValues extends FieldValues> {
+  register: UseFormRegister<TFieldValues>;
+  errorMessage?: string;
   placeholder?: string;
+  namePath?: Path<TFieldValues>;
 }
 
-export function ExerciseNameField({
+export function ExerciseNameField<TFieldValues extends FieldValues>({
   register,
-  error,
+  errorMessage,
   placeholder = "Enter exercise name",
-}: ExerciseNameFieldProps) {
+  namePath,
+}: ExerciseNameFieldProps<TFieldValues>) {
   const nameId = useId();
+  const resolvedNamePath = namePath ?? ("name" as Path<TFieldValues>);
 
   return (
     <div className="space-y-2">
@@ -25,10 +28,12 @@ export function ExerciseNameField({
       <Input
         id={nameId}
         placeholder={placeholder}
-        {...register("name", { required: "Exercise name is required" })}
-        className={error ? "border-red-500" : ""}
+        {...register(resolvedNamePath, {
+          required: "Exercise name is required",
+        })}
+        className={errorMessage ? "border-red-500" : ""}
       />
-      {error && <p className="text-sm text-red-500">{error.message}</p>}
+      {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
     </div>
   );
 }

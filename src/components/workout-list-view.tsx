@@ -124,8 +124,8 @@ export function WorkoutListView({
         </div>
       ) : (
         <p className="text-muted-foreground">
-          No workouts yet. Click "Add Workout" to create your first
-          workout plan.
+          No workouts yet. Click "Add Workout" to create your first workout
+          plan.
         </p>
       )}
     </div>

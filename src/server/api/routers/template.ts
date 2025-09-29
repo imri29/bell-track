@@ -20,10 +20,22 @@ const templateExerciseOutputSchema = z.object({
   exerciseId: z.string(),
   sets: z.number(),
   reps: z.string(),
-  weight: z.number().nullable().transform(val => val ?? 16), // Default weight for forms
-  restTime: z.number().nullable().transform(val => val || undefined),
-  notes: z.string().nullable().transform(val => val ?? ""), // Default empty string for forms
-  group: z.string().nullable().transform(val => val ?? ""), // Default empty string for forms
+  weight: z
+    .number()
+    .nullable()
+    .transform((val) => val ?? 16), // Default weight for forms
+  restTime: z
+    .number()
+    .nullable()
+    .transform((val) => val || undefined),
+  notes: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? ""), // Default empty string for forms
+  group: z
+    .string()
+    .nullable()
+    .transform((val) => val ?? ""), // Default empty string for forms
   order: z.number(),
 });
 
@@ -87,7 +99,7 @@ export const templateRouter = createTRPCRouter({
 
       return {
         ...template,
-        exercises: template.exercises.map(ex => ({
+        exercises: template.exercises.map((ex) => ({
           exerciseId: ex.exerciseId,
           sets: ex.sets,
           reps: ex.reps,
