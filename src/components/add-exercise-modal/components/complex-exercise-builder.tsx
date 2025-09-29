@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import type { Control, UseFormRegister } from "react-hook-form";
 import { useFieldArray } from "react-hook-form";
 import {
   Select,
@@ -10,7 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EXERCISE_TYPES, type SubExercise } from "@/types";
-import type { Control, UseFormRegister } from "react-hook-form";
 
 interface Exercise {
   id: string;

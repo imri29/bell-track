@@ -2,11 +2,12 @@
 
 import { useForm } from "react-hook-form";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { api } from "@/trpc/react";
 import { EXERCISE_TYPES } from "@/types";
 import { ExerciseModal } from "./index";
@@ -59,23 +60,30 @@ export function AddExerciseModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Add New Exercise</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <ExerciseModal.NameField
-            register={register}
-            errorMessage={errors.name?.message}
-          />
-          <ExerciseModal.DescriptionField register={register} />
-          <ExerciseModal.Actions
-            onCancel={() => onOpenChange(false)}
-            isPending={createExercise.isPending}
-          />
+    <Drawer open={isOpen} onOpenChange={onOpenChange} direction="bottom">
+      <DrawerContent className="max-h-[80vh]">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col h-full"
+        >
+          <DrawerHeader>
+            <DrawerTitle>Add New Exercise</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-4 space-y-4 overflow-y-auto flex-1">
+            <ExerciseModal.NameField
+              register={register}
+              errorMessage={errors.name?.message}
+            />
+            <ExerciseModal.DescriptionField register={register} />
+          </div>
+          <DrawerFooter>
+            <ExerciseModal.Actions
+              onCancel={() => onOpenChange(false)}
+              isPending={createExercise.isPending}
+            />
+          </DrawerFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
 }

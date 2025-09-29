@@ -9,6 +9,7 @@ import { ExerciseSelect } from "@/components/exercise-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import { api } from "@/trpc/react";
 
 type TemplateExerciseFormData = {
@@ -102,16 +103,7 @@ export default function EditTemplatePage({
   const addExercise = (exerciseId: string) => {
     const exercise = exercises?.find((ex) => ex.id === exerciseId);
     if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
-      append({
-        exerciseId: exercise.id,
-        sets: 5,
-        reps: exercise.type === "COMPLEX" ? "1" : "8",
-        weight: 16,
-        restTime: exercise.type === "COMPLEX" ? 90 : 60, // Complexes need more rest
-        notes: "",
-        group: "",
-        order: fields.length,
-      });
+      append(buildExerciseFormDefaults(exercise, fields.length));
     }
   };
 

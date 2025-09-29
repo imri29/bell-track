@@ -19,9 +19,9 @@ import { AddWorkoutModal } from "@/components/add-workout-modal";
 import { CalendarDayMenu } from "@/components/calendar-day-menu";
 import { Button } from "@/components/ui/button";
 import { templateToFormData } from "@/lib/template-utils";
+import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
-import type { RouterOutputs } from "@/server/api/root";
 
 type WorkoutData = RouterOutputs["workout"]["getAll"][number];
 

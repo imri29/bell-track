@@ -1,8 +1,8 @@
 "use client";
 
 import { useId } from "react";
-import { Textarea } from "@/components/ui/textarea";
 import type { FieldValues, Path, UseFormRegister } from "react-hook-form";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ExerciseDescriptionFieldProps<TFieldValues extends FieldValues> {
   register: UseFormRegister<TFieldValues>;

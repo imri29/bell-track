@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 
@@ -137,16 +138,7 @@ export function EditWorkoutModal({
   const addExercise = (exerciseId: string) => {
     const exercise = exercises?.find((ex) => ex.id === exerciseId);
     if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
-      append({
-        exerciseId: exercise.id,
-        sets: exercise.type === "COMPLEX" ? 5 : 3,
-        reps: exercise.type === "COMPLEX" ? "1" : "12",
-        weight: 16,
-        restTime: exercise.type === "COMPLEX" ? 90 : 60,
-        notes: "",
-        group: "",
-        order: fields.length,
-      });
+      append(buildExerciseFormDefaults(exercise, fields.length));
     }
   };
 

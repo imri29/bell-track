@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
 
@@ -134,26 +135,23 @@ export function AddWorkoutModal({
   const addExercise = (exerciseId: string) => {
     const exercise = exercises?.find((ex) => ex.id === exerciseId);
     if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
-      append({
-        exerciseId: exercise.id,
-        sets: exercise.type === "COMPLEX" ? 5 : 3, // Complexes default to 5 sets
-        reps: exercise.type === "COMPLEX" ? "1" : "12", // Complexes = 1 round, exercises = 12 reps
-        weight: 16, // Default kettlebell weight
-        restTime: exercise.type === "COMPLEX" ? 90 : 60, // Complexes need more rest
-        notes: "",
-        group: "",
-        order: fields.length,
-      });
+      append(buildExerciseFormDefaults(exercise, fields.length));
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent
+        size="full"
+        className="md:max-w-[600px] md:max-h-[80vh] md:overflow-y-auto"
+      >
         <DialogHeader>
           <DialogTitle>Add New Workout</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 px-4 pb-6 pt-4 md:px-0 md:pb-0 md:pt-0"
+        >
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label htmlFor={dateId} className="text-sm font-medium">

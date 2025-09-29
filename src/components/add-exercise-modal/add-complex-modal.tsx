@@ -4,14 +4,14 @@ import { useForm } from "react-hook-form";
 import {
   Drawer,
   DrawerContent,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerFooter,
 } from "@/components/ui/drawer";
 import { api } from "@/trpc/react";
 import { EXERCISE_TYPES } from "@/types";
-import { ExerciseModal } from "./index";
 import type { ComplexExerciseFormValues } from "./components/complex-exercise-builder";
+import { ExerciseModal } from "./index";
 
 interface AddComplexExerciseModalProps {
   isOpen: boolean;
@@ -65,7 +65,7 @@ export function AddComplexExerciseModal({
   };
 
   return (
-    <Drawer open={isOpen} onOpenChange={onOpenChange}>
+    <Drawer open={isOpen} onOpenChange={onOpenChange} direction="bottom">
       <DrawerContent className="max-h-[80vh]">
         <form
           onSubmit={handleSubmit(onSubmit)}

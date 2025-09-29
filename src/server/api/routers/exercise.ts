@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Exercise as PrismaExercise } from "@/generated/prisma";
 import { PrismaClient } from "@/generated/prisma";
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { EXERCISE_TYPES } from "@/types";
@@ -13,7 +14,7 @@ const subExerciseSchema = z.object({
 type SubExercise = z.infer<typeof subExerciseSchema>;
 
 // Helper function to transform exercise with parsed subExercises
-const transformExercise = (exercise: any) => ({
+const transformExercise = (exercise: PrismaExercise) => ({
   ...exercise,
   subExercises: exercise.subExercises
     ? (JSON.parse(exercise.subExercises) as SubExercise[])
