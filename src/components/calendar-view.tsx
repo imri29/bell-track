@@ -115,34 +115,38 @@ export function CalendarView({
 
   return (
     <div className="w-full">
-      <div className="p-6 bg-muted rounded-lg">
-        <div className="bg-background rounded-lg p-4">
+      <div className="p-0 sm:p-6 bg-muted rounded-lg">
+        <div className="bg-background rounded-lg p-3 sm:p-4">
           {/* Header with navigation */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-between gap-1 sm:gap-2 sm:justify-start">
               <Button variant="outline" size="sm" onClick={goToPreviousMonth}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm" onClick={goToToday}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 sm:flex-none"
+                onClick={goToToday}
+              >
                 Today
               </Button>
               <Button variant="outline" size="sm" onClick={goToNextMonth}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-lg font-semibold text-center sm:text-right">
               {format(currentMonth, "MMMM yyyy")}
             </h2>
-            <div></div>
           </div>
 
           {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-px sm:gap-1 md:gap-2">
             {/* Week day headers */}
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="p-3 text-center text-sm font-medium text-muted-foreground"
+                className="py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-muted-foreground"
               >
                 {day}
               </div>
@@ -179,7 +183,7 @@ export function CalendarView({
                   <button
                     type="button"
                     className={`
-                      relative min-h-20 p-3 border rounded-md cursor-pointer w-full
+                      relative w-full aspect-square md:aspect-auto md:min-h-[72px] p-2 sm:p-3 border rounded-md cursor-pointer
                       transition-all duration-200 hover:scale-[1.02]
                       ${
                         !isCurrentMonth
@@ -191,16 +195,33 @@ export function CalendarView({
                       ${isSelected && !isCurrentMonth ? "bg-muted/80 border-muted-foreground/50 border-2" : ""}
                     `}
                   >
-                    <div className="flex items-start justify-between h-full">
-                      <span
-                        className={`text-sm ${isTodayDate && isCurrentMonth ? "font-extrabold" : "font-medium"}`}
-                      >
-                        {format(date, "d")}
-                      </span>
+                    <div className="flex h-full flex-col">
+                      <div className="flex items-start justify-between">
+                        <span
+                          className={`text-sm sm:text-base ${isTodayDate && isCurrentMonth ? "font-extrabold" : "font-medium"}`}
+                        >
+                          {format(date, "d")}
+                        </span>
+                      </div>
+
                       {hasWorkoutOnDate && (
-                        <div className="w-2 h-2 bg-green-500 rounded-full" />
+                        <div className="flex flex-1 mt-1.5 justify-center">
+                          <div className="flex flex-wrap justify-center gap-0.5">
+                            {dayWorkouts.map((workout) => (
+                              <span
+                                key={workout.id}
+                                className="text-[10px] md:text-base leading-none"
+                              >
+                                ⭐
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       )}
                     </div>
+                    {!hasWorkoutOnDate && isSelected && (
+                      <span className="sr-only">Selected date</span>
+                    )}
                   </button>
                 </CalendarDayMenu>
               );
