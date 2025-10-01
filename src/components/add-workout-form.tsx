@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ComplexSelect } from "@/components/complex-select";
 import { ExerciseSelect } from "@/components/exercise-select";
 import { Button } from "@/components/ui/button";
@@ -224,7 +225,17 @@ export function AddWorkoutForm({
                     className="p-3 bg-muted rounded border space-y-3"
                   >
                     <div className="flex justify-between items-center">
-                      <h5 className="font-medium">{exercise?.name}</h5>
+                      <h5 className="font-medium">
+                        {exercise ? (
+                          <ComplexNameTooltip
+                            name={exercise.name}
+                            subExercises={exercise.subExercises}
+                            className="inline-flex"
+                          />
+                        ) : (
+                          "Exercise"
+                        )}
+                      </h5>
                       <Button
                         type="button"
                         variant="ghost"

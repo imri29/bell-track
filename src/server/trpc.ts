@@ -1,5 +1,5 @@
 import { initTRPC } from "@trpc/server";
-import { ZodError } from "zod";
+import { ZodError, z } from "zod";
 
 /**
  * Initialization of tRPC backend
@@ -11,7 +11,8 @@ const t = initTRPC.create({
       ...shape,
       data: {
         ...shape.data,
-        zodError: error.cause instanceof ZodError ? error.cause : null,
+        zodError:
+          error.cause instanceof ZodError ? z.prettifyError(error.cause) : null,
       },
     };
   },

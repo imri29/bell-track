@@ -31,7 +31,7 @@ export const workoutExerciseInputSchema = z.object({
   sets: z.number().min(1),
   reps: z.string(), // JSON array like "[12, 10, 8]"
   weight: z.number().min(0),
-  restTime: z.number().optional(),
+  restTime: z.number().optional().nullable(),
   notes: z.string().optional(),
   group: z.string().optional(), // Exercise group (A, B, C, etc.)
   order: z.number().min(0),

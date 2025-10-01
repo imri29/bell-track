@@ -2,6 +2,7 @@
 
 import { useEffect, useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -236,7 +237,11 @@ export function EditWorkoutModal({
                       )
                       .map((exercise) => (
                         <SelectItem key={exercise.id} value={exercise.id}>
-                          {exercise.name}
+                          <ComplexNameTooltip
+                            name={exercise.name}
+                            subExercises={exercise.subExercises}
+                            className="block"
+                          />
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -294,7 +299,15 @@ export function EditWorkoutModal({
                       >
                         <div className="flex justify-between items-center">
                           <h4 className="font-medium text-lg">
-                            {exercise?.name}
+                            {exercise ? (
+                              <ComplexNameTooltip
+                                name={exercise.name}
+                                subExercises={exercise.subExercises}
+                                className="inline-flex"
+                              />
+                            ) : (
+                              "Exercise"
+                            )}
                           </h4>
                           <Button
                             type="button"

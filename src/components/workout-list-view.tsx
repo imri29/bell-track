@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
+import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { Button } from "@/components/ui/button";
 import type { RouterOutputs } from "@/server/api/root";
 
@@ -53,8 +54,12 @@ function WorkoutExercisesList({
                   {displayLabel}:
                 </span>
               )}
-              {exercise.exercise.name} • {exercise.sets} sets •{" "}
-              {exercise.weight}kg
+              <ComplexNameTooltip
+                name={exercise.exercise.name}
+                subExercises={exercise.exercise.subExercises}
+                className="inline text-foreground font-medium"
+              />
+              {` • ${exercise.sets} sets • ${exercise.weight}kg`}
             </div>
           </div>
         );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEventHandler, use, useEffect, useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ComplexSelect } from "@/components/complex-select";
 import { ExerciseSelect } from "@/components/exercise-select";
 import { Button } from "@/components/ui/button";
@@ -266,7 +267,15 @@ export default function EditTemplatePage({
                       >
                         <div className="flex justify-between items-center">
                           <h4 className="font-medium text-lg">
-                            {exercise?.name}
+                            {exercise ? (
+                              <ComplexNameTooltip
+                                name={exercise.name}
+                                subExercises={exercise.subExercises}
+                                className="inline-flex"
+                              />
+                            ) : (
+                              "Exercise"
+                            )}
                           </h4>
                           <Button
                             type="button"

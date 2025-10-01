@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { AddComplexExerciseModal } from "@/components/add-exercise-modal";
+import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -67,7 +68,11 @@ export function ComplexSelect({
           </div>
           {availableComplexes.map((exercise) => (
             <SelectItem key={exercise.id} value={exercise.id}>
-              {exercise.name}
+              <ComplexNameTooltip
+                name={exercise.name}
+                subExercises={exercise.subExercises}
+                className="block"
+              />
             </SelectItem>
           ))}
         </SelectContent>

@@ -3,6 +3,7 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AddExerciseModal } from "@/components/add-exercise-modal";
+import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/contexts/confirm-context";
 import { api } from "@/trpc/react";
@@ -74,7 +75,11 @@ export default function ExercisesPage() {
                     {exercises.map((exercise) => (
                       <li key={exercise.id} className={"flex flex-col group"}>
                         <div className={"flex gap-2"}>
-                          <strong>{exercise.name}</strong>
+                          <ComplexNameTooltip
+                            name={exercise.name}
+                            subExercises={exercise.subExercises}
+                            className="font-semibold"
+                          />
                           <Button
                             className={
                               "opacity-0 group-hover:opacity-100 transition-opacity duration-500 h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"

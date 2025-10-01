@@ -1,9 +1,11 @@
 "use client";
 
-import { Edit, Play, Plus, Trash2 } from "lucide-react";
+import { BadgePlus, Edit, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useConfirm } from "@/contexts/confirm-context";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
@@ -47,8 +49,19 @@ function TemplateExercisesList({
                   {displayLabel}:
                 </span>
               )}
-              {exercise.exercise.name} • {exercise.sets} sets
-              {exercise.weight && ` • ${exercise.weight}kg`}
+              <ComplexNameTooltip
+                name={exercise.exercise.name}
+                subExercises={exercise.exercise.subExercises}
+                className="inline text-foreground font-medium"
+              >
+                <span className="inline text-foreground font-medium">
+                  {exercise.exercise.type !== "COMPLEX" && exercise.reps
+                    ? `${exercise.reps} ${exercise.exercise.name}`
+                    : exercise.exercise.name}
+                  {` • ${exercise.sets} sets`}
+                  {exercise.weight && ` • ${exercise.weight}kg`}
+                </span>
+              </ComplexNameTooltip>
             </div>
           </div>
         );
@@ -140,14 +153,16 @@ export default function TemplatesPage() {
                           )}
                         </div>
                         <div className="flex gap-2 transition-opacity duration-500 opacity-100 md:opacity-0 md:group-hover:opacity-100">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUseTemplate(template)}
-                            className="gap-1.5"
-                          >
-                            <Play className="h-4 w-4" />
-                          </Button>
+                          <Tooltip content="Log workout">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleUseTemplate(template)}
+                              className="gap-1.5"
+                            >
+                              <BadgePlus className="h-4 w-4" />
+                            </Button>
+                          </Tooltip>
                           <Button
                             size="sm"
                             variant="outline"
