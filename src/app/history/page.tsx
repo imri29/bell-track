@@ -128,7 +128,7 @@ function HistoryPageComponent() {
 
           <TabsContent value="list" className="space-y-6">
             <div className="p-6 bg-muted rounded-lg">
-              <div className={"flex md:flex-row flex-col justify-between mb-3"}>
+              <div className="flex md:flex-row flex-col justify-between mb-3">
                 <h2 className="text-2xl font-semibold mb-4">Your Workouts</h2>
                 <div className="flex gap-2">
                   <Button asChild className="gap-1.5">

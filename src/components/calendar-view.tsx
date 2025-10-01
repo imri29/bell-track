@@ -190,7 +190,7 @@ export function CalendarView({
                           ? "text-muted-foreground/30 bg-muted/20 border-muted-foreground/10 hover:bg-accent/10"
                           : "hover:bg-accent/50 bg-background border-border"
                       }
-                      ${isTodayDate && isCurrentMonth ? "bg-accent text-red-700" : ""}
+                      ${isTodayDate && isCurrentMonth ? "text-primary" : ""}
                       ${isSelected && isCurrentMonth ? "bg-primary/10 border-primary border-2" : ""}
                       ${isSelected && !isCurrentMonth ? "bg-muted/80 border-muted-foreground/50 border-2" : ""}
                     `}
