@@ -1,13 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useId } from "react";
+import { Replace, X } from "lucide-react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ComplexSelect } from "@/components/complex-select";
 import { ExerciseSelect } from "@/components/exercise-select";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip } from "@/components/ui/tooltip";
+import { useIsTouchDevice } from "@/hooks/use-is-touch-device";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
@@ -64,6 +79,7 @@ export function AddWorkoutForm({
     reset,
     control,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<WorkoutFormData>({
     defaultValues: {
@@ -74,10 +90,13 @@ export function AddWorkoutForm({
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control,
     name: "exercises",
   });
+
+  const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
+  const isTouchDevice = useIsTouchDevice();
 
   useEffect(() => {
     if (templateData) {
@@ -130,6 +149,75 @@ export function AddWorkoutForm({
       append(buildExerciseFormDefaults(exercise, fields.length));
     }
   };
+
+  const handleReplaceExerciseSelect = (exerciseId: string) => {
+    if (replaceIndex === null) {
+      return;
+    }
+
+    const exercise = exercises?.find((ex) => ex.id === exerciseId);
+    if (!exercise) {
+      return;
+    }
+
+    const defaults = buildExerciseFormDefaults(exercise, replaceIndex);
+    const currentExercises = getValues("exercises");
+    const current = currentExercises?.[replaceIndex];
+
+    const nextValues = {
+      ...defaults,
+      exerciseId: exercise.id,
+      order: replaceIndex,
+      sets: current?.sets ?? defaults.sets,
+      weight:
+        typeof current?.weight === "number" ? current.weight : defaults.weight,
+      restTime:
+        typeof current?.restTime === "number"
+          ? current.restTime
+          : defaults.restTime,
+      notes: current?.notes ?? defaults.notes,
+      group: current?.group ?? defaults.group,
+      reps:
+        exercise.type === "COMPLEX"
+          ? defaults.reps
+          : (current?.reps ?? defaults.reps),
+    };
+
+    update(replaceIndex, nextValues);
+    setReplaceIndex(null);
+  };
+
+  const openReplaceDialog = (index: number) => {
+    setReplaceIndex(index);
+  };
+
+  const closeReplaceDialog = () => {
+    setReplaceIndex(null);
+  };
+
+  const isReplaceDialogOpen = replaceIndex !== null;
+
+  const replaceDialogExcludeIds =
+    replaceIndex === null
+      ? []
+      : fields
+          .filter((_, idx) => idx !== replaceIndex)
+          .map((field) => field.exerciseId);
+
+  const replaceDialogCurrentExercise =
+    replaceIndex === null
+      ? undefined
+      : exercises?.find((ex) => ex.id === fields[replaceIndex]?.exerciseId);
+
+  const replaceDialogExerciseValue =
+    replaceDialogCurrentExercise?.type === "EXERCISE"
+      ? replaceDialogCurrentExercise.id
+      : "";
+
+  const replaceDialogComplexValue =
+    replaceDialogCurrentExercise?.type === "COMPLEX"
+      ? replaceDialogCurrentExercise.id
+      : "";
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -224,7 +312,7 @@ export function AddWorkoutForm({
                     key={field.id}
                     className="p-3 bg-muted rounded border space-y-3"
                   >
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center gap-2">
                       <h5 className="font-medium">
                         {exercise ? (
                           <ComplexNameTooltip
@@ -236,15 +324,30 @@ export function AddWorkoutForm({
                           "Exercise"
                         )}
                       </h5>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => remove(index)}
-                        className="text-red-500"
-                      >
-                        Remove
-                      </Button>
+                      <div className="flex items-center gap-1.5">
+                        <Tooltip content="Replace">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openReplaceDialog(index)}
+                            className=""
+                          >
+                            <Replace className="h-4 w-4" />
+                            <span className="sr-only">Replace</span>
+                          </Button>
+                        </Tooltip>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => remove(index)}
+                          className="dark:hover:text-destructive dark:focus-visible:text-destructive"
+                        >
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Remove</span>
+                        </Button>
+                      </div>
                     </div>
 
                     <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
@@ -370,6 +473,83 @@ export function AddWorkoutForm({
           {createWorkout.isPending ? "Creating..." : "Log workout"}
         </Button>
       </div>
+
+      {isTouchDevice ? (
+        <Drawer
+          open={isReplaceDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              closeReplaceDialog();
+            }
+          }}
+          repositionInputs={false}
+        >
+          <DrawerContent className="max-h-[80vh]">
+            <DrawerHeader>
+              <DrawerTitle>Replace exercise</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-4 space-y-4 overflow-y-auto">
+              <p className="text-sm text-muted-foreground">
+                Existing sets, weight, and notes stay unless the new exercise
+                doesn&apos;t use them.
+              </p>
+              <div className="space-y-3">
+                <ExerciseSelect
+                  value={replaceDialogExerciseValue}
+                  onValueChange={handleReplaceExerciseSelect}
+                  excludeIds={replaceDialogExcludeIds}
+                  placeholder="Choose exercise"
+                  className="bg-background"
+                />
+                <ComplexSelect
+                  value={replaceDialogComplexValue}
+                  onValueChange={handleReplaceExerciseSelect}
+                  excludeIds={replaceDialogExcludeIds}
+                  placeholder="Choose complex"
+                  className="bg-background"
+                />
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog
+          open={isReplaceDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              closeReplaceDialog();
+            }
+          }}
+        >
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Replace exercise</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Existing sets, weight, and notes stay unless the new exercise
+                doesn&apos;t use them.
+              </p>
+              <div className="space-y-3">
+                <ExerciseSelect
+                  value={replaceDialogExerciseValue}
+                  onValueChange={handleReplaceExerciseSelect}
+                  excludeIds={replaceDialogExcludeIds}
+                  placeholder="Choose exercise"
+                  className="bg-background"
+                />
+                <ComplexSelect
+                  value={replaceDialogComplexValue}
+                  onValueChange={handleReplaceExerciseSelect}
+                  excludeIds={replaceDialogExcludeIds}
+                  placeholder="Choose complex"
+                  className="bg-background"
+                />
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </form>
   );
 }

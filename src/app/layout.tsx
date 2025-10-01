@@ -28,12 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 md:pb-0 md:flex`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 md:pb-0 md:pl-64`}
       >
         <TRPCReactProvider>
           <ConfirmProvider>
             <Navigation />
-            {children}
+            <main className="min-h-dvh">{children}</main>
           </ConfirmProvider>
         </TRPCReactProvider>
       </body>
