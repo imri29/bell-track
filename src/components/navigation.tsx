@@ -16,8 +16,8 @@ export function Navigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border md:right-auto md:top-0 md:h-dvh md:w-64 md:border-t-0 md:border-r md:border-border">
-      <div className="flex md:flex-col md:h-full">
+    <nav className="fixed bottom-0 left-0 right-0 z-[200] border-t border-border bg-background md:sticky md:bottom-auto md:left-auto md:right-auto md:top-0 md:h-dvh md:w-64 md:shrink-0 md:border-t-0 md:border-r md:border-border">
+      <div className="flex md:h-full md:flex-col">
         {navigation.map((item) => {
           const isActive =
             item.href === "/"
