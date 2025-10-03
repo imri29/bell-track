@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useIsTouchDevice } from "@/hooks/use-is-touch-device";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 
 type ComplexSubExercise = {
   exerciseName: string;
@@ -53,10 +53,10 @@ export function ComplexNameTooltip({
     }
   }
 
-  const isTouchDevice = useIsTouchDevice();
+  const isMobile = useIsMobile();
 
   if (parsedSubExercises.length === 0) {
-    if (isTouchDevice) {
+    if (isMobile) {
       return (
         <span className={cn("cursor-pointer", className)}>
           {children ?? name}
@@ -85,7 +85,7 @@ export function ComplexNameTooltip({
     </ul>
   );
 
-  if (isTouchDevice) {
+  if (isMobile) {
     return (
       <Drawer>
         <DrawerTrigger asChild>

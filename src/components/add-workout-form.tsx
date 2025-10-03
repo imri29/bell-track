@@ -26,7 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip } from "@/components/ui/tooltip";
-import { useIsTouchDevice } from "@/hooks/use-is-touch-device";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
@@ -103,7 +103,7 @@ export function AddWorkoutForm({
   });
 
   const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
-  const isTouchDevice = useIsTouchDevice();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (templateData) {
@@ -494,7 +494,7 @@ export function AddWorkoutForm({
         </div>
       </form>
 
-      {isTouchDevice ? (
+      {isMobile ? (
         <Drawer
           open={isReplaceDialogOpen}
           onOpenChange={(open) => {
