@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useId } from "react";
+import { useId, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import {
+  AddComplexExerciseModal,
+  AddExerciseModal,
+} from "@/components/add-exercise-modal";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ComplexSelect } from "@/components/complex-select";
 import { ExerciseSelect } from "@/components/exercise-select";
@@ -35,6 +39,9 @@ export default function NewTemplatePage() {
   const utils = api.useUtils();
 
   const { data: exercises } = api.exercise.getAll.useQuery();
+
+  const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
+  const [isAddComplexModalOpen, setIsAddComplexModalOpen] = useState(false);
 
   // Form IDs for accessibility
   const nameId = useId();
@@ -92,6 +99,15 @@ export default function NewTemplatePage() {
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
+        <AddExerciseModal
+          isOpen={isAddExerciseModalOpen}
+          onOpenChange={setIsAddExerciseModalOpen}
+        />
+        <AddComplexExerciseModal
+          isOpen={isAddComplexModalOpen}
+          onOpenChange={setIsAddComplexModalOpen}
+        />
+
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2">Create New Template</h1>
@@ -175,6 +191,7 @@ export default function NewTemplatePage() {
                   id={exerciseSelectId}
                   className="bg-background"
                   placeholder="Add individual exercise"
+                  onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
                 />
               </div>
 
@@ -195,6 +212,7 @@ export default function NewTemplatePage() {
                   id={complexSelectId}
                   className="bg-background"
                   placeholder="Add complex exercise"
+                  onCreateNewComplex={() => setIsAddComplexModalOpen(true)}
                 />
               </div>
             </div>

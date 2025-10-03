@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEventHandler, use, useEffect, useId } from "react";
+import { use, useEffect, useId, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import {
+  AddComplexExerciseModal,
+  AddExerciseModal,
+} from "@/components/add-exercise-modal";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ComplexSelect } from "@/components/complex-select";
 import { ExerciseSelect } from "@/components/exercise-select";
@@ -41,6 +45,9 @@ export default function EditTemplatePage({
   const { data: exercises } = api.exercise.getAll.useQuery();
   const { data: template, isPending: templateLoading } =
     api.template.getById.useQuery({ id });
+
+  const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
+  const [isAddComplexModalOpen, setIsAddComplexModalOpen] = useState(false);
 
   const nameId = useId();
   const descriptionId = useId();
@@ -108,16 +115,6 @@ export default function EditTemplatePage({
     }
   };
 
-  // this exists to prevent the new exercise modal submit event to bubble
-  // and submit this for too.
-  const onOuterSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    // ignore bubbled submits
-    if (e.target !== e.currentTarget) {
-      return;
-    }
-    handleSubmit(onSubmit)(e);
-  };
-
   if (templateLoading) {
     return (
       <div className="p-4 md:p-8 w-full">
@@ -144,6 +141,15 @@ export default function EditTemplatePage({
   return (
     <div className="p-4 md:p-8 w-full">
       <main className="max-w-4xl mx-auto">
+        <AddExerciseModal
+          isOpen={isAddExerciseModalOpen}
+          onOpenChange={setIsAddExerciseModalOpen}
+        />
+        <AddComplexExerciseModal
+          isOpen={isAddComplexModalOpen}
+          onOpenChange={setIsAddComplexModalOpen}
+        />
+
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2">Edit Template</h1>
@@ -157,7 +163,7 @@ export default function EditTemplatePage({
         </div>
 
         <form
-          onSubmit={onOuterSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               // Prevent form submission on Enter unless it's the submit button
@@ -227,6 +233,7 @@ export default function EditTemplatePage({
                   id={exerciseSelectId}
                   className="bg-background"
                   placeholder="Add individual exercise"
+                  onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
                 />
               </div>
 
@@ -247,6 +254,7 @@ export default function EditTemplatePage({
                   id={complexSelectId}
                   className="bg-background"
                   placeholder="Add complex exercise"
+                  onCreateNewComplex={() => setIsAddComplexModalOpen(true)}
                 />
               </div>
             </div>
