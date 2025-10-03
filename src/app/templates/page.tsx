@@ -4,6 +4,8 @@ import { BadgePlus, Edit, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
+import { PageHero } from "@/components/page-hero";
+import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useConfirm } from "@/contexts/confirm-context";
@@ -107,96 +109,90 @@ export default function TemplatesPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 w-full">
-      <main className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Templates</h1>
-            <p className="text-xl text-muted-foreground">
-              Create and manage reusable workout templates
-            </p>
-          </div>
-          <Button asChild className="gap-1.5">
-            <Link href="/templates/new">
-              <Plus />
-              Add Template
-            </Link>
-          </Button>
-        </div>
+    <PageShell>
+      <PageHero
+        eyebrow="Bell Track"
+        title="Templates"
+        description="Create and manage reusable workout templates"
+      >
+        <Button asChild className="gap-1.5">
+          <Link href="/templates/new">
+            <Plus />
+            Add Template
+          </Link>
+        </Button>
+      </PageHero>
 
-        <div className="space-y-6">
-          <div className="p-6 bg-muted rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4">Your Templates</h2>
-            <div className="space-y-4">
-              {templatesPending ? (
-                <p>Loading templates...</p>
-              ) : templatesError ? (
-                <p>Error loading templates</p>
-              ) : templates && templates.length > 0 ? (
-                <div className="space-y-3">
-                  {templates.map((template) => (
-                    <div
-                      key={template.id}
-                      className="p-4 bg-background rounded border group"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{template.name}</h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {template.exercises.length} exercise
-                            {template.exercises.length !== 1 ? "s" : ""}
-                          </p>
-                          {template.description && (
-                            <p className="text-sm mt-2">
-                              {template.description}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-2 transition-opacity duration-500 opacity-100 md:opacity-0 md:group-hover:opacity-100">
-                          <Tooltip content="Log workout">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleUseTemplate(template)}
-                              className="gap-1.5"
-                            >
-                              <BadgePlus className="h-4 w-4" />
-                            </Button>
-                          </Tooltip>
+      <div className="space-y-6">
+        <div className="rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
+          <h2 className="text-2xl font-semibold mb-4">Your Templates</h2>
+          <div className="space-y-4">
+            {templatesPending ? (
+              <p>Loading templates...</p>
+            ) : templatesError ? (
+              <p>Error loading templates</p>
+            ) : templates && templates.length > 0 ? (
+              <div className="space-y-3">
+                {templates.map((template) => (
+                  <div
+                    key={template.id}
+                    className="group rounded-2xl border border-border/60 bg-background/80 p-4 shadow-sm"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{template.name}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {template.exercises.length} exercise
+                          {template.exercises.length !== 1 ? "s" : ""}
+                        </p>
+                        {template.description && (
+                          <p className="text-sm mt-2">{template.description}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2 transition-opacity duration-500 opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                        <Tooltip content="Log workout">
                           <Button
                             size="sm"
                             variant="outline"
-                            asChild
+                            onClick={() => handleUseTemplate(template)}
                             className="gap-1.5"
                           >
-                            <Link href={`/templates/${template.id}/edit`}>
-                              <Edit className="h-4 w-4" />
-                            </Link>
+                            <BadgePlus className="h-4 w-4" />
                           </Button>
-                          <Button
-                            className="h-8 w-8 p-0"
-                            variant="destructive"
-                            onClick={() => handleDelete(template)}
-                            disabled={isDeleting}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        </Tooltip>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          asChild
+                          className="gap-1.5"
+                        >
+                          <Link href={`/templates/${template.id}/edit`}>
+                            <Edit className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                        <Button
+                          className="h-8 w-8 p-0"
+                          variant="destructive"
+                          onClick={() => handleDelete(template)}
+                          disabled={isDeleting}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <TemplateExercisesList exercises={template.exercises} />
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">
-                  No templates yet. Click "Add Template" to create your first
-                  workout template.
-                </p>
-              )}
-            </div>
+                    <TemplateExercisesList exercises={template.exercises} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">
+                No templates yet. Click "Add Template" to create your first
+                workout template.
+              </p>
+            )}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </PageShell>
   );
 }

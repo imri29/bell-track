@@ -7,6 +7,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { CalendarView } from "@/components/calendar-view";
 import { EditWorkoutModal } from "@/components/edit-workout-modal";
+import { PageHero } from "@/components/page-hero";
+import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -93,85 +95,80 @@ function HistoryPageComponent() {
   };
 
   return (
-    <div className="p-4 md:p-8 w-full">
-      <main className="max-w-4xl mx-auto">
-        <EditWorkoutModal
-          isOpen={editingWorkout !== null}
-          onOpenChange={(open) => {
-            if (!open) handleCloseEditModal();
-          }}
-          workout={editingWorkout}
-        />
+    <PageShell>
+      <EditWorkoutModal
+        isOpen={editingWorkout !== null}
+        onOpenChange={(open) => {
+          if (!open) handleCloseEditModal();
+        }}
+        workout={editingWorkout}
+      />
 
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Workout history</h1>
-            <p className="text-xl text-muted-foreground">
-              View and manage your workout history
-            </p>
-          </div>
-        </div>
+      <PageHero
+        eyebrow="Bell Track"
+        title="Workout history"
+        description="View and manage your workout history"
+      />
 
-        <Tabs defaultValue="list" value={view ?? "list"} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger asChild value="list" className="w-full gap-2">
-              <Link className="w-full" href="/history?view=list">
-                List view
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="gap-2">
-              <Link className="w-full" href="/history?view=calendar">
-                Calendar view
-              </Link>
-            </TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="list" value={view ?? "list"} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger asChild value="list" className="w-full gap-2">
+            <Link className="w-full" href="/history?view=list">
+              List view
+            </Link>
+          </TabsTrigger>
+          <TabsTrigger value="calendar" className="gap-2">
+            <Link className="w-full" href="/history?view=calendar">
+              Calendar view
+            </Link>
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="list" className="space-y-6">
-            <div className="p-6 bg-muted rounded-lg">
-              <div className="flex md:flex-row flex-col justify-between mb-3">
-                <h2 className="text-2xl font-semibold mb-4">Your Workouts</h2>
-                <div className="flex gap-2">
-                  <Button asChild className="gap-1.5">
-                    <Link href="/history/new">
-                      <Plus />
-                      Add Workout
-                    </Link>
-                  </Button>
-                  <Select onValueChange={handleTemplateSelect}>
-                    <SelectTrigger className="w-auto gap-1.5 px-3 py-2 h-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer">
-                      <BookOpen className="h-4 w-4" />
-                      <SelectValue placeholder="Add from Template" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {templates?.map((template) => (
-                        <SelectItem key={template.id} value={template.id}>
-                          {template.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+        <TabsContent value="list" className="space-y-6">
+          <div className="rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
+            <div className="flex md:flex-row flex-col justify-between mb-3">
+              <h2 className="text-2xl font-semibold mb-4">Your Workouts</h2>
+              <div className="flex gap-2">
+                <Button asChild className="gap-1.5">
+                  <Link href="/history/new">
+                    <Plus />
+                    Add Workout
+                  </Link>
+                </Button>
+                <Select onValueChange={handleTemplateSelect}>
+                  <SelectTrigger className="w-auto gap-1.5 px-3 py-2 h-10 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                    <BookOpen className="h-4 w-4" />
+                    <SelectValue placeholder="Add from Template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates?.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <WorkoutListView
-                workouts={workouts}
-                workoutsPending={workoutsPending}
-                workoutsError={workoutsError}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                isDeleting={isDeleting}
-              />
             </div>
-          </TabsContent>
-
-          <TabsContent value="calendar" className="space-y-6">
-            <CalendarView
-              workouts={workouts || []}
-              onEditWorkout={handleEdit}
-              onDeleteWorkout={handleDelete}
+            <WorkoutListView
+              workouts={workouts}
+              workoutsPending={workoutsPending}
+              workoutsError={workoutsError}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              isDeleting={isDeleting}
             />
-          </TabsContent>
-        </Tabs>
-      </main>
-    </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="calendar" className="space-y-6">
+          <CalendarView
+            workouts={workouts || []}
+            onEditWorkout={handleEdit}
+            onDeleteWorkout={handleDelete}
+          />
+        </TabsContent>
+      </Tabs>
+    </PageShell>
   );
 }

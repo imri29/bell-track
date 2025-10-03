@@ -10,6 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -19,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useIsTouchDevice } from "@/hooks/use-is-touch-device";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
@@ -58,6 +66,7 @@ export function EditWorkoutModal({
   const utils = api.useUtils();
 
   const { data: exercises } = api.exercise.getAll.useQuery();
+  const isTouchDevice = useIsTouchDevice();
 
   // Form IDs for accessibility
   const dateId = useId();

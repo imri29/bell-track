@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
 import { AddWorkoutForm } from "@/components/add-workout-form";
+import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
@@ -80,39 +81,39 @@ function NewWorkoutPageComponent() {
     Boolean(templateId) && templatePending && !templateResponse;
 
   return (
-    <div className="p-4 md:p-8 w-full">
-      <main className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Log workout</h1>
-            <p className="text-xl text-muted-foreground">
-              Record a new training session
-            </p>
-          </div>
-          <Button asChild variant="outline">
-            <Link href="/history?view=list">Back to history</Link>
-          </Button>
+    <PageShell withGlow={false} mainClassName="max-w-4xl gap-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-semibold leading-tight text-foreground">
+            Log workout
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Record a new training session.
+          </p>
         </div>
+        <Button asChild variant="outline">
+          <Link href="/history?view=list">Back to history</Link>
+        </Button>
+      </div>
 
-        <div className="p-6 bg-muted rounded-lg">
-          {isLoadingTemplate ? (
-            <p>Loading template...</p>
-          ) : templateError ? (
-            <p className="text-destructive">Failed to load template.</p>
-          ) : templateId && !templateResponse ? (
-            <p className="text-muted-foreground">
-              Template not found. You can still log a workout from scratch.
-            </p>
-          ) : (
-            <AddWorkoutForm
-              templateData={templateData}
-              initialDate={initialDate}
-              onCancel={handleNavigateToHistory}
-              onSuccess={handleNavigateToHistory}
-            />
-          )}
-        </div>
-      </main>
-    </div>
+      <div className="rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
+        {isLoadingTemplate ? (
+          <p>Loading template...</p>
+        ) : templateError ? (
+          <p className="text-destructive">Failed to load template.</p>
+        ) : templateId && !templateResponse ? (
+          <p className="text-muted-foreground">
+            Template not found. You can still log a workout from scratch.
+          </p>
+        ) : (
+          <AddWorkoutForm
+            templateData={templateData}
+            initialDate={initialDate}
+            onCancel={handleNavigateToHistory}
+            onSuccess={handleNavigateToHistory}
+          />
+        )}
+      </div>
+    </PageShell>
   );
 }
