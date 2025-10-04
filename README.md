@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Bell Track
+
+Bell Track is a Next.js App Router project for planning and logging kettlebell training. See `docs/` for
+feature-specific notes.
 
 ## Getting Started
 
-First, run the development server:
+Development tooling is wired for npm.
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Turbopack serves the app at [http://localhost:8080](http://localhost:8080).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Prisma & Database Notes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The project now targets PostgreSQL. Earlier revisions used SQLite, so existing environments created before the switch
+need a one-time reconciliation step:
 
-## Learn More
+```bash
+npx prisma migrate resolve --applied 20251004153013_init_postgres
+```
 
-To learn more about Next.js, take a look at the following resources:
+Run that once per environment before executing `prisma migrate deploy`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Bootstrapping Workout Tags
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Templates rely on a base catalog of tags. For a brand-new environment you can simply run the standard seed script:
 
-## Deploy on Vercel
+```bash
+npm run db:seed 
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+If you cannot seed the full dataset (for example, on an existing production database), upsert the tags manually. The
+following SQL is idempotent:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```sql
+INSERT INTO "WorkoutTag" ("id", "name", "slug", "description", "createdAt", "updatedAt")
+VALUES
+  (gen_random_uuid()::text, 'EMOM', 'emom', 'Every minute on the minute sessions for focused pacing.', NOW(), NOW()),
+  (gen_random_uuid()::text, 'AMRAP', 'amrap', 'As many rounds as possible—perfect for short, intense blocks.', NOW(), NOW()),
+  (gen_random_uuid()::text, 'Main lift + accessory', 'main-lift-accessory', 'Anchor session around one lift then layer supportive work.', NOW(), NOW()),
+  (gen_random_uuid()::text, 'Supersets', 'supersets', 'Pair movements back-to-back to keep the heart rate up.', NOW(), NOW()),
+  (gen_random_uuid()::text, 'Complex', 'complex', 'Flow through linked movements without putting the bell down.', NOW(), NOW()),
+  (gen_random_uuid()::text, 'Conditioning', 'conditioning', 'Sweat-focused sessions when you want to move fast.', NOW(), NOW())
+ON CONFLICT ("slug") DO UPDATE
+  SET "name" = EXCLUDED."name",
+      "description" = EXCLUDED."description",
+      "updatedAt" = NOW();
+```
+
+Running this in the Neon SQL editor (or via `psql`) restores the tag catalog without touching workouts.
