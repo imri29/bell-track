@@ -39,32 +39,31 @@ export function ComplexSelect({
     ) || [];
 
   return (
-    <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger id={id} className={className}>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent className="bg-background">
-        <div className="p-1">
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full justify-start h-8 px-2 py-1.5 text-sm"
-            onClick={onCreateNewComplex}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Exercise
-          </Button>
-        </div>
-        {availableComplexes.map((exercise) => (
-          <SelectItem key={exercise.id} value={exercise.id}>
-            <ComplexNameTooltip
-              name={exercise.name}
-              subExercises={exercise.subExercises}
-              className="block"
-            />
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="flex gap-1 items-center">
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger id={id} className={className}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className="bg-background">
+          {availableComplexes.map((exercise) => (
+            <SelectItem key={exercise.id} value={exercise.id}>
+              <ComplexNameTooltip
+                name={exercise.name}
+                subExercises={exercise.subExercises}
+                className="block"
+              />
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Button
+        size="icon"
+        variant="outline"
+        onClick={onCreateNewComplex}
+        type="button"
+      >
+        <Plus />
+      </Button>
+    </div>
   );
 }
