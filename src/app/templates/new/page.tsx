@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import {
   AddComplexExerciseModal,
@@ -14,8 +14,11 @@ import { ExerciseSelect } from "@/components/exercise-select";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
+import { getTagPalette } from "@/lib/tag-colors";
+import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 
 type TemplateExerciseFormData = {
@@ -33,6 +36,7 @@ type TemplateFormData = {
   name: string;
   description?: string;
   exercises: TemplateExerciseFormData[];
+  tagIds: string[];
 };
 
 export default function NewTemplatePage() {
@@ -40,6 +44,11 @@ export default function NewTemplatePage() {
   const utils = api.useUtils();
 
   const { data: exercises } = api.exercise.getAll.useQuery();
+  const {
+    data: tags,
+    isPending: tagsPending,
+    error: tagsError,
+  } = api.template.getTags.useQuery();
 
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
   const [isAddComplexModalOpen, setIsAddComplexModalOpen] = useState(false);
@@ -54,12 +63,15 @@ export default function NewTemplatePage() {
     register,
     handleSubmit,
     control,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<TemplateFormData>({
     defaultValues: {
       name: "",
       description: "",
       exercises: [],
+      tagIds: [],
     },
   });
 
@@ -68,6 +80,25 @@ export default function NewTemplatePage() {
     control,
     name: "exercises",
   });
+
+  const selectedTagIds = watch("tagIds");
+
+  const toggleTagSelection = (tagId: string) => {
+    setValue(
+      "tagIds",
+      selectedTagIds?.includes(tagId)
+        ? selectedTagIds.filter((id) => id !== tagId)
+        : [...(selectedTagIds ?? []), tagId],
+      { shouldDirty: true },
+    );
+  };
+
+  const sortedTags = useMemo(() => {
+    if (!tags) {
+      return [];
+    }
+    return [...tags].sort((a, b) => a.name.localeCompare(b.name));
+  }, [tags]);
 
   const createTemplate = api.template.create.useMutation({
     onSuccess: () => {
@@ -87,6 +118,7 @@ export default function NewTemplatePage() {
       name: data.name,
       description: data.description || undefined,
       exercises,
+      tagIds: data.tagIds,
     });
   };
 
@@ -168,6 +200,68 @@ export default function NewTemplatePage() {
                 {...register("description")}
               />
             </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-foreground">Tags</h3>
+              {selectedTagIds && selectedTagIds.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setValue("tagIds", [], { shouldDirty: true })}
+                  className="text-xs font-medium text-muted-foreground hover:text-foreground"
+                >
+                  Clear selection
+                </button>
+              ) : null}
+            </div>
+            {tagsError ? (
+              <p className="text-sm text-destructive">
+                Failed to load tags. You can save without tags and add them
+                later.
+              </p>
+            ) : tagsPending ? (
+              <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/30 px-4 py-2 text-sm text-muted-foreground">
+                <Spinner size="sm" variant="muted" /> Loading tags...
+              </div>
+            ) : sortedTags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {sortedTags.map((tag) => {
+                  const isSelected = selectedTagIds?.includes(tag.id) ?? false;
+                  const palette = getTagPalette(tag.slug);
+                  return (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => toggleTagSelection(tag.id)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                        isSelected
+                          ? cn(
+                              palette.tint,
+                              "focus-visible:ring-offset-background",
+                            )
+                          : "border-border/50 bg-muted/20 text-muted-foreground hover:bg-muted/40 focus-visible:ring-border",
+                      )}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "h-2 w-2 shrink-0 rounded-full",
+                          palette.dot,
+                          !isSelected && "opacity-60",
+                        )}
+                      />
+                      {tag.name}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No tags available yet.
+              </p>
+            )}
           </div>
         </div>
 

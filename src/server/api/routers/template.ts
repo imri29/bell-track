@@ -17,6 +17,7 @@ const templateExerciseSchema = z.object({
 
 // Output schema for template exercises to match workout input format
 const templateExerciseOutputSchema = z.object({
+  id: z.string().optional(),
   exerciseId: z.string(),
   sets: z.number(),
   reps: z.string(),
@@ -39,11 +40,22 @@ const templateExerciseOutputSchema = z.object({
   order: z.number(),
 });
 
+const templateTagOutputSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullish(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  assignedAt: z.date(),
+});
+
 // Base template schema for shared fields
 const baseTemplateSchema = z.object({
   name: z.string().min(1, "Template name is required"),
   description: z.string().optional(),
   exercises: z.array(templateExerciseSchema),
+  tagIds: z.array(z.string()).default([]),
 });
 
 const createTemplateSchema = baseTemplateSchema;
@@ -60,22 +72,136 @@ const templateOutputSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   exercises: z.array(templateExerciseOutputSchema),
+  tags: z.array(templateTagOutputSchema),
 });
 
+const templateFiltersSchema = z
+  .object({
+    search: z.string().optional(),
+    tagSlugs: z.array(z.string()).optional(),
+  })
+  .optional();
+
+function serializeTemplate(template: {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  exercises: Array<{
+    id: string;
+    exerciseId: string;
+    sets: number;
+    reps: string;
+    weight: number | null;
+    restTime: number | null;
+    notes: string | null;
+    group: string | null;
+    order: number;
+    exercise: {
+      id: string;
+      name: string;
+      type: string;
+      subExercises: string | null;
+      description: string | null;
+    };
+  }>;
+  tags: Array<{
+    assignedAt: Date;
+    tag: {
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+    };
+  }>;
+}) {
+  return {
+    ...template,
+    exercises: template.exercises.map((exercise) => ({
+      id: exercise.id,
+      exerciseId: exercise.exerciseId,
+      sets: exercise.sets,
+      reps: exercise.reps,
+      weight: exercise.weight,
+      restTime: exercise.restTime,
+      notes: exercise.notes,
+      group: exercise.group,
+      order: exercise.order,
+      exercise: exercise.exercise,
+    })),
+    tags: template.tags
+      .map(({ assignedAt, tag }) => ({
+        id: tag.id,
+        name: tag.name,
+        slug: tag.slug,
+        description: tag.description,
+        createdAt: tag.createdAt,
+        updatedAt: tag.updatedAt,
+        assignedAt,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  };
+}
+
 export const templateRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async () => {
-    return prisma.workoutTemplate.findMany({
-      orderBy: { createdAt: "desc" },
-      include: {
-        exercises: {
-          include: {
-            exercise: true,
-          },
-          orderBy: [{ group: "asc" }, { order: "asc" }],
+  getAll: publicProcedure
+    .input(templateFiltersSchema)
+    .query(async ({ input }) => {
+      const search = input?.search?.trim();
+      const tagSlugs = input?.tagSlugs
+        ?.map((slug) => slug.trim())
+        .filter(Boolean);
+
+      const templates = await prisma.workoutTemplate.findMany({
+        where: {
+          ...(search
+            ? {
+                OR: [
+                  { name: { contains: search, mode: "insensitive" } },
+                  { description: { contains: search, mode: "insensitive" } },
+                  {
+                    exercises: {
+                      some: {
+                        exercise: {
+                          name: { contains: search, mode: "insensitive" },
+                        },
+                      },
+                    },
+                  },
+                ],
+              }
+            : {}),
+          ...(tagSlugs && tagSlugs.length > 0
+            ? {
+                tags: {
+                  some: {
+                    tag: {
+                      slug: { in: tagSlugs },
+                    },
+                  },
+                },
+              }
+            : {}),
         },
-      },
-    });
-  }),
+        orderBy: { createdAt: "desc" },
+        include: {
+          exercises: {
+            include: {
+              exercise: true,
+            },
+            orderBy: [{ group: "asc" }, { order: "asc" }],
+          },
+          tags: {
+            include: { tag: true },
+          },
+        },
+      });
+
+      return templates.map(serializeTemplate);
+    }),
 
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
@@ -90,6 +216,9 @@ export const templateRouter = createTRPCRouter({
             },
             orderBy: [{ group: "asc" }, { order: "asc" }],
           },
+          tags: {
+            include: { tag: true },
+          },
         },
       });
 
@@ -97,27 +226,15 @@ export const templateRouter = createTRPCRouter({
         return null;
       }
 
-      return {
-        ...template,
-        exercises: template.exercises.map((ex) => ({
-          exerciseId: ex.exerciseId,
-          sets: ex.sets,
-          reps: ex.reps,
-          weight: ex.weight || 16,
-          restTime: ex.restTime,
-          notes: ex.notes || "",
-          group: ex.group || "",
-          order: ex.order,
-        })),
-      };
+      return serializeTemplate(template);
     }),
 
   create: publicProcedure
     .input(createTemplateSchema)
     .mutation(async ({ input }) => {
-      const { exercises, ...templateData } = input;
+      const { exercises, tagIds, ...templateData } = input;
 
-      return prisma.workoutTemplate.create({
+      const template = await prisma.workoutTemplate.create({
         data: {
           ...templateData,
           exercises: {
@@ -132,6 +249,13 @@ export const templateRouter = createTRPCRouter({
               order: exercise.order,
             })),
           },
+          ...(tagIds.length > 0 && {
+            tags: {
+              create: tagIds.map((tagId) => ({
+                tag: { connect: { id: tagId } },
+              })),
+            },
+          }),
         },
         include: {
           exercises: {
@@ -140,14 +264,19 @@ export const templateRouter = createTRPCRouter({
             },
             orderBy: [{ group: "asc" }, { order: "asc" }],
           },
+          tags: {
+            include: { tag: true },
+          },
         },
       });
+
+      return serializeTemplate(template);
     }),
 
   update: publicProcedure
     .input(updateTemplateSchema)
     .mutation(async ({ input }) => {
-      const { id, exercises, ...templateData } = input;
+      const { id, exercises, tagIds, ...templateData } = input;
 
       // If exercises are provided, replace all template exercises
       if (exercises) {
@@ -156,11 +285,16 @@ export const templateRouter = createTRPCRouter({
         });
       }
 
-      return prisma.workoutTemplate.update({
+      if (tagIds) {
+        await prisma.workoutTemplateTag.deleteMany({
+          where: { templateId: id },
+        });
+      }
+
+      const template = await prisma.workoutTemplate.update({
         where: { id },
         data: {
           ...templateData,
-
           ...(exercises && {
             exercises: {
               create: exercises.map((exercise) => ({
@@ -175,6 +309,13 @@ export const templateRouter = createTRPCRouter({
               })),
             },
           }),
+          ...(tagIds && {
+            tags: {
+              create: tagIds.map((tagId) => ({
+                tag: { connect: { id: tagId } },
+              })),
+            },
+          }),
         },
         include: {
           exercises: {
@@ -183,8 +324,13 @@ export const templateRouter = createTRPCRouter({
             },
             orderBy: [{ group: "asc" }, { order: "asc" }],
           },
+          tags: {
+            include: { tag: true },
+          },
         },
       });
+
+      return serializeTemplate(template);
     }),
 
   delete: publicProcedure
@@ -196,4 +342,10 @@ export const templateRouter = createTRPCRouter({
 
       return { success: true };
     }),
+
+  getTags: publicProcedure.query(async () => {
+    return prisma.workoutTag.findMany({
+      orderBy: { name: "asc" },
+    });
+  }),
 });
