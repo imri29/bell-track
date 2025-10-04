@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import type { RouterOutputs } from "@/server/api/root";
 
 type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
@@ -79,7 +80,9 @@ export function WorkoutListView({
   return (
     <div className="space-y-4">
       {workoutsPending ? (
-        <p>Loading workouts...</p>
+        <div className="flex justify-center py-15">
+          <Spinner size="lg" />
+        </div>
       ) : workoutsError ? (
         <p>Error loading workouts</p>
       ) : workouts && workouts.length > 0 ? (

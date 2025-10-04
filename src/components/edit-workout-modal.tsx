@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
+import { ComplexSelect } from "@/components/complex-select";
+import { ExerciseSelect } from "@/components/exercise-select";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,13 +20,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
@@ -73,6 +68,9 @@ export function EditWorkoutModal({
   const durationId = useId();
   const notesId = useId();
   const exerciseSelectId = useId();
+  const complexSelectId = useId();
+  const [exerciseSelectValue, setExerciseSelectValue] = useState("");
+  const [complexSelectValue, setComplexSelectValue] = useState("");
 
   const {
     register,
@@ -215,66 +213,36 @@ export function EditWorkoutModal({
             <label htmlFor={exerciseSelectId} className="text-sm font-medium">
               Select Exercise
             </label>
-            <Select
-              value=""
+            <ExerciseSelect
+              id={exerciseSelectId}
+              className="bg-background"
+              value={exerciseSelectValue}
+              excludeIds={fields.map((field) => field.exerciseId)}
               onValueChange={(value) => {
                 if (value) {
                   addExercise(value);
+                  setExerciseSelectValue("");
                 }
               }}
-            >
-              <SelectTrigger id={exerciseSelectId}>
-                <SelectValue placeholder="Add individual exercise" />
-              </SelectTrigger>
-              <SelectContent>
-                {exercises
-                  ?.filter(
-                    (ex) =>
-                      ex.type === "EXERCISE" &&
-                      !fields.some((field) => field.exerciseId === ex.id),
-                  )
-                  .map((exercise) => (
-                    <SelectItem key={exercise.id} value={exercise.id}>
-                      <ComplexNameTooltip
-                        name={exercise.name}
-                        subExercises={exercise.subExercises}
-                        className="block"
-                      />
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor={exerciseSelectId} className="text-sm font-medium">
+            <label htmlFor={complexSelectId} className="text-sm font-medium">
               Select Complex
             </label>
-            <Select
-              value=""
+            <ComplexSelect
+              id={complexSelectId}
+              className="bg-background"
+              value={complexSelectValue}
+              excludeIds={fields.map((field) => field.exerciseId)}
               onValueChange={(value) => {
                 if (value) {
                   addExercise(value);
+                  setComplexSelectValue("");
                 }
               }}
-            >
-              <SelectTrigger id={exerciseSelectId}>
-                <SelectValue placeholder="Add complex exercise" />
-              </SelectTrigger>
-              <SelectContent>
-                {exercises
-                  ?.filter(
-                    (ex) =>
-                      ex.type === "COMPLEX" &&
-                      !fields.some((field) => field.exerciseId === ex.id),
-                  )
-                  .map((exercise) => (
-                    <SelectItem key={exercise.id} value={exercise.id}>
-                      {exercise.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
         </div>
 
