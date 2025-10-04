@@ -69,4 +69,26 @@ model WorkoutTemplate {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   exercises   WorkoutExercise[]
+  tags        WorkoutTemplateTag[]
+}
+
+model WorkoutTag {
+  id          String               @id @default(cuid())
+  name        String               @unique
+  slug        String               @unique
+  description String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  templates   WorkoutTemplateTag[]
+}
+
+model WorkoutTemplateTag {
+  templateId String
+  tagId      String
+  assignedAt DateTime    @default(now())
+
+  template WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  tag      WorkoutTag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([templateId, tagId])
 }
