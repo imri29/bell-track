@@ -3,12 +3,12 @@
 import { Replace, X } from "lucide-react";
 import { useCallback, useEffect, useId, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
-import { ComplexSelect } from "@/components/complex-select";
 import {
   AddComplexExerciseModal,
   AddExerciseModal,
 } from "@/components/add-exercise-modal";
+import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
+import { ComplexSelect } from "@/components/complex-select";
 import { ExerciseSelect } from "@/components/exercise-select";
 import { Button } from "@/components/ui/button";
 import {
