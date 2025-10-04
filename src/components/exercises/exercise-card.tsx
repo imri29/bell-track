@@ -1,7 +1,7 @@
 "use client";
 
 import { format, formatDistanceToNow } from "date-fns";
-import { MoreHorizontal, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { ComponentPropsWithoutRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ interface ExerciseCardProps extends ComponentPropsWithoutRef<"article"> {
   exercise: ExerciseCardData;
   onDelete?: (exercise: ExerciseCardData) => void;
   isDeleting?: boolean;
+  onEdit?: (exercise: ExerciseCardData) => void;
 }
 
 export function ExerciseCard({
@@ -21,6 +22,7 @@ export function ExerciseCard({
   className,
   onDelete,
   isDeleting,
+  onEdit,
   ...articleProps
 }: ExerciseCardProps) {
   const breakdownPreview = exercise.subExercises?.slice(0, 3) ?? [];
@@ -38,6 +40,12 @@ export function ExerciseCard({
   const handleDelete = () => {
     if (onDelete) {
       onDelete(exercise);
+    }
+  };
+
+  const handleEdit = () => {
+    if (onEdit) {
+      onEdit(exercise);
     }
   };
 
@@ -68,6 +76,18 @@ export function ExerciseCard({
           <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-primary">
             {typeLabel}
           </span>
+          {onEdit ? (
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-muted-foreground hover:text-primary"
+              onClick={handleEdit}
+            >
+              <Pencil className="h-4 w-4" />
+              <span className="sr-only">Edit exercise</span>
+            </Button>
+          ) : null}
           {onDelete ? (
             <Button
               type="button"
@@ -80,9 +100,10 @@ export function ExerciseCard({
               <Trash2 className="h-4 w-4" />
               <span className="sr-only">Delete exercise</span>
             </Button>
-          ) : (
+          ) : null}
+          {!onEdit && !onDelete ? (
             <MoreHorizontal className="h-5 w-5 text-muted-foreground/70" />
-          )}
+          ) : null}
         </div>
       </header>
 

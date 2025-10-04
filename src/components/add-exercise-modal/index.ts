@@ -17,3 +17,4 @@ export { ComplexExerciseBuilder } from "./components/complex-exercise-builder";
 export { ExerciseDescriptionField } from "./components/exercise-description-field";
 export { ExerciseFormActions } from "./components/exercise-form-actions";
 export { ExerciseNameField } from "./components/exercise-name-field";
+export { EditExerciseModal } from "./edit-exercise-modal";

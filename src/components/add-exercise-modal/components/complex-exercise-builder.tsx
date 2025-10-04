@@ -56,10 +56,21 @@ export function ComplexExerciseBuilder({
           onValueChange={(value) => {
             if (value) {
               const exercise = exercises?.find((ex) => ex.id === value);
-              if (
-                exercise &&
-                !fields.some((field) => field.exerciseId === value)
-              ) {
+              if (exercise) {
+                const isDuplicate = fields.some((field) => {
+                  if (field.exerciseId) {
+                    return field.exerciseId === value;
+                  }
+                  return (
+                    field.exerciseName.toLowerCase() ===
+                    exercise.name.toLowerCase()
+                  );
+                });
+
+                if (isDuplicate) {
+                  return;
+                }
+
                 append({
                   exerciseId: exercise.id,
                   exerciseName: exercise.name,

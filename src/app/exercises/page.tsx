@@ -2,8 +2,14 @@
 
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
-import { AddExerciseModal } from "@/components/add-exercise-modal";
-import { ExerciseCard } from "@/components/exercises/exercise-card";
+import {
+  AddExerciseModal,
+  EditExerciseModal,
+} from "@/components/add-exercise-modal";
+import {
+  ExerciseCard,
+  type ExerciseCardData,
+} from "@/components/exercises/exercise-card";
 import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -26,6 +32,8 @@ export default function ExercisesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingExercise, setEditingExercise] =
+    useState<ExerciseCardData | null>(null);
 
   const {
     data: exercises,
@@ -104,6 +112,15 @@ export default function ExercisesPage() {
   return (
     <PageShell>
       <AddExerciseModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
+      <EditExerciseModal
+        exercise={editingExercise}
+        isOpen={editingExercise !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingExercise(null);
+          }
+        }}
+      />
 
       <PageHero
         eyebrow="Bell Track"
@@ -204,6 +221,7 @@ export default function ExercisesPage() {
                 exercise={exercise}
                 onDelete={handleDelete}
                 isDeleting={pendingDeleteId === exercise.id}
+                onEdit={setEditingExercise}
               />
             ))}
           </div>
