@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WorkoutListView } from "@/components/workout-list-view";
 import { useConfirm } from "@/contexts/confirm-context";
@@ -27,15 +28,20 @@ type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
 
 export default function HistoryPage() {
   return (
-    <Suspense
-      fallback={
-        <div className={"flex justify-center items-center h-full w-full"}>
-          Loading...
-        </div>
-      }
-    >
+    <Suspense fallback={<HistoryFallback />}>
       <HistoryPageComponent />
     </Suspense>
+  );
+}
+
+function HistoryFallback() {
+  return (
+    <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-3 text-center">
+      <Spinner />
+      <p className="text-sm text-muted-foreground">
+        Loading your workout history...
+      </p>
+    </div>
   );
 }
 

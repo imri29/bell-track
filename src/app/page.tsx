@@ -3,7 +3,9 @@ import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default async function Home() {
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+
   return (
     <PageShell>
       <PageHero
