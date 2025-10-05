@@ -18,6 +18,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Bell Track",
   description: "Kettlebell workout tracker",
+  icons: {
+    icon:
+      process.env.NODE_ENV === "development"
+        ? "/favicon-dev.svg"
+        : "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
