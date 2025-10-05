@@ -45,7 +45,7 @@ export const exerciseRouter = createTRPCRouter({
     .output(z.array(exerciseOutputSchema))
     .query(async () => {
       const exercises = await prisma.exercise.findMany({
-        orderBy: { createdAt: "desc" },
+        orderBy: { name: "asc" },
       });
       return exercises.map(transformExercise);
     }),

@@ -186,7 +186,7 @@ export const templateRouter = createTRPCRouter({
               }
             : {}),
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { name: "asc" },
         include: {
           exercises: {
             include: {

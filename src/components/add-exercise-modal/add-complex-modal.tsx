@@ -79,15 +79,15 @@ export function AddComplexExerciseModal({
         onOpenChange={onOpenChange}
         repositionInputs={false}
       >
-        <DrawerContent className="max-h-[80vh]">
+        <DrawerContent className="max-h-[80vh]" fullHeight>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col h-full"
+            className="flex h-full min-h-0 flex-col"
           >
             <DrawerHeader>
               <DrawerTitle>Add New Complex</DrawerTitle>
             </DrawerHeader>
-            <div className="px-4 pb-4 space-y-4 overflow-y-auto flex-1">
+            <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4 min-h-0">
               <ExerciseModal.NameField
                 register={register}
                 errorMessage={errors.name?.message}

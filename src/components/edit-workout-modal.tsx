@@ -429,12 +429,12 @@ export function EditWorkoutModal({
         <DrawerContent fullHeight className="p-0">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex h-full flex-col"
+            className="flex h-full min-h-0 flex-col"
           >
             <DrawerHeader>
               <DrawerTitle>Edit Workout</DrawerTitle>
             </DrawerHeader>
-            <div className="flex-1 space-y-6 overflow-y-auto px-4 pb-6">
+            <div className="flex-1 min-h-0 space-y-6 overflow-y-auto px-4 pb-6">
               {formSections}
             </div>
             <DrawerFooter className="border-t">
