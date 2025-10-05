@@ -21,3 +21,7 @@ Automated tests are not yet standardized; align in your PR when adding them (Vit
 
 ## Commit & Pull Request Guidelines
 Follow the current history: concise, present-tense subjects (`add workout log card`) and focused diffs. Summaries should mention schema or seed impacts. PR descriptions must call out the problem, solution, and verification, link issues or Linear tickets, and attach screenshots for UI updates. Highlight any required `npm run db:seed` so reviewers can mirror your environment.
+
+## Agent Workflow Expectations
+- Consult `FEATURES.md` before picking up work so the roadmap stays the single source of truth.
+- When a feature is marked as complete in `FEATURES.md`, verify the implementation matches the documented scope before closing it out or marking it shipped.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Drawer,
@@ -12,6 +12,7 @@ import {
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 import { EXERCISE_TYPES } from "@/types";
+import { AddExerciseModal } from "./add-exercise-modal";
 import type { ComplexExerciseFormValues } from "./components/complex-exercise-builder";
 import { ExerciseModal } from "./index";
 
@@ -143,6 +144,7 @@ function EditComplexExerciseModalContent({
 }) {
   const utils = api.useUtils();
   const { data: exercises } = api.exercise.getAll.useQuery();
+  const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
 
   const {
     register,
@@ -209,34 +211,45 @@ function EditComplexExerciseModalContent({
   });
 
   return (
-    <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
-      <DrawerContent className="max-h-[80vh]">
-        <form onSubmit={onSubmit} className="flex h-full flex-col">
-          <DrawerHeader>
-            <DrawerTitle>Edit Complex</DrawerTitle>
-          </DrawerHeader>
-          <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4">
-            <ExerciseModal.NameField
-              register={register}
-              errorMessage={errors.name?.message}
-            />
-            <ExerciseModal.ComplexBuilder
-              control={control}
-              register={register}
-              exercises={exercises}
-            />
-            <ExerciseModal.DescriptionField register={register} />
-          </div>
-          <DrawerFooter>
-            <ExerciseModal.Actions
-              onCancel={() => onOpenChange(false)}
-              isPending={updateExercise.isPending}
-              submitText="Save Changes"
-              loadingText="Saving..."
-            />
-          </DrawerFooter>
-        </form>
-      </DrawerContent>
-    </Drawer>
+    <>
+      <AddExerciseModal
+        isOpen={isAddExerciseModalOpen}
+        onOpenChange={(open) => setIsAddExerciseModalOpen(open)}
+      />
+      <Drawer
+        open={isOpen}
+        onOpenChange={onOpenChange}
+        repositionInputs={false}
+      >
+        <DrawerContent className="max-h-[80vh]">
+          <form onSubmit={onSubmit} className="flex h-full flex-col">
+            <DrawerHeader>
+              <DrawerTitle>Edit Complex</DrawerTitle>
+            </DrawerHeader>
+            <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4">
+              <ExerciseModal.NameField
+                register={register}
+                errorMessage={errors.name?.message}
+              />
+              <ExerciseModal.ComplexBuilder
+                control={control}
+                register={register}
+                exercises={exercises}
+                onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
+              />
+              <ExerciseModal.DescriptionField register={register} />
+            </div>
+            <DrawerFooter>
+              <ExerciseModal.Actions
+                onCancel={() => onOpenChange(false)}
+                isPending={updateExercise.isPending}
+                submitText="Save Changes"
+                loadingText="Saving..."
+              />
+            </DrawerFooter>
+          </form>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 }

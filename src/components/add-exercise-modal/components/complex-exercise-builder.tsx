@@ -3,14 +3,8 @@
 import { useId } from "react";
 import type { Control, UseFormRegister } from "react-hook-form";
 import { useFieldArray } from "react-hook-form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { EXERCISE_TYPES, type SubExercise } from "@/types";
+import { ExerciseSelect } from "@/components/exercise-select";
+import type { SubExercise } from "@/types";
 
 interface Exercise {
   id: string;
@@ -28,12 +22,14 @@ interface ComplexExerciseBuilderProps {
   control: Control<ComplexExerciseFormValues>;
   register: UseFormRegister<ComplexExerciseFormValues>;
   exercises?: Exercise[];
+  onCreateNewExercise?: () => void;
 }
 
 export function ComplexExerciseBuilder({
   control,
   register,
   exercises = [],
+  onCreateNewExercise,
 }: ComplexExerciseBuilderProps) {
   const exerciseSelectId = useId();
 
@@ -41,6 +37,10 @@ export function ComplexExerciseBuilder({
     control,
     name: "subExercises",
   });
+
+  const selectedExerciseIds = fields
+    .map((field) => field.exerciseId)
+    .filter((id): id is string => Boolean(id));
 
   return (
     <div className="space-y-4 border-t pt-4">
@@ -51,52 +51,42 @@ export function ComplexExerciseBuilder({
         <label htmlFor={exerciseSelectId} className="text-sm font-medium">
           Select Exercises
         </label>
-        <Select
-          value=""
+        <ExerciseSelect
+          id={exerciseSelectId}
+          className="bg-background"
+          placeholder="Add exercises to complex"
+          excludeIds={selectedExerciseIds}
+          onCreateNewExercise={onCreateNewExercise}
           onValueChange={(value) => {
-            if (value) {
-              const exercise = exercises?.find((ex) => ex.id === value);
-              if (exercise) {
-                const isDuplicate = fields.some((field) => {
-                  if (field.exerciseId) {
-                    return field.exerciseId === value;
-                  }
-                  return (
-                    field.exerciseName.toLowerCase() ===
-                    exercise.name.toLowerCase()
-                  );
-                });
-
-                if (isDuplicate) {
-                  return;
-                }
-
-                append({
-                  exerciseId: exercise.id,
-                  exerciseName: exercise.name,
-                  reps: 1,
-                });
-              }
+            if (!value) {
+              return;
             }
+
+            const exercise = exercises?.find((ex) => ex.id === value);
+            if (!exercise) {
+              return;
+            }
+
+            const isDuplicate = fields.some((field) => {
+              if (field.exerciseId) {
+                return field.exerciseId === value;
+              }
+              return (
+                field.exerciseName.toLowerCase() === exercise.name.toLowerCase()
+              );
+            });
+
+            if (isDuplicate) {
+              return;
+            }
+
+            append({
+              exerciseId: exercise.id,
+              exerciseName: exercise.name,
+              reps: 1,
+            });
           }}
-        >
-          <SelectTrigger id={exerciseSelectId} className="bg-background">
-            <SelectValue placeholder="Add exercises to complex" />
-          </SelectTrigger>
-          <SelectContent className="bg-background">
-            {exercises
-              ?.filter(
-                (ex) =>
-                  ex.type === EXERCISE_TYPES.EXERCISE &&
-                  !fields.some((field) => field.exerciseId === ex.id),
-              )
-              .map((exercise) => (
-                <SelectItem key={exercise.id} value={exercise.id}>
-                  {exercise.name}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
+        />
       </div>
 
       {/* Selected Exercises with Rep Schemes */}

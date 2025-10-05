@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
+  AddComplexExerciseModal,
   AddExerciseModal,
   EditExerciseModal,
 } from "@/components/add-exercise-modal";
@@ -29,7 +30,8 @@ const SKELETON_PLACEHOLDERS = [
 export default function ExercisesPage() {
   const utils = api.useUtils();
   const { confirm } = useConfirm();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExerciseModalOpened, setIsExerciseModalOpened] = useState(false);
+  const [isComplexModalOpened, setIsComplexModalOpened] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingExercise, setEditingExercise] =
@@ -111,7 +113,10 @@ export default function ExercisesPage() {
 
   return (
     <PageShell>
-      <AddExerciseModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} />
+      <AddExerciseModal
+        isOpen={isExerciseModalOpened}
+        onOpenChange={setIsExerciseModalOpened}
+      />
       <EditExerciseModal
         exercise={editingExercise}
         isOpen={editingExercise !== null}
@@ -121,13 +126,18 @@ export default function ExercisesPage() {
           }
         }}
       />
+      <AddComplexExerciseModal
+        isOpen={isComplexModalOpened}
+        onOpenChange={setIsComplexModalOpened}
+      />
 
       <PageHero
         eyebrow="Bell Track"
         title="Exercise Library"
         description={heroSubtitle}
+        actionsClassName="flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end"
       >
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
           <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-5 py-2 text-sm text-muted-foreground">
             <span className="text-2xl font-semibold text-foreground">
               {totalExercises}
@@ -136,10 +146,23 @@ export default function ExercisesPage() {
               {totalExercises === 1 ? "exercise" : "exercises"}
             </span>
           </div>
-          <Button className="gap-1.5" onClick={() => setIsModalOpen(true)}>
-            <Plus className="h-4 w-4" />
-            Add Exercise
-          </Button>
+          <div className="flex w-full flex-col items-center gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <Button
+              className="w-full gap-1.5 sm:w-auto"
+              onClick={() => setIsExerciseModalOpened(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Add Exercise
+            </Button>
+            <Button
+              className="w-full gap-1.5 sm:w-auto"
+              variant="outline"
+              onClick={() => setIsComplexModalOpened(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Add Complex
+            </Button>
+          </div>
         </div>
       </PageHero>
 
@@ -196,10 +219,23 @@ export default function ExercisesPage() {
               Create movements or complexes once and reuse them in workouts and
               templates.
             </p>
-            <Button onClick={() => setIsModalOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add exercise
-            </Button>
+            <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:items-center">
+              <Button
+                className="w-full sm:w-auto"
+                onClick={() => setIsExerciseModalOpened(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add exercise
+              </Button>
+              <Button
+                className="w-full sm:w-auto"
+                variant="outline"
+                onClick={() => setIsComplexModalOpened(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add complex
+              </Button>
+            </div>
           </div>
         ) : hasQuery && filteredExercises.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-10 text-center">
