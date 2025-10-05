@@ -8,7 +8,7 @@ export interface ExerciseFormDefaults {
   sets: number;
   reps: string;
   weight: number;
-  restTime: number;
+  restTime?: number;
   notes: string;
   group: string;
   order: number;

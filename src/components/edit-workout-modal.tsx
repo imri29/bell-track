@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
+import { normalizeRestTime } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 
@@ -128,7 +129,7 @@ export function EditWorkoutModal({
       sets: exercise.sets,
       reps: exercise.reps,
       weight: exercise.weight,
-      restTime: exercise.restTime,
+      restTime: normalizeRestTime(exercise.restTime),
       notes: exercise.notes,
       group: exercise.group,
       order: index,
@@ -361,7 +362,20 @@ export function EditWorkoutModal({
                           min="0"
                           placeholder="Optional"
                           {...register(`exercises.${index}.restTime`, {
-                            valueAsNumber: true,
+                            setValueAs: (value) => {
+                              if (
+                                value === "" ||
+                                value === null ||
+                                value === undefined
+                              ) {
+                                return undefined;
+                              }
+
+                              const parsedValue = Number(value);
+                              return Number.isNaN(parsedValue)
+                                ? undefined
+                                : parsedValue;
+                            },
                           })}
                         />
                       </div>

@@ -18,7 +18,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import { getTagPalette } from "@/lib/tag-colors";
-import { cn } from "@/lib/utils";
+import { cn, normalizeRestTime } from "@/lib/utils";
 import { api } from "@/trpc/react";
 
 type TemplateExerciseFormData = {
@@ -130,6 +130,7 @@ export default function EditTemplatePage({
     // Transform exercises with proper order
     const exercises = data.exercises.map((exercise, index) => ({
       ...exercise,
+      restTime: normalizeRestTime(exercise.restTime),
       order: index,
     }));
 
@@ -464,7 +465,20 @@ export default function EditTemplatePage({
                             min="0"
                             placeholder="Optional"
                             {...register(`exercises.${index}.restTime`, {
-                              valueAsNumber: true,
+                              setValueAs: (value) => {
+                                if (
+                                  value === "" ||
+                                  value === null ||
+                                  value === undefined
+                                ) {
+                                  return undefined;
+                                }
+
+                                const parsedValue = Number(value);
+                                return Number.isNaN(parsedValue)
+                                  ? undefined
+                                  : parsedValue;
+                              },
                             })}
                           />
                         </div>

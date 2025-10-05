@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
+import { normalizeRestTime } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
 
@@ -136,11 +137,16 @@ export function AddWorkoutForm({
   });
 
   const onSubmit = (data: WorkoutFormData) => {
-    const exercisesPayload = data.exercises.map((exercise, index) => ({
-      ...exercise,
-      reps: exercise.reps,
-      order: index,
-    }));
+    const exercisesPayload = data.exercises.map((exercise, index) => {
+      const restTime = normalizeRestTime(exercise.restTime);
+
+      return {
+        ...exercise,
+        restTime,
+        reps: exercise.reps,
+        order: index,
+      };
+    });
 
     createWorkout.mutate({
       date: data.date,
@@ -451,7 +457,20 @@ export function AddWorkoutForm({
                             min="0"
                             placeholder="Optional"
                             {...register(`exercises.${index}.restTime`, {
-                              valueAsNumber: true,
+                              setValueAs: (value) => {
+                                if (
+                                  value === "" ||
+                                  value === null ||
+                                  value === undefined
+                                ) {
+                                  return undefined;
+                                }
+
+                                const parsedValue = Number(value);
+                                return Number.isNaN(parsedValue)
+                                  ? undefined
+                                  : parsedValue;
+                              },
                             })}
                           />
                         </div>
