@@ -11,6 +11,7 @@ Bell Track runs on Next.js App Router inside `src/app`, with route groups combin
 - `npm run format` — apply Biome's auto-format.
 - `npm run ts` — TypeScript `--noEmit` verification.
 - `npm run db:seed` — execute `prisma/seed.ts` against the configured database.
+- `npm run db:seed:prod` — seed only canonical data (workout tags) for production.
 - `npm run db:studio` — open Prisma Studio for local data inspection.
 
 ## Coding Style & Naming Conventions
