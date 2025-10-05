@@ -52,4 +52,5 @@ export type TemplateData = {
     group?: string;
     order: number;
   }>;
+  tagIds?: string[];
 };

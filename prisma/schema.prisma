@@ -31,13 +31,14 @@ model Exercise {
 }
 
 model Workout {
-  id        String            @id @default(cuid())
+  id        String                 @id @default(cuid())
   date      DateTime
   duration  Int? // Duration in minutes
   notes     String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
   exercises WorkoutExercise[]
+  tags      WorkoutTagAssignment[]
 }
 
 model WorkoutExercise {
@@ -63,32 +64,44 @@ model WorkoutExercise {
 }
 
 model WorkoutTemplate {
-  id          String            @id @default(cuid())
+  id          String               @id @default(cuid())
   name        String
   description String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
   exercises   WorkoutExercise[]
   tags        WorkoutTemplateTag[]
 }
 
 model WorkoutTag {
-  id          String               @id @default(cuid())
-  name        String               @unique
-  slug        String               @unique
+  id          String                 @id @default(cuid())
+  name        String                 @unique
+  slug        String                 @unique
   description String?
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
   templates   WorkoutTemplateTag[]
+  workouts    WorkoutTagAssignment[]
 }
 
 model WorkoutTemplateTag {
   templateId String
   tagId      String
-  assignedAt DateTime    @default(now())
+  assignedAt DateTime @default(now())
 
   template WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
   tag      WorkoutTag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([templateId, tagId])
+}
+
+model WorkoutTagAssignment {
+  workoutId  String
+  tagId      String
+  assignedAt DateTime @default(now())
+
+  workout Workout    @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  tag     WorkoutTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([workoutId, tagId])
 }

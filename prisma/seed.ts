@@ -429,16 +429,105 @@ async function main() {
   }
   console.log("✅ Workout tags seeded!");
 
-  // Add sample workout
-  console.log("🏋️ Seeding sample workout...");
+  const templateTagSlugs = ["complex", "conditioning"] as const;
+  const templateTags = await prisma.workoutTag.findMany({
+    where: {
+      slug: {
+        in: [...templateTagSlugs],
+      },
+    },
+  });
 
-  // Find the exercises we need for the workout
+  console.log("🧩 Seeding workout template...");
+
   const leonidaComplex = await prisma.exercise.findUnique({
     where: { name: "Leonidas" },
   });
   const swings = await prisma.exercise.findUnique({
     where: { name: "Swings" },
   });
+
+  await prisma.workoutTemplate.upsert({
+    where: { id: "seed-template-leonidas-conditioning" },
+    update: {
+      name: "Leonidas conditioning session",
+      description: "Leonidas complex followed by a swings finisher.",
+      exercises: {
+        deleteMany: {},
+        create: [
+          {
+            // biome-ignore lint/style/noNonNullAssertion: Seed data expects existing exercise
+            exerciseId: leonidaComplex!.id,
+            group: "A",
+            order: 0,
+            sets: 5,
+            reps: "[1,1,1,1,1]",
+            weight: 24,
+            restTime: 90,
+            notes: "Focus on pacing the complex reps.",
+          },
+          {
+            // biome-ignore lint/style/noNonNullAssertion: Seed data expects existing exercise
+            exerciseId: swings!.id,
+            group: "B",
+            order: 1,
+            sets: 3,
+            reps: "[12,12,12]",
+            weight: 20,
+            restTime: 30,
+            notes: "Hardstyle swings, 12 each arm.",
+          },
+        ],
+      },
+      tags: {
+        deleteMany: {},
+        create: templateTags.map((tag) => ({
+          tag: { connect: { id: tag.id } },
+        })),
+      },
+    },
+    create: {
+      id: "seed-template-leonidas-conditioning",
+      name: "Leonidas conditioning session",
+      description: "Leonidas complex followed by a swings finisher.",
+      exercises: {
+        create: [
+          {
+            // biome-ignore lint/style/noNonNullAssertion: Seed data expects existing exercise
+            exerciseId: leonidaComplex!.id,
+            group: "A",
+            order: 0,
+            sets: 5,
+            reps: "[1,1,1,1,1]",
+            weight: 24,
+            restTime: 90,
+            notes: "Focus on pacing the complex reps.",
+          },
+          {
+            // biome-ignore lint/style/noNonNullAssertion: Seed data expects existing exercise
+            exerciseId: swings!.id,
+            group: "B",
+            order: 1,
+            sets: 3,
+            reps: "[12,12,12]",
+            weight: 20,
+            restTime: 30,
+            notes: "Hardstyle swings, 12 each arm.",
+          },
+        ],
+      },
+      tags: {
+        create: templateTags.map((tag) => ({
+          tag: { connect: { id: tag.id } },
+        })),
+      },
+    },
+  });
+
+  console.log("✅ Workout template seeded!");
+
+  // Add sample workout
+  console.log("🏋️ Seeding sample workout...");
 
   // Create Pull-ups and Farmers Carry if they don't exist
   const pullups = await prisma.exercise.upsert({
@@ -525,6 +614,25 @@ async function main() {
 
   console.log("✅ Sample workout created!");
   console.log(`Workout ID: ${workout.id}`);
+
+  console.log("🏷️ Assigning tags to sample workout...");
+  for (const tag of templateTags) {
+    await prisma.workoutTagAssignment.upsert({
+      where: {
+        workoutId_tagId: {
+          workoutId: workout.id,
+          tagId: tag.id,
+        },
+      },
+      update: {},
+      create: {
+        workoutId: workout.id,
+        tagId: tag.id,
+      },
+    });
+  }
+
+  console.log("✅ Tags assigned to sample workout!");
 }
 
 main()

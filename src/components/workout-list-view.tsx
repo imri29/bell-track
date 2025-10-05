@@ -5,6 +5,8 @@ import { Edit, Trash2 } from "lucide-react";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { getTagPalette } from "@/lib/tag-colors";
+import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
 
 type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
@@ -126,6 +128,31 @@ export function WorkoutListView({
                   </Button>
                 </div>
               </div>
+              {(workout.tags?.length ?? 0) > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {workout.tags.map((tag) => {
+                    const palette = getTagPalette(tag.slug);
+                    return (
+                      <span
+                        key={tag.id}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight",
+                          palette.tint,
+                        )}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "h-2 w-2 shrink-0 rounded-full",
+                            palette.dot,
+                          )}
+                        />
+                        {tag.name}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
               <WorkoutExercisesList exercises={workout.exercises} />
             </div>
           ))}

@@ -20,10 +20,12 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
-import { normalizeRestTime } from "@/lib/utils";
+import { getTagPalette } from "@/lib/tag-colors";
+import { cn, normalizeRestTime } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 
@@ -44,6 +46,7 @@ type WorkoutFormData = {
   duration?: number;
   notes?: string;
   exercises: WorkoutExerciseFormData[];
+  tagIds: string[];
 };
 
 type EditWorkoutModalProps = {
@@ -62,6 +65,11 @@ export function EditWorkoutModal({
   const utils = api.useUtils();
 
   const { data: exercises } = api.exercise.getAll.useQuery();
+  const {
+    data: tags,
+    isPending: tagsPending,
+    error: tagsError,
+  } = api.template.getTags.useQuery();
   const isMobile = useIsMobile();
 
   // Form IDs for accessibility
@@ -78,6 +86,8 @@ export function EditWorkoutModal({
     handleSubmit,
     control,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<WorkoutFormData>({
     defaultValues: {
@@ -85,6 +95,7 @@ export function EditWorkoutModal({
       duration: undefined,
       notes: "",
       exercises: [],
+      tagIds: [],
     },
   });
 
@@ -93,6 +104,23 @@ export function EditWorkoutModal({
     control,
     name: "exercises",
   });
+
+  const selectedTagIds = watch("tagIds");
+  const sortedTags = tags
+    ? [...tags].sort((a, b) => a.name.localeCompare(b.name))
+    : [];
+
+  const toggleTagSelection = (tagId: string) => {
+    const current = selectedTagIds ?? [];
+    const next = current.includes(tagId)
+      ? current.filter((id) => id !== tagId)
+      : [...current, tagId];
+    setValue("tagIds", next, { shouldDirty: true });
+  };
+
+  const clearTagSelection = () => {
+    setValue("tagIds", [], { shouldDirty: true });
+  };
 
   // Reset form when workout data loads
   useEffect(() => {
@@ -107,6 +135,7 @@ export function EditWorkoutModal({
           }
           return a.order - b.order;
         }),
+        tagIds: workout.tags?.map((tag) => tag.id) ?? [],
       });
     }
   }, [workout, reset]);
@@ -141,6 +170,7 @@ export function EditWorkoutModal({
       duration: data.duration || undefined,
       notes: data.notes || undefined,
       exercises,
+      tagIds: data.tagIds,
     });
   };
 
@@ -204,6 +234,67 @@ export function EditWorkoutModal({
             {...register("notes")}
           />
         </div>
+      </div>
+
+      <div className="mt-4 space-y-3 border-t pt-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium">Tags</h3>
+          {(selectedTagIds?.length ?? 0) > 0 && (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={clearTagSelection}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+
+        {tagsError ? (
+          <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+            Couldn’t load tags. Save your changes without them and retry later.
+          </div>
+        ) : tagsPending ? (
+          <div className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+            <Spinner size="sm" variant="muted" /> Loading tags...
+          </div>
+        ) : sortedTags.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {sortedTags.map((tag) => {
+              const isSelected = selectedTagIds?.includes(tag.id) ?? false;
+              const palette = getTagPalette(tag.slug);
+              return (
+                <button
+                  key={tag.id}
+                  type="button"
+                  onClick={() => toggleTagSelection(tag.id)}
+                  aria-pressed={isSelected}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                    isSelected
+                      ? cn(palette.tint, "focus-visible:ring-offset-background")
+                      : "border-border/50 bg-muted/20 text-muted-foreground hover:bg-muted/40 focus-visible:ring-border",
+                  )}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "h-2 w-2 shrink-0 rounded-full",
+                      palette.dot,
+                      !isSelected && "opacity-60",
+                    )}
+                  />
+                  {tag.name}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            No tags available yet.
+          </p>
+        )}
       </div>
 
       <div className="space-y-4">

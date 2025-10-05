@@ -69,6 +69,7 @@ function NewWorkoutPageComponent() {
         group: exercise.group ? exercise.group : undefined,
         order: exercise.order,
       })),
+      tagIds: templateResponse.tags.map((tag) => tag.id),
     };
   }, [templateResponse]);
 

@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { getTagPalette } from "@/lib/tag-colors";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
 
@@ -99,6 +100,35 @@ function WorkoutExerciseSummary({ workout }: { workout: WorkoutData }) {
           and {remainingCount} more exercise{remainingCount > 1 ? "s" : ""}
         </div>
       )}
+    </div>
+  );
+}
+
+function WorkoutTagList({ tags }: { tags: WorkoutData["tags"] }) {
+  if (!tags || tags.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {tags.map((tag) => {
+        const palette = getTagPalette(tag.slug);
+        return (
+          <span
+            key={tag.id}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-medium leading-tight",
+              palette.tint,
+            )}
+          >
+            <span
+              aria-hidden="true"
+              className={cn("h-1.5 w-1.5 shrink-0 rounded-full", palette.dot)}
+            />
+            {tag.name}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -244,6 +274,7 @@ export function CalendarDayMenu({
             </div>
           </div>
           <WorkoutExerciseSummary workout={workout} />
+          <WorkoutTagList tags={workout.tags} />
         </div>
       ))}
     </div>

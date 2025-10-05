@@ -12,7 +12,8 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "db:studio": "npx prisma studio",
     "ts": "yarn tsc --noEmit",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma migrate deploy && npm run db:seed && next build"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
