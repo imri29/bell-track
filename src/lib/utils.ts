@@ -10,3 +10,7 @@ export function normalizeRestTime(restTime: unknown) {
     ? restTime
     : undefined;
 }
+
+export function extractSearchParam(sp: string | string[] | undefined) {
+  return Array.isArray(sp) ? sp[0] : sp;
+}
