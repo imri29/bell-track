@@ -10,6 +10,7 @@ import {
 } from "@/components/add-exercise-modal";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ComplexSelect } from "@/components/complex-select";
+import { ExerciseOrderControls } from "@/components/exercise-order-controls";
 import { ExerciseSelect } from "@/components/exercise-select";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -82,7 +83,7 @@ export default function EditTemplatePage({
   });
 
   // useFieldArray for managing exercises
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control,
     name: "exercises",
   });
@@ -148,6 +149,22 @@ export default function EditTemplatePage({
     if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
       append(buildExerciseFormDefaults(exercise, fields.length));
     }
+  };
+
+  const moveExerciseUp = (index: number) => {
+    if (index === 0) {
+      return;
+    }
+
+    move(index, index - 1);
+  };
+
+  const moveExerciseDown = (index: number) => {
+    if (index >= fields.length - 1) {
+      return;
+    }
+
+    move(index, index + 1);
   };
 
   if (templateLoading) {
@@ -360,7 +377,7 @@ export default function EditTemplatePage({
                       key={field.id}
                       className="space-y-4 rounded-2xl border border-border/60 bg-background/80 p-4"
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <h4 className="text-lg font-medium">
                           {exercise ? (
                             <ComplexNameTooltip
@@ -372,15 +389,22 @@ export default function EditTemplatePage({
                             "Exercise"
                           )}
                         </h4>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => remove(index)}
-                          className="text-destructive hover:text-destructive"
+                        <ExerciseOrderControls
+                          onMoveUp={() => moveExerciseUp(index)}
+                          onMoveDown={() => moveExerciseDown(index)}
+                          disableUp={index === 0}
+                          disableDown={index === fields.length - 1}
                         >
-                          Remove
-                        </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => remove(index)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            Remove
+                          </Button>
+                        </ExerciseOrderControls>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

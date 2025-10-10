@@ -9,6 +9,7 @@ import {
 } from "@/components/add-exercise-modal";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ComplexSelect } from "@/components/complex-select";
+import { ExerciseOrderControls } from "@/components/exercise-order-controls";
 import { ExerciseSelect } from "@/components/exercise-select";
 import { Button } from "@/components/ui/button";
 import {
@@ -108,7 +109,7 @@ export function AddWorkoutForm({
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, update, move } = useFieldArray({
     control,
     name: "exercises",
   });
@@ -191,6 +192,22 @@ export function AddWorkoutForm({
     if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
       append(buildExerciseFormDefaults(exercise, fields.length));
     }
+  };
+
+  const moveExerciseUp = (index: number) => {
+    if (index === 0) {
+      return;
+    }
+
+    move(index, index - 1);
+  };
+
+  const moveExerciseDown = (index: number) => {
+    if (index >= fields.length - 1) {
+      return;
+    }
+
+    move(index, index + 1);
   };
 
   const handleReplaceExerciseSelect = (exerciseId: string) => {
@@ -443,7 +460,12 @@ export function AddWorkoutForm({
                             "Exercise"
                           )}
                         </h5>
-                        <div className="flex items-center gap-1.5">
+                        <ExerciseOrderControls
+                          onMoveUp={() => moveExerciseUp(index)}
+                          onMoveDown={() => moveExerciseDown(index)}
+                          disableUp={index === 0}
+                          disableDown={index === fields.length - 1}
+                        >
                           <Tooltip content="Replace">
                             <Button
                               type="button"
@@ -466,7 +488,7 @@ export function AddWorkoutForm({
                             <X className="h-4 w-4" />
                             <span className="sr-only">Remove</span>
                           </Button>
-                        </div>
+                        </ExerciseOrderControls>
                       </div>
 
                       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
