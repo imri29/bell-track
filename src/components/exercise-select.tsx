@@ -19,6 +19,7 @@ interface ExerciseSelectProps {
   id?: string;
   className?: string;
   onCreateNewExercise?: () => void;
+  disabled?: boolean;
 }
 
 export function ExerciseSelect({
@@ -29,6 +30,7 @@ export function ExerciseSelect({
   id,
   className,
   onCreateNewExercise,
+  disabled = false,
 }: ExerciseSelectProps) {
   const { data: exercises } = api.exercise.getAll.useQuery();
 
@@ -39,8 +41,8 @@ export function ExerciseSelect({
 
   return (
     <div className="flex gap-1 items-center">
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger id={id} className={className}>
+      <Select value={value} onValueChange={onValueChange} disabled={disabled}>
+        <SelectTrigger id={id} className={className} disabled={disabled}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent className="bg-background">
@@ -56,6 +58,7 @@ export function ExerciseSelect({
         variant="outline"
         type="button"
         onClick={onCreateNewExercise}
+        disabled={disabled}
       >
         <Plus />
       </Button>

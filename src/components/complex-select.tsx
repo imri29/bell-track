@@ -20,6 +20,7 @@ interface ComplexSelectProps {
   id?: string;
   className?: string;
   onCreateNewComplex?: () => void;
+  disabled?: boolean;
 }
 
 export function ComplexSelect({
@@ -30,6 +31,7 @@ export function ComplexSelect({
   id,
   className,
   onCreateNewComplex,
+  disabled = false,
 }: ComplexSelectProps) {
   const { data: exercises } = api.exercise.getAll.useQuery();
 
@@ -40,8 +42,8 @@ export function ComplexSelect({
 
   return (
     <div className="flex gap-1 items-center">
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger id={id} className={className}>
+      <Select value={value} onValueChange={onValueChange} disabled={disabled}>
+        <SelectTrigger id={id} className={className} disabled={disabled}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent className="bg-background">
@@ -61,6 +63,7 @@ export function ComplexSelect({
         variant="outline"
         onClick={onCreateNewComplex}
         type="button"
+        disabled={disabled}
       >
         <Plus />
       </Button>

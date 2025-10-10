@@ -4,9 +4,7 @@ import { format } from "date-fns";
 import { BookOpen, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { CalendarView } from "@/components/calendar-view";
-import { EditWorkoutModal } from "@/components/edit-workout-modal";
 import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -44,17 +42,10 @@ export function HistoryPageClient({ initialView }: { initialView: View }) {
       },
     });
 
-  const [editingWorkout, setEditingWorkout] =
-    useState<WorkoutWithExercises | null>(null);
-
   const { data: templates } = api.template.getAll.useQuery();
 
   const handleEdit = (workout: WorkoutWithExercises) => {
-    setEditingWorkout(workout);
-  };
-
-  const handleCloseEditModal = () => {
-    setEditingWorkout(null);
+    router.push(`/history/${workout.id}/edit`);
   };
 
   const handleTemplateSelect = (templateId: string) => {
@@ -81,14 +72,6 @@ export function HistoryPageClient({ initialView }: { initialView: View }) {
 
   return (
     <PageShell>
-      <EditWorkoutModal
-        isOpen={editingWorkout !== null}
-        onOpenChange={(open) => {
-          if (!open) handleCloseEditModal();
-        }}
-        workout={editingWorkout}
-      />
-
       <PageHero
         eyebrow="Bell Track"
         title="Workout history"
