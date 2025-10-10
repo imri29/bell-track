@@ -23,7 +23,7 @@ export const metadata: Metadata = {
       process.env.NODE_ENV === "development"
         ? "/favicon-dev.svg"
         : "/favicon.ico",
-    apple: "./apple-icon.png",
+    apple: [{ url: "./apple-icon.png", sizes: "180x180" }],
   },
 };
 
