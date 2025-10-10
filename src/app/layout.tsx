@@ -23,7 +23,7 @@ export const metadata: Metadata = {
       process.env.NODE_ENV === "development"
         ? "/favicon-dev.svg"
         : "/favicon.ico",
-    apple: [{ url: "./apple-icon-v2.png", sizes: "180x180" }],
+    apple: "./apple-icon.png",
   },
 };
 
@@ -41,7 +41,7 @@ export default function RootLayout({
           <ConfirmProvider>
             <div className="md:flex">
               <Navigation />
-              <main className="min-h-dvh md:flex-1">{children}</main>
+              <main className="min-h-dvh md:flex-1 nameee">{children}</main>
             </div>
           </ConfirmProvider>
         </TRPCReactProvider>
