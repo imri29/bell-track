@@ -29,7 +29,7 @@ export function PageShell({
       ) : null}
       <main
         className={cn(
-          "mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 pb-16 pt-12 md:px-10",
+          "mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 pb-16 pt-12 md:px-10 md:pt-24",
           mainClassName,
         )}
       >
