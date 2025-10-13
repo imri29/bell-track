@@ -15,8 +15,10 @@ import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useConfirm } from "@/contexts/confirm-context";
 import { api } from "@/trpc/react";
+import { EXERCISE_TYPES, type ExerciseType } from "@/types";
 
 const SKELETON_PLACEHOLDERS = [
   "warmup",
@@ -27,6 +29,8 @@ const SKELETON_PLACEHOLDERS = [
   "cooldown",
 ];
 
+type TypeFilter = ExerciseType | "ALL";
+
 export default function ExercisesPage() {
   const utils = api.useUtils();
   const { confirm } = useConfirm();
@@ -34,6 +38,7 @@ export default function ExercisesPage() {
   const [isComplexModalOpened, setIsComplexModalOpened] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
   const [editingExercise, setEditingExercise] =
     useState<ExerciseCardData | null>(null);
 
@@ -64,13 +69,18 @@ export default function ExercisesPage() {
       return [];
     }
 
+    const byType =
+      typeFilter === "ALL"
+        ? exercises
+        : exercises.filter((exercise) => exercise.type === typeFilter);
+
     const query = trimmedQuery.toLowerCase();
 
     if (!query) {
-      return exercises;
+      return byType;
     }
 
-    return exercises.filter((exercise) => {
+    return byType.filter((exercise) => {
       const nameMatch = exercise.name.toLowerCase().includes(query);
       const descriptionMatch = exercise.description
         ? exercise.description.toLowerCase().includes(query)
@@ -83,10 +93,12 @@ export default function ExercisesPage() {
 
       return nameMatch || descriptionMatch || typeMatch || breakdownMatch;
     });
-  }, [exercises, trimmedQuery]);
+  }, [exercises, trimmedQuery, typeFilter]);
 
   const hasExercises = totalExercises > 0;
   const hasQuery = trimmedQuery.length > 0;
+  const isFilteringByType = typeFilter !== "ALL";
+  const isFiltering = hasQuery || isFilteringByType;
 
   const heroSubtitle = useMemo(() => {
     if (!totalExercises) {
@@ -177,14 +189,31 @@ export default function ExercisesPage() {
             </p>
           </div>
           {hasExercises ? (
-            <div className="w-full md:max-w-xs">
-              <Input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search exercises..."
-                aria-label="Search exercises"
-              />
+            <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center md:justify-end">
+              <Tabs
+                value={typeFilter}
+                onValueChange={(value) => setTypeFilter(value as TypeFilter)}
+                className="w-full md:w-auto"
+              >
+                <TabsList className="w-full md:w-auto">
+                  <TabsTrigger value="ALL">All</TabsTrigger>
+                  <TabsTrigger value={EXERCISE_TYPES.EXERCISE}>
+                    Exercises
+                  </TabsTrigger>
+                  <TabsTrigger value={EXERCISE_TYPES.COMPLEX}>
+                    Complexes
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <div className="w-full md:max-w-xs">
+                <Input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search exercises..."
+                  aria-label="Search exercises"
+                />
+              </div>
             </div>
           ) : null}
         </header>
@@ -237,16 +266,22 @@ export default function ExercisesPage() {
               </Button>
             </div>
           </div>
-        ) : hasQuery && filteredExercises.length === 0 ? (
+        ) : isFiltering && filteredExercises.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-10 text-center">
             <p className="text-base font-semibold text-foreground">
-              No exercises match your search
+              No exercises match your filters
             </p>
             <p className="text-sm text-muted-foreground">
-              Try a different name or clear the search to see everything.
+              Try a different name or adjust the type filter to see everything.
             </p>
-            <Button variant="ghost" onClick={() => setSearchQuery("")}>
-              Clear search
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setSearchQuery("");
+                setTypeFilter("ALL");
+              }}
+            >
+              Reset filters
             </Button>
           </div>
         ) : (

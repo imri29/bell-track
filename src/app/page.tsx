@@ -4,8 +4,6 @@ import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 
 export default async function Home() {
-  await new Promise((resolve) => setTimeout(resolve, 10000));
-
   return (
     <PageShell>
       <PageHero
