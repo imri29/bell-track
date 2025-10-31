@@ -61,7 +61,7 @@
     "typescript": "^5"
   },
   "lint-staged": {
-    "**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,css,scss,md}": [
+    "**/*.{ts,tsx,js,jsx,cjs,mjs,json,css,scss,md}": [
       "npm run format"
     ]
   }
