@@ -30,7 +30,7 @@ export function UserMenu() {
   const handleSignOut = async () => {
     try {
       setIsSigningOut(true);
-      await signOut({ callbackUrl: "/signin" });
+      await signOut({ redirectTo: "/signin" });
     } finally {
       setIsSigningOut(false);
     }
@@ -44,7 +44,7 @@ export function UserMenu() {
             variant="outline"
             className="flex items-center gap-2 border border-border/60 bg-background/80 shadow-sm backdrop-blur"
           >
-            <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+            <div className="flex size-6 items-center justify-center rounded-full bg-primary/10">
               <UserRound className="size-4 text-primary" />
             </div>
             <span className="text-sm font-medium">{firstName}</span>

@@ -1,8 +1,11 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { PrismaClient } from "@/generated/prisma";
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/server/db";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/trpc";
 
 const templateExerciseSchema = z.object({
   exerciseId: z.string(),
@@ -147,9 +150,9 @@ function serializeTemplate(template: {
 }
 
 export const templateRouter = createTRPCRouter({
-  getAll: publicProcedure
+  getAll: protectedProcedure
     .input(templateFiltersSchema)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const search = input?.search?.trim();
       const tagSlugs = input?.tagSlugs
         ?.map((slug) => slug.trim())
@@ -157,6 +160,7 @@ export const templateRouter = createTRPCRouter({
 
       const templates = await prisma.workoutTemplate.findMany({
         where: {
+          userId: ctx.userId,
           ...(search
             ? {
                 OR: [
@@ -203,12 +207,12 @@ export const templateRouter = createTRPCRouter({
       return templates.map(serializeTemplate);
     }),
 
-  getById: publicProcedure
+  getById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .output(templateOutputSchema.nullable())
-    .query(async ({ input }) => {
-      const template = await prisma.workoutTemplate.findUnique({
-        where: { id: input.id },
+    .query(async ({ input, ctx }) => {
+      const template = await prisma.workoutTemplate.findFirst({
+        where: { id: input.id, userId: ctx.userId },
         include: {
           exercises: {
             include: {
@@ -229,14 +233,15 @@ export const templateRouter = createTRPCRouter({
       return serializeTemplate(template);
     }),
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(createTemplateSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { exercises, tagIds, ...templateData } = input;
 
       const template = await prisma.workoutTemplate.create({
         data: {
           ...templateData,
+          userId: ctx.userId,
           exercises: {
             create: exercises.map((exercise) => ({
               exerciseId: exercise.exerciseId,
@@ -273,21 +278,32 @@ export const templateRouter = createTRPCRouter({
       return serializeTemplate(template);
     }),
 
-  update: publicProcedure
+  update: protectedProcedure
     .input(updateTemplateSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, exercises, tagIds, ...templateData } = input;
+
+      const existing = await prisma.workoutTemplate.findFirst({
+        where: { id, userId: ctx.userId },
+      });
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Template not found",
+        });
+      }
 
       // If exercises are provided, replace all template exercises
       if (exercises) {
         await prisma.workoutExercise.deleteMany({
-          where: { templateId: id },
+          where: { templateId: id, template: { userId: ctx.userId } },
         });
       }
 
       if (tagIds) {
         await prisma.workoutTemplateTag.deleteMany({
-          where: { templateId: id },
+          where: { templateId: id, template: { userId: ctx.userId } },
         });
       }
 
@@ -333,12 +349,19 @@ export const templateRouter = createTRPCRouter({
       return serializeTemplate(template);
     }),
 
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
-      await prisma.workoutTemplate.delete({
-        where: { id: input.id },
+    .mutation(async ({ input, ctx }) => {
+      const result = await prisma.workoutTemplate.deleteMany({
+        where: { id: input.id, userId: ctx.userId },
       });
+
+      if (result.count === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Template not found",
+        });
+      }
 
       return { success: true };
     }),

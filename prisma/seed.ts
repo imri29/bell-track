@@ -396,6 +396,22 @@ async function main() {
   }
   console.log("✅ Workout tags seeded!");
 
+  const seedUserEmail = process.env.SEED_USER_EMAIL ?? "demo@belltrack.app";
+  const seedUserName = process.env.SEED_USER_NAME ?? "Demo User";
+
+  const seedUser = await prisma.user.upsert({
+    where: { email: seedUserEmail },
+    update: {
+      name: seedUserName,
+    },
+    create: {
+      email: seedUserEmail,
+      name: seedUserName,
+    },
+  });
+
+  console.log(`👤 Seed user ready: ${seedUser.email ?? seedUser.id}`);
+
   const templateTagSlugs = ["complex", "conditioning"] as const;
   const templateTags = await prisma.workoutTag.findMany({
     where: {
@@ -419,6 +435,7 @@ async function main() {
     update: {
       name: "Leonidas conditioning session",
       description: "Leonidas complex followed by a swings finisher.",
+      userId: seedUser.id,
       exercises: {
         deleteMany: {},
         create: [
@@ -457,6 +474,7 @@ async function main() {
       id: "seed-template-leonidas-conditioning",
       name: "Leonidas conditioning session",
       description: "Leonidas complex followed by a swings finisher.",
+      userId: seedUser.id,
       exercises: {
         create: [
           {
@@ -526,6 +544,7 @@ async function main() {
       duration: 45, // 45 minutes
       notes:
         "Sample workout with A/B grouping - Leonidas complex + accessory work",
+      userId: seedUser.id,
       exercises: {
         create: [
           // A1: Leonidas Complex
