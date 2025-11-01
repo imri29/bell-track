@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
 import { ConfirmProvider } from "@/contexts/confirm-context";
 import "./globals.css";
 import { Navigation } from "@/components/navigation";
+import { UserMenu } from "@/components/user-menu";
 import { TRPCReactProvider } from "@/trpc/react";
 
 const geistSans = Geist({
@@ -37,14 +39,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 md:pb-0`}
       >
-        <TRPCReactProvider>
-          <ConfirmProvider>
-            <div className="md:flex">
-              <Navigation />
-              <main className="min-h-dvh md:flex-1 nameee">{children}</main>
-            </div>
-          </ConfirmProvider>
-        </TRPCReactProvider>
+        <SessionProvider>
+          <TRPCReactProvider>
+            <ConfirmProvider>
+              <div className="md:flex">
+                <Navigation />
+                <main className="relative min-h-dvh md:flex-1 nameee">
+                  <UserMenu />
+                  {children}
+                </main>
+              </div>
+            </ConfirmProvider>
+          </TRPCReactProvider>
+        </SessionProvider>
       </body>
     </html>
   );

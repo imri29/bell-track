@@ -1,13 +1,13 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { type Prisma, PrismaClient } from "@/generated/prisma";
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import type { Prisma } from "@/generated/prisma";
+import { prisma } from "@/server/db";
+import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import {
   idSchema,
   workoutExerciseInputSchema,
   workoutExerciseOutputSchema,
 } from "../schemas";
-
-const prisma = new PrismaClient();
 
 // Full workout output schema used by both getAll and getById
 const workoutTagOutputSchema = z.object({
@@ -91,10 +91,13 @@ function serializeWorkout(workout: WorkoutWithRelations) {
 }
 
 export const workoutRouter = createTRPCRouter({
-  getAll: publicProcedure
+  getAll: protectedProcedure
     .output(z.array(workoutOutputSchema))
-    .query(async () => {
+    .query(async ({ ctx }) => {
       const workouts = await prisma.workout.findMany({
+        where: {
+          userId: ctx.userId,
+        },
         orderBy: { createdAt: "desc" },
         include: {
           exercises: {
@@ -112,12 +115,12 @@ export const workoutRouter = createTRPCRouter({
       return workouts.map((workout) => serializeWorkout(workout));
     }),
 
-  getById: publicProcedure
+  getById: protectedProcedure
     .input(idSchema)
     .output(workoutOutputSchema.nullable())
-    .query(async ({ input }) => {
-      const workout = await prisma.workout.findUnique({
-        where: { id: input.id },
+    .query(async ({ input, ctx }) => {
+      const workout = await prisma.workout.findFirst({
+        where: { id: input.id, userId: ctx.userId },
         include: {
           exercises: {
             include: {
@@ -138,63 +141,77 @@ export const workoutRouter = createTRPCRouter({
       return serializeWorkout(workout);
     }),
 
-  create: publicProcedure.input(createWorkoutSchema).mutation(({ input }) => {
-    const { exercises, tagIds = [], ...workoutData } = input;
+  create: protectedProcedure
+    .input(createWorkoutSchema)
+    .mutation(({ input, ctx }) => {
+      const { exercises, tagIds = [], ...workoutData } = input;
 
-    return prisma.workout
-      .create({
-        data: {
-          ...workoutData,
-          exercises: {
-            create: exercises.map((exercise) => ({
-              exerciseId: exercise.exerciseId,
-              sets: exercise.sets,
-              reps: exercise.reps,
-              weight: exercise.weight,
-              restTime: exercise.restTime,
-              notes: exercise.notes,
-              group: exercise.group,
-              order: exercise.order,
-            })),
-          },
-          ...(tagIds.length > 0 && {
-            tags: {
-              create: tagIds.map((tagId) => ({
-                tag: { connect: { id: tagId } },
+      return prisma.workout
+        .create({
+          data: {
+            ...workoutData,
+            userId: ctx.userId,
+            exercises: {
+              create: exercises.map((exercise) => ({
+                exerciseId: exercise.exerciseId,
+                sets: exercise.sets,
+                reps: exercise.reps,
+                weight: exercise.weight,
+                restTime: exercise.restTime,
+                notes: exercise.notes,
+                group: exercise.group,
+                order: exercise.order,
               })),
             },
-          }),
-        },
-        include: {
-          exercises: {
-            include: {
-              exercise: true,
+            ...(tagIds.length > 0 && {
+              tags: {
+                create: tagIds.map((tagId) => ({
+                  tag: { connect: { id: tagId } },
+                })),
+              },
+            }),
+          },
+          include: {
+            exercises: {
+              include: {
+                exercise: true,
+              },
+              orderBy: [{ group: "asc" }, { order: "asc" }],
             },
-            orderBy: [{ group: "asc" }, { order: "asc" }],
+            tags: {
+              include: { tag: true },
+            },
           },
-          tags: {
-            include: { tag: true },
-          },
-        },
-      })
-      .then((workout) => serializeWorkout(workout));
-  }),
+        })
+        .then((workout) => serializeWorkout(workout));
+    }),
 
-  update: publicProcedure
+  update: protectedProcedure
     .input(updateWorkoutSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, exercises, tagIds, ...workoutData } = input;
+
+      const existing = await prisma.workout.findFirst({
+        where: { id, userId: ctx.userId },
+      });
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workout not found",
+        });
+      }
 
       // If exercises are provided, replace all workout exercises
       if (exercises) {
         await prisma.workoutExercise.deleteMany({
-          where: { workoutId: id },
+          where: { workoutId: id, workout: { userId: ctx.userId } },
         });
       }
 
       if (tagIds) {
         await prisma.workoutTagAssignment.deleteMany({
-          where: { workoutId: id },
+          where: { workoutId: id, workout: { userId: ctx.userId } },
         });
       }
 
@@ -212,6 +229,7 @@ export const workoutRouter = createTRPCRouter({
                   weight: exercise.weight,
                   restTime: exercise.restTime,
                   notes: exercise.notes,
+                  group: exercise.group,
                   order: exercise.order,
                 })),
               },
@@ -239,11 +257,20 @@ export const workoutRouter = createTRPCRouter({
         .then((workout) => serializeWorkout(workout));
     }),
 
-  delete: publicProcedure.input(idSchema).mutation(async ({ input }) => {
-    await prisma.workout.delete({
-      where: { id: input.id },
-    });
+  delete: protectedProcedure
+    .input(idSchema)
+    .mutation(async ({ input, ctx }) => {
+      const result = await prisma.workout.deleteMany({
+        where: { id: input.id, userId: ctx.userId },
+      });
 
-    return { success: true };
-  }),
+      if (result.count === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workout not found",
+        });
+      }
+
+      return { success: true };
+    }),
 });

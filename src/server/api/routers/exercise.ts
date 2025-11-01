@@ -1,10 +1,12 @@
 import { z } from "zod";
 import type { Exercise as PrismaExercise } from "@/generated/prisma";
-import { PrismaClient } from "@/generated/prisma";
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import { prisma } from "@/server/db";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/trpc";
 import { EXERCISE_TYPES } from "@/types";
-
-const prisma = new PrismaClient();
 
 const subExerciseSchema = z.object({
   exerciseName: z.string(),
@@ -58,17 +60,19 @@ export const exerciseRouter = createTRPCRouter({
       });
       return exercise ? transformExercise(exercise) : null;
     }),
-  create: publicProcedure.input(exerciseInputSchema).mutation(({ input }) => {
-    return prisma.exercise.create({
-      data: {
-        ...input,
-        subExercises: input.subExercises
-          ? JSON.stringify(input.subExercises)
-          : null,
-      },
-    });
-  }),
-  update: publicProcedure
+  create: protectedProcedure
+    .input(exerciseInputSchema)
+    .mutation(({ input }) => {
+      return prisma.exercise.create({
+        data: {
+          ...input,
+          subExercises: input.subExercises
+            ? JSON.stringify(input.subExercises)
+            : null,
+        },
+      });
+    }),
+  update: protectedProcedure
     .input(exerciseInputSchema.extend({ id: z.string() }))
     .mutation(({ input }) => {
       const { id, ...exercise } = input;
@@ -82,7 +86,7 @@ export const exerciseRouter = createTRPCRouter({
         },
       });
     }),
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ input }) => {
       return prisma.exercise.delete({ where: { id: input.id } });
