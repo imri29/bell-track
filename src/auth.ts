@@ -9,7 +9,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "database",
   },
   trustHost: true,
-  providers: [Google],
+  providers: [Google({ allowDangerousEmailAccountLinking: true })],
   pages: {
     signIn: "/signin",
   },
