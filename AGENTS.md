@@ -1,3 +1,23 @@
+# Project Overview
+
+Bell Track is a kettlebell workout tracker built on Next.js 15 (App Router) with Prisma for persistence and Auth.js for
+session management. Users sign in with Google, manage workouts and templates, and the UI leans on shadcn primitives for
+consistent styling. Production deploys run on Vercel with a Neon PostgreSQL database.
+
+## Authentication & Deployment Notes
+
+- Required env vars: `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `DATABASE_URL`. Keep production secrets
+  distinct from local; generate a new `AUTH_SECRET` via `openssl rand -hex 32`.
+- Vercel uses the `vercel-build` script (`prisma migrate deploy && npm run db:seed:prod && next build`). Ensure the prod
+  project has the database URL (direct connection string) so migrations can run during deploys.
+- Legacy workout data needs ownership backfill after the first Google sign-in: `npm run db:backfill:user -- --email
+  you@example.com` while `DATABASE_URL` is pointed at production. Run `prisma migrate resolve --rolled-back
+  20251031131354_require_user_ownership` if that migration previously failed.
+- If the prod UI cannot create a user yet, insert one manually via `prisma db execute` and rerun the backfill before
+  re-attempting migrations.
+- Google provider is configured with `allowDangerousEmailAccountLinking: true` so OAuth sign-ins can attach to existing
+  user rows created during migration/backfill work.
+
 # Repository Guidelines
 
 ## Project Structure & Module Organization

@@ -7,7 +7,7 @@ function hasSessionCookie(req: NextRequest) {
     .some(({ name }) => name.includes("authjs.session-token"));
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const isAuthenticated = hasSessionCookie(req);
   const isSignInPage = req.nextUrl.pathname === "/signin";
 
