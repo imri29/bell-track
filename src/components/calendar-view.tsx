@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CalendarDayMenu } from "@/components/calendar-day-menu";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 
@@ -120,9 +121,14 @@ export function CalendarView({
           {/* Header with navigation */}
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center justify-between gap-1 sm:gap-2 sm:justify-start">
-              <Button variant="outline" size="sm" onClick={goToPreviousMonth}>
+              <IconButton
+                variant="outline"
+                size="sm"
+                onClick={goToPreviousMonth}
+                aria-label="Go to previous month"
+              >
                 <ChevronLeft className="h-4 w-4" />
-              </Button>
+              </IconButton>
               <Button
                 variant="outline"
                 size="sm"
@@ -131,9 +137,14 @@ export function CalendarView({
               >
                 Today
               </Button>
-              <Button variant="outline" size="sm" onClick={goToNextMonth}>
+              <IconButton
+                variant="outline"
+                size="sm"
+                onClick={goToNextMonth}
+                aria-label="Go to next month"
+              >
                 <ChevronRight className="h-4 w-4" />
-              </Button>
+              </IconButton>
             </div>
             <h2 className="text-lg font-semibold text-center sm:text-right">
               {format(currentMonth, "MMMM yyyy")}

@@ -23,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { IconButton } from "@/components/ui/icon-button";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn } from "@/lib/utils";
@@ -250,26 +251,30 @@ export function CalendarDayMenu({
             </div>
             <div className="ml-2 flex items-center gap-1">
               {onEditWorkout && (
-                <Button
+                <IconButton
                   variant="ghost"
                   size="sm"
                   className="h-7 w-7 p-0"
                   onClick={() => handleEditClick(workout)}
                   title="Edit workout"
+                  aria-label="Edit workout"
+                  srText="Edit workout"
                 >
                   <Edit className="h-3.5 w-3.5" />
-                </Button>
+                </IconButton>
               )}
               {onDeleteWorkout && (
-                <Button
+                <IconButton
                   variant="ghost"
                   size="sm"
                   className="h-7 w-7 p-0 text-destructive hover:text-destructive"
                   onClick={() => handleDeleteClick(workout)}
                   title="Delete workout"
+                  aria-label="Delete workout"
+                  srText="Delete workout"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                </IconButton>
               )}
             </div>
           </div>
@@ -302,7 +307,7 @@ export function CalendarDayMenu({
                 : "Select a template or create a new workout"}
             </p>
           </DrawerHeader>
-          <div className="space-y-4 px-4 pb-4">
+          <div className="space-y-4 px-4 pb-4 overflow-y-auto">
             {hasWorkouts ? (
               <>
                 {workoutsSection}
@@ -405,14 +410,16 @@ export function CalendarDayMenu({
                     <p className="text-xs font-medium text-muted-foreground">
                       ADD ANOTHER
                     </p>
-                    <Button
+                    <IconButton
                       variant="ghost"
                       size="sm"
-                      className="h-6 text-xs -mr-2"
+                      className="h-6 w-6 -mr-2"
                       onClick={() => setShowTemplates(false)}
+                      aria-label="Hide template options"
+                      srText="Hide template options"
                     >
                       <ChevronDown className="h-3.5 w-3.5" />
-                    </Button>
+                    </IconButton>
                   </div>
                   {templateSection}
                 </div>

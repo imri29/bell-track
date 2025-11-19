@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   Select,
   SelectContent,
@@ -53,15 +53,15 @@ export function ExerciseSelect({
           ))}
         </SelectContent>
       </Select>
-      <Button
-        size="icon"
+      <IconButton
         variant="outline"
         type="button"
         onClick={onCreateNewExercise}
         disabled={disabled}
+        aria-label="Create new exercise"
       >
         <Plus />
-      </Button>
+      </IconButton>
     </div>
   );
 }

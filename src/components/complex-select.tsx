@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   Select,
   SelectContent,
@@ -58,15 +58,15 @@ export function ComplexSelect({
           ))}
         </SelectContent>
       </Select>
-      <Button
-        size="icon"
+      <IconButton
         variant="outline"
         onClick={onCreateNewComplex}
         type="button"
         disabled={disabled}
+        aria-label="Create new complex exercise"
       >
         <Plus />
-      </Button>
+      </IconButton>
     </div>
   );
 }

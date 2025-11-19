@@ -64,6 +64,7 @@ export function Navigation() {
                   ? "text-primary bg-accent/10 md:bg-accent/5"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/10",
               )}
+              aria-label={item.name}
             >
               <item.icon className="h-5 w-5" />
               <span className="hidden md:inline">{item.name}</span>
@@ -74,8 +75,12 @@ export function Navigation() {
         {/* Mobile-only account menu in bottom nav */}
         <div className="flex-1 md:hidden">
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex size-full flex-col items-center justify-center gap-2 p-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent/10">
+            <DropdownMenuTrigger
+              className="flex size-full flex-col items-center justify-center gap-2 p-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent/10"
+              aria-label="Account menu"
+            >
               <UserRound className="h-5 w-5" />
+              <span className="sr-only">Account menu</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="top" className="w-56 mb-2">
               {session?.user && (

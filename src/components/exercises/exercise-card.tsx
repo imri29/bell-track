@@ -3,7 +3,7 @@
 import { format, formatDistanceToNow } from "date-fns";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { ComponentPropsWithoutRef } from "react";
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
 import { EXERCISE_TYPE_LABELS } from "@/types";
@@ -77,29 +77,29 @@ export function ExerciseCard({
             {typeLabel}
           </span>
           {onEdit ? (
-            <Button
+            <IconButton
               type="button"
-              size="icon"
               variant="ghost"
               className="h-8 w-8 text-muted-foreground hover:text-primary"
               onClick={handleEdit}
+              aria-label="Edit exercise"
+              srText="Edit exercise"
             >
               <Pencil className="h-4 w-4" />
-              <span className="sr-only">Edit exercise</span>
-            </Button>
+            </IconButton>
           ) : null}
           {onDelete ? (
-            <Button
+            <IconButton
               type="button"
-              size="icon"
               variant="ghost"
               className="h-8 w-8 text-muted-foreground hover:text-destructive"
               onClick={handleDelete}
               disabled={isDeleting}
+              aria-label="Delete exercise"
+              srText="Delete exercise"
             >
               <Trash2 className="h-4 w-4" />
-              <span className="sr-only">Delete exercise</span>
-            </Button>
+            </IconButton>
           ) : null}
           {!onEdit && !onDelete ? (
             <MoreHorizontal className="h-5 w-5 text-muted-foreground/70" />

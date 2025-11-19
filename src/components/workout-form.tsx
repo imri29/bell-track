@@ -24,6 +24,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -465,29 +466,29 @@ export function WorkoutForm({
                         >
                           {enableReplaceExercise && (
                             <Tooltip content="Replace">
-                              <Button
+                              <IconButton
                                 type="button"
                                 variant="ghost"
-                                size="icon"
                                 onClick={() => openReplaceDialog(index)}
                                 disabled={isSubmitting}
+                                aria-label="Replace exercise"
+                                srText="Replace"
                               >
                                 <Replace className="h-4 w-4" />
-                                <span className="sr-only">Replace</span>
-                              </Button>
+                              </IconButton>
                             </Tooltip>
                           )}
-                          <Button
+                          <IconButton
                             type="button"
                             variant="ghost"
-                            size="icon"
                             onClick={() => remove(index)}
                             disabled={isSubmitting}
                             className="dark:hover:text-destructive dark:focus-visible:text-destructive"
+                            aria-label="Remove exercise"
+                            srText="Remove"
                           >
                             <X className="h-4 w-4" />
-                            <span className="sr-only">Remove</span>
-                          </Button>
+                          </IconButton>
                         </ExerciseOrderControls>
                       </div>
 

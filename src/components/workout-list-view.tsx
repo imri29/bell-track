@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Spinner } from "@/components/ui/spinner";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn } from "@/lib/utils";
@@ -89,73 +90,81 @@ export function WorkoutListView({
         <p>Error loading workouts</p>
       ) : workouts && workouts.length > 0 ? (
         <div className="space-y-3">
-          {workouts.map((workout) => (
-            <div
-              key={workout.id}
-              className="p-4 bg-background rounded border group"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-semibold">
-                    {format(new Date(workout.date), "dd/MM/yyyy")}
-                    {workout.duration && ` • ${workout.duration} min`}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {workout.exercises.length} exercise
-                    {workout.exercises.length !== 1 ? "s" : ""}
-                  </p>
-                  {workout.notes && (
-                    <p className="text-sm mt-2">{workout.notes}</p>
-                  )}
+          {workouts.map((workout) => {
+            const workoutDateLabel = format(
+              new Date(workout.date),
+              "dd/MM/yyyy",
+            );
+
+            return (
+              <div
+                key={workout.id}
+                className="p-4 bg-background rounded border group"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold">
+                      {workoutDateLabel}
+                      {workout.duration && ` • ${workout.duration} min`}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {workout.exercises.length} exercise
+                      {workout.exercises.length !== 1 ? "s" : ""}
+                    </p>
+                    {workout.notes && (
+                      <p className="text-sm mt-2">{workout.notes}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEdit(workout)}
+                      className="gap-1.5"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Edit
+                    </Button>
+                    <IconButton
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => onDelete(workout)}
+                      disabled={isDeleting}
+                      aria-label={`Delete workout from ${workoutDateLabel}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </IconButton>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEdit(workout)}
-                    className="gap-1.5"
-                  >
-                    <Edit className="h-4 w-4" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => onDelete(workout)}
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              {(workout.tags?.length ?? 0) > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {workout.tags.map((tag) => {
-                    const palette = getTagPalette(tag.slug);
-                    return (
-                      <span
-                        key={tag.id}
-                        className={cn(
-                          "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight",
-                          palette.tint,
-                        )}
-                      >
+                {(workout.tags?.length ?? 0) > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {workout.tags.map((tag) => {
+                      const palette = getTagPalette(tag.slug);
+                      return (
                         <span
-                          aria-hidden="true"
+                          key={tag.id}
                           className={cn(
-                            "h-2 w-2 shrink-0 rounded-full",
-                            palette.dot,
+                            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight",
+                            palette.tint,
                           )}
-                        />
-                        {tag.name}
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
-              <WorkoutExercisesList exercises={workout.exercises} />
-            </div>
-          ))}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              "h-2 w-2 shrink-0 rounded-full",
+                              palette.dot,
+                            )}
+                          />
+                          {tag.name}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+                <WorkoutExercisesList exercises={workout.exercises} />
+              </div>
+            );
+          })}
         </div>
       ) : (
         <p className="text-muted-foreground">

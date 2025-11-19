@@ -8,6 +8,7 @@ import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -335,33 +336,39 @@ export default function TemplatesPage() {
                       </div>
                       <div className="flex gap-2 opacity-100 transition-opacity duration-500 md:opacity-0 md:group-hover:opacity-100">
                         <Tooltip content="Log workout">
-                          <Button
+                          <IconButton
                             size="sm"
                             variant="outline"
                             onClick={() => handleUseTemplate(template)}
                             className="gap-1.5"
+                            aria-label={`Log ${template.name}`}
+                            srText="Log workout"
                           >
                             <BadgePlus className="h-4 w-4" />
-                          </Button>
+                          </IconButton>
                         </Tooltip>
-                        <Button
+                        <IconButton
                           size="sm"
                           variant="outline"
                           asChild
                           className="gap-1.5"
+                          aria-label={`Edit ${template.name}`}
+                          srText="Edit template"
                         >
                           <Link href={`/templates/${template.id}/edit`}>
                             <Edit className="h-4 w-4" />
                           </Link>
-                        </Button>
-                        <Button
+                        </IconButton>
+                        <IconButton
                           className="h-8 w-8 p-0"
                           variant="destructive"
                           onClick={() => handleDelete(template)}
                           disabled={isDeleting}
+                          aria-label={`Delete ${template.name}`}
+                          srText="Delete template"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </IconButton>
                       </div>
                     </div>
                     <TemplateExercisesList exercises={template.exercises} />
