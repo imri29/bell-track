@@ -472,7 +472,6 @@ export function WorkoutForm({
                                 onClick={() => openReplaceDialog(index)}
                                 disabled={isSubmitting}
                                 aria-label="Replace exercise"
-                                srText="Replace"
                               >
                                 <Replace className="h-4 w-4" />
                               </IconButton>
@@ -485,7 +484,6 @@ export function WorkoutForm({
                             disabled={isSubmitting}
                             className="dark:hover:text-destructive dark:focus-visible:text-destructive"
                             aria-label="Remove exercise"
-                            srText="Remove"
                           >
                             <X className="h-4 w-4" />
                           </IconButton>

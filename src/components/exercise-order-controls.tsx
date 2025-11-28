@@ -29,7 +29,6 @@ export function ExerciseOrderControls({
           onClick={onMoveUp}
           disabled={disableUp}
           aria-label="Move exercise up"
-          srText="Move up"
         >
           <ArrowUp className="h-4 w-4" />
         </IconButton>
@@ -41,7 +40,6 @@ export function ExerciseOrderControls({
           onClick={onMoveDown}
           disabled={disableDown}
           aria-label="Move exercise down"
-          srText="Move down"
         >
           <ArrowDown className="h-4 w-4" />
         </IconButton>

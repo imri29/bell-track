@@ -83,7 +83,6 @@ export function ExerciseCard({
               className="h-8 w-8 text-muted-foreground hover:text-primary"
               onClick={handleEdit}
               aria-label="Edit exercise"
-              srText="Edit exercise"
             >
               <Pencil className="h-4 w-4" />
             </IconButton>
@@ -96,7 +95,6 @@ export function ExerciseCard({
               onClick={handleDelete}
               disabled={isDeleting}
               aria-label="Delete exercise"
-              srText="Delete exercise"
             >
               <Trash2 className="h-4 w-4" />
             </IconButton>

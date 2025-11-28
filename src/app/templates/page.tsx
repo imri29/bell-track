@@ -342,30 +342,16 @@ export default function TemplatesPage() {
                             onClick={() => handleUseTemplate(template)}
                             className="gap-1.5"
                             aria-label={`Log ${template.name}`}
-                            srText="Log workout"
                           >
                             <BadgePlus className="h-4 w-4" />
                           </IconButton>
                         </Tooltip>
-                        <IconButton
-                          size="sm"
-                          variant="outline"
-                          asChild
-                          className="gap-1.5"
-                          aria-label={`Edit ${template.name}`}
-                          srText="Edit template"
-                        >
-                          <Link href={`/templates/${template.id}/edit`}>
-                            <Edit className="h-4 w-4" />
-                          </Link>
-                        </IconButton>
                         <IconButton
                           className="h-8 w-8 p-0"
                           variant="destructive"
                           onClick={() => handleDelete(template)}
                           disabled={isDeleting}
                           aria-label={`Delete ${template.name}`}
-                          srText="Delete template"
                         >
                           <Trash2 className="h-4 w-4" />
                         </IconButton>

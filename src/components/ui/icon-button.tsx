@@ -8,7 +8,6 @@ type BaseButtonProps = ComponentProps<typeof Button>;
 export type IconButtonProps = Omit<BaseButtonProps, "children"> & {
   children: ReactNode;
   "aria-label": string;
-  srText?: string;
 };
 
 /**
@@ -17,7 +16,6 @@ export type IconButtonProps = Omit<BaseButtonProps, "children"> & {
  * so spacing and padding stay consistent.
  */
 export function IconButton({
-  srText,
   children,
   size = "icon",
   ...props
@@ -25,7 +23,6 @@ export function IconButton({
   return (
     <Button size={size} {...props}>
       {children}
-      {srText ? <span className="sr-only">{srText}</span> : null}
     </Button>
   );
 }

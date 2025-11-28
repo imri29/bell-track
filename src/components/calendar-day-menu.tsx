@@ -258,7 +258,6 @@ export function CalendarDayMenu({
                   onClick={() => handleEditClick(workout)}
                   title="Edit workout"
                   aria-label="Edit workout"
-                  srText="Edit workout"
                 >
                   <Edit className="h-3.5 w-3.5" />
                 </IconButton>
@@ -271,7 +270,6 @@ export function CalendarDayMenu({
                   onClick={() => handleDeleteClick(workout)}
                   title="Delete workout"
                   aria-label="Delete workout"
-                  srText="Delete workout"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </IconButton>
@@ -416,7 +414,6 @@ export function CalendarDayMenu({
                       className="h-6 w-6 -mr-2"
                       onClick={() => setShowTemplates(false)}
                       aria-label="Hide template options"
-                      srText="Hide template options"
                     >
                       <ChevronDown className="h-3.5 w-3.5" />
                     </IconButton>
