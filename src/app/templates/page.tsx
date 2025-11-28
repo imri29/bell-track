@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgePlus, Edit, Plus, Search, Trash2 } from "lucide-react";
+import { BadgePlus, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
