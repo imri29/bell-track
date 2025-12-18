@@ -3,12 +3,21 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Drawer,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { api } from "@/trpc/react";
 import { EXERCISE_TYPES } from "@/types";
 import { AddExerciseModal } from "./add-exercise-modal";
@@ -26,6 +35,7 @@ export function AddComplexExerciseModal({
   onOpenChange,
   onExerciseCreated,
 }: AddComplexExerciseModalProps) {
+  const isMobile = useIsMobile();
   const utils = api.useUtils();
   const { data: exercises } = api.exercise.getAll.useQuery();
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
@@ -67,6 +77,22 @@ export function AddComplexExerciseModal({
     });
   };
 
+  const formFields = (
+    <>
+      <ExerciseModal.NameField
+        register={register}
+        errorMessage={errors.name?.message}
+      />
+      <ExerciseModal.ComplexBuilder
+        control={control}
+        register={register}
+        exercises={exercises}
+        onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
+      />
+      <ExerciseModal.DescriptionField register={register} />
+    </>
+  );
+
   return (
     <>
       <AddExerciseModal
@@ -74,43 +100,61 @@ export function AddComplexExerciseModal({
         onOpenChange={(open) => setIsAddExerciseModalOpen(open)}
         onExerciseCreated={onExerciseCreated}
       />
-      <Drawer
-        open={isOpen}
-        onOpenChange={onOpenChange}
-        repositionInputs={false}
-      >
-        <DrawerContent className="max-h-[80vh]" fullHeight>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex h-full min-h-0 flex-col"
-          >
-            <DrawerHeader>
-              <DrawerTitle>Add New Complex</DrawerTitle>
-            </DrawerHeader>
-            <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4 min-h-0">
-              <ExerciseModal.NameField
-                register={register}
-                errorMessage={errors.name?.message}
-              />
-              <ExerciseModal.ComplexBuilder
-                control={control}
-                register={register}
-                exercises={exercises}
-                onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
-              />
-              <ExerciseModal.DescriptionField register={register} />
-            </div>
-            <DrawerFooter>
-              <ExerciseModal.Actions
-                onCancel={() => onOpenChange(false)}
-                isPending={createExercise.isPending}
-                submitText="Add Complex"
-                loadingText="Adding Complex..."
-              />
-            </DrawerFooter>
-          </form>
-        </DrawerContent>
-      </Drawer>
+      {isMobile ? (
+        <Drawer
+          open={isOpen}
+          onOpenChange={onOpenChange}
+          repositionInputs={false}
+        >
+          <DrawerContent className="max-h-[80vh]" fullHeight>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              onKeyDown={preventEnterFromSelect}
+              className="flex h-full min-h-0 flex-col"
+            >
+              <DrawerHeader>
+                <DrawerTitle>Add New Complex</DrawerTitle>
+              </DrawerHeader>
+              <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4 min-h-0">
+                {formFields}
+              </div>
+              <DrawerFooter>
+                <ExerciseModal.Actions
+                  onCancel={() => onOpenChange(false)}
+                  isPending={createExercise.isPending}
+                  submitText="Add Complex"
+                  loadingText="Adding Complex..."
+                />
+              </DrawerFooter>
+            </form>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Add New Complex</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              onKeyDown={preventEnterFromSelect}
+              className="flex flex-col gap-4 max-h-[70vh] overflow-hidden"
+            >
+              <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+                {formFields}
+              </div>
+              <DialogFooter>
+                <ExerciseModal.Actions
+                  onCancel={() => onOpenChange(false)}
+                  isPending={createExercise.isPending}
+                  submitText="Add Complex"
+                  loadingText="Adding Complex..."
+                />
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }

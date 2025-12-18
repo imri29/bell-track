@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
+import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn, normalizeRestTime } from "@/lib/utils";
 import { api } from "@/trpc/react";
@@ -174,17 +175,7 @@ export default function NewTemplatePage() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            const target = event.target as HTMLElement;
-            if (
-              target.tagName !== "BUTTON" ||
-              (target as HTMLButtonElement).type !== "submit"
-            ) {
-              event.preventDefault();
-            }
-          }
-        }}
+        onKeyDown={preventEnterFromSelect}
         className="space-y-8"
       >
         <div className="space-y-6 rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">

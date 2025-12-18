@@ -74,3 +74,9 @@ your environment.
 ## Instructions
 
 - Make sure you use Next 15 instructions
+
+## UI Interaction Notes
+
+- Radix Selects emit Enter key events that can bubble and submit parent forms. When a form contains a Select, attach
+  `preventEnterFromSelect` (`src/lib/form-handlers.ts`) to the form `onKeyDown` so selecting options with Enter does not
+  submit the form while normal Enter-to-submit on inputs/buttons still works.

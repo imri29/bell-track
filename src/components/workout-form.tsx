@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
+import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn, normalizeRestTime } from "@/lib/utils";
 import { api } from "@/trpc/react";
@@ -281,7 +282,11 @@ export function WorkoutForm({
         onOpenChange={setIsAddComplexModalOpen}
       />
 
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form
+        onSubmit={handleSubmit(handleFormSubmit)}
+        onKeyDown={preventEnterFromSelect}
+        className="space-y-4"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label htmlFor={dateId} className="text-sm font-medium">
