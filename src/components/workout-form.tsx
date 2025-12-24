@@ -549,7 +549,6 @@ export function WorkoutForm({
                                 hideLabel
                                 showLabels={false}
                                 triggerClassName="text-xs"
-                                size="sm"
                               />
                             </div>
                             <Input

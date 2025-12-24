@@ -403,7 +403,6 @@ export default function NewTemplatePage() {
                                 label="Unit"
                                 hideLabel
                                 showLabels={false}
-                                size="sm"
                               />
                             </div>
                             <Input

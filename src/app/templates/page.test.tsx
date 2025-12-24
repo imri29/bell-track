@@ -206,4 +206,23 @@ describe("TemplatesPage", () => {
       expect(mockInvalidateTemplates).toHaveBeenCalled();
     });
   });
+
+  it("links to edit a template", async () => {
+    mockTemplateQuery.mockReturnValue({
+      data: [templateOne],
+      isPending: false,
+      error: undefined,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [],
+      isPending: false,
+      error: undefined,
+    });
+
+    renderTemplates();
+
+    const editLink = screen.getByLabelText(/edit strength builder/i);
+    expect(editLink).toHaveAttribute("href", "/templates/t1/edit");
+    await userEvent.click(editLink);
+  });
 });

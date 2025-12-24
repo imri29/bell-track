@@ -442,7 +442,6 @@ export default function EditTemplatePage({
                                 label="Unit"
                                 hideLabel
                                 showLabels={false}
-                                size="sm"
                               />
                             </div>
                             <Input

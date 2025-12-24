@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgePlus, Plus, Search, Trash2 } from "lucide-react";
+import { BadgePlus, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -348,6 +348,18 @@ export default function TemplatesPage() {
                             aria-label={`Log ${template.name}`}
                           >
                             <BadgePlus className="h-4 w-4" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip content="Edit template">
+                          <IconButton
+                            asChild
+                            size="sm"
+                            variant="outline"
+                            aria-label={`Edit ${template.name}`}
+                          >
+                            <Link href={`/templates/${template.id}/edit`}>
+                              <Pencil className="h-4 w-4" />
+                            </Link>
                           </IconButton>
                         </Tooltip>
                         <IconButton
