@@ -70,12 +70,12 @@ vi.mock("@/components/complex-name-tooltip", () => ({
 
 vi.mock("@/components/complex-select", () => ({
   ComplexSelect: ({
-    onSelect,
+    onValueChange,
   }: {
-    onSelect: (id: string) => void;
+    onValueChange: (id: string) => void;
     id?: string;
   }) => (
-    <button type="button" onClick={() => onSelect("ex1")}>
+    <button type="button" onClick={() => onValueChange("ex1")}>
       Select Complex
     </button>
   ),
@@ -83,12 +83,12 @@ vi.mock("@/components/complex-select", () => ({
 
 vi.mock("@/components/exercise-select", () => ({
   ExerciseSelect: ({
-    onSelect,
+    onValueChange,
   }: {
-    onSelect: (id: string) => void;
+    onValueChange: (id: string) => void;
     id?: string;
   }) => (
-    <button type="button" onClick={() => onSelect("ex1")}>
+    <button type="button" onClick={() => onValueChange("ex1")}>
       Select Exercise
     </button>
   ),

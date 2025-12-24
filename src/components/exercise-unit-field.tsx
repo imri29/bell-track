@@ -5,6 +5,7 @@ import {
   type FieldValues,
   type Path,
 } from "react-hook-form";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { EXERCISE_UNIT_LABELS, EXERCISE_UNITS } from "@/types";
 
@@ -66,34 +67,17 @@ export function ExerciseUnitField<TFieldValues extends FieldValues>({
                 {EXERCISE_UNIT_LABELS.REPS}
               </span>
             )}
-            <button
+            <Switch
               id={unitId}
-              type="button"
-              role="switch"
-              aria-checked={field.value === EXERCISE_UNITS.TIME}
               aria-label={label}
               disabled={disabled}
-              onClick={() =>
+              checked={field.value === EXERCISE_UNITS.TIME}
+              onCheckedChange={(checked) =>
                 field.onChange(
-                  field.value === EXERCISE_UNITS.TIME
-                    ? EXERCISE_UNITS.REPS
-                    : EXERCISE_UNITS.TIME,
+                  checked ? EXERCISE_UNITS.TIME : EXERCISE_UNITS.REPS,
                 )
               }
-              className={cn(
-                "relative inline-flex h-4 w-7 items-center rounded-full border border-border bg-muted transition-opacity",
-                disabled && "opacity-50",
-              )}
-            >
-              <span
-                className={cn(
-                  "inline-block h-3 w-3 rounded-full bg-foreground transition-transform",
-                  field.value === EXERCISE_UNITS.TIME
-                    ? "translate-x-3.5"
-                    : "translate-x-0.5",
-                )}
-              />
-            </button>
+            />
             {showLabels && (
               <span
                 className={cn(
