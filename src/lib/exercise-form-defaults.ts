@@ -1,3 +1,5 @@
+import { EXERCISE_UNITS, type ExerciseUnit } from "@/types";
+
 interface ExerciseLike {
   id: string;
   type: string;
@@ -6,6 +8,7 @@ interface ExerciseLike {
 export interface ExerciseFormDefaults {
   exerciseId: string;
   sets: number;
+  unit: ExerciseUnit;
   reps: string;
   weight: number;
   restTime?: number;
@@ -20,6 +23,7 @@ export const buildExerciseFormDefaults = (
 ): ExerciseFormDefaults => ({
   exerciseId: exercise.id,
   sets: 5,
+  unit: EXERCISE_UNITS.REPS,
   reps: exercise.type === "COMPLEX" ? "1" : "12",
   weight: 16,
   restTime: exercise.type === "COMPLEX" ? 90 : 60,

@@ -6,10 +6,14 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/trpc";
+import { EXERCISE_UNITS } from "@/types";
 
 const templateExerciseSchema = z.object({
   exerciseId: z.string(),
   sets: z.number().min(1),
+  unit: z
+    .enum([EXERCISE_UNITS.REPS, EXERCISE_UNITS.TIME])
+    .default(EXERCISE_UNITS.REPS),
   reps: z.string(), // JSON array like "[12, 10, 8]"
   weight: z.number().min(0).optional(),
   restTime: z.number().optional(),
@@ -23,6 +27,7 @@ const templateExerciseOutputSchema = z.object({
   id: z.string().optional(),
   exerciseId: z.string(),
   sets: z.number(),
+  unit: z.enum([EXERCISE_UNITS.REPS, EXERCISE_UNITS.TIME]),
   reps: z.string(),
   weight: z
     .number()
@@ -95,6 +100,7 @@ function serializeTemplate(template: {
     id: string;
     exerciseId: string;
     sets: number;
+    unit: "REPS" | "TIME";
     reps: string;
     weight: number | null;
     restTime: number | null;
@@ -127,6 +133,10 @@ function serializeTemplate(template: {
       id: exercise.id,
       exerciseId: exercise.exerciseId,
       sets: exercise.sets,
+      unit:
+        exercise.unit === EXERCISE_UNITS.TIME
+          ? EXERCISE_UNITS.TIME
+          : EXERCISE_UNITS.REPS,
       reps: exercise.reps,
       weight: exercise.weight,
       restTime: exercise.restTime,
@@ -246,6 +256,7 @@ export const templateRouter = createTRPCRouter({
             create: exercises.map((exercise) => ({
               exerciseId: exercise.exerciseId,
               sets: exercise.sets,
+              unit: exercise.unit,
               reps: exercise.reps,
               weight: exercise.weight,
               restTime: exercise.restTime,
@@ -316,6 +327,7 @@ export const templateRouter = createTRPCRouter({
               create: exercises.map((exercise) => ({
                 exerciseId: exercise.exerciseId,
                 sets: exercise.sets,
+                unit: exercise.unit,
                 reps: exercise.reps,
                 weight: exercise.weight,
                 restTime: exercise.restTime,

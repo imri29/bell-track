@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EXERCISE_TYPES } from "@/types";
+import { EXERCISE_TYPES, EXERCISE_UNITS } from "@/types";
 
 // Common input schemas
 export const idSchema = z.object({ id: z.string() });
@@ -29,6 +29,9 @@ export const exerciseInputSchema = z.object({
 export const workoutExerciseInputSchema = z.object({
   exerciseId: z.string(),
   sets: z.number().min(1),
+  unit: z
+    .enum([EXERCISE_UNITS.REPS, EXERCISE_UNITS.TIME])
+    .default(EXERCISE_UNITS.REPS),
   reps: z.string(), // JSON array like "[12, 10, 8]"
   weight: z.number().min(0),
   restTime: z.number().optional().nullable(),
@@ -41,6 +44,7 @@ export const workoutExerciseOutputSchema = z.object({
   id: z.string(),
   exerciseId: z.string(),
   sets: z.number(),
+  unit: z.enum([EXERCISE_UNITS.REPS, EXERCISE_UNITS.TIME]),
   reps: z.string(),
   weight: z
     .number()

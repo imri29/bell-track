@@ -12,6 +12,18 @@ export const EXERCISE_TYPE_LABELS = {
 
 export type ExerciseType = ValueOf<typeof EXERCISE_TYPES>;
 
+export const EXERCISE_UNITS = {
+  REPS: "REPS",
+  TIME: "TIME",
+} as const;
+
+export const EXERCISE_UNIT_LABELS = {
+  REPS: "Reps",
+  TIME: "Time (sec)",
+} as const;
+
+export type ExerciseUnit = ValueOf<typeof EXERCISE_UNITS>;
+
 export type SubExercise = {
   exerciseId: string;
   exerciseName: string;
@@ -45,6 +57,7 @@ export type TemplateData = {
   exercises: Array<{
     exerciseId: string;
     sets: number;
+    unit: ExerciseUnit;
     reps: string;
     weight?: number;
     restTime?: number;

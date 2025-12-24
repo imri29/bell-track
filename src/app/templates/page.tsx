@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useConfirm } from "@/contexts/confirm-context";
+import { formatExerciseUnitValue } from "@/lib/exercise-units";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
@@ -64,7 +65,10 @@ function TemplateExercisesList({
               >
                 <span className="inline font-medium text-foreground">
                   {exercise.exercise.type !== "COMPLEX" && exercise.reps
-                    ? `${exercise.reps} ${exercise.exercise.name}`
+                    ? `${formatExerciseUnitValue(
+                        exercise.reps,
+                        exercise.unit,
+                      )} ${exercise.exercise.name}`
                     : exercise.exercise.name}
                   {` • ${exercise.sets} sets`}
                   {exercise.weight && ` • ${exercise.weight}kg`}

@@ -19,6 +19,7 @@ const formData = {
     {
       exerciseId: "ex1",
       sets: 3,
+      unit: "REPS",
       reps: "8",
       weight: 24,
       restTime: undefined,
@@ -43,6 +44,11 @@ vi.mock("react-hook-form", () => ({
     watch: () => formData.tagIds,
     formState: { errors: {} },
   }),
+  Controller: ({
+    render,
+  }: {
+    render: (props: { field: unknown }) => unknown;
+  }) => render({ field: { value: "REPS", onChange: vi.fn() } }),
   useFieldArray: () => ({
     fields: formData.exercises,
     append: vi.fn(),
@@ -151,6 +157,7 @@ describe("NewTemplatePage", () => {
         {
           exerciseId: "ex1",
           sets: 3,
+          unit: "REPS",
           reps: "8",
           weight: 24,
           restTime: undefined,

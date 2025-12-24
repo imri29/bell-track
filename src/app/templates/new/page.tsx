@@ -12,20 +12,27 @@ import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ComplexSelect } from "@/components/complex-select";
 import { ExerciseOrderControls } from "@/components/exercise-order-controls";
 import { ExerciseSelect } from "@/components/exercise-select";
+import { ExerciseUnitField } from "@/components/exercise-unit-field";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
+import {
+  getExerciseUnitLabel,
+  getExerciseUnitPlaceholder,
+} from "@/lib/exercise-units";
 import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn, normalizeRestTime } from "@/lib/utils";
 import { api } from "@/trpc/react";
+import type { ExerciseUnit } from "@/types";
 
 type TemplateExerciseFormData = {
   exerciseId: string;
   sets: number;
+  unit: ExerciseUnit;
   reps: string;
   weight?: number;
   restTime?: number;
@@ -114,6 +121,7 @@ export default function NewTemplatePage() {
     const exercises = data.exercises.map((exercise, index) => ({
       ...exercise,
       restTime: normalizeRestTime(exercise.restTime),
+      unit: exercise.unit ?? "REPS",
       order: index,
     }));
 
@@ -380,17 +388,34 @@ export default function NewTemplatePage() {
                         </div>
                         {exercise?.type !== "COMPLEX" && (
                           <div className="space-y-2">
-                            <label
-                              htmlFor={`reps-${index}`}
-                              className="text-sm font-medium"
-                            >
-                              Reps
-                            </label>
+                            <div className="flex items-center justify-between">
+                              <label
+                                htmlFor={`reps-${index}`}
+                                className="text-sm font-medium"
+                              >
+                                {getExerciseUnitLabel(
+                                  watch(`exercises.${index}.unit`),
+                                )}
+                              </label>
+                              <ExerciseUnitField
+                                control={control}
+                                name={`exercises.${index}.unit`}
+                                label="Unit"
+                                hideLabel
+                                showLabels={false}
+                                size="sm"
+                              />
+                            </div>
                             <Input
                               id={`reps-${index}`}
-                              placeholder="12 or 12,10,8"
+                              placeholder={getExerciseUnitPlaceholder(
+                                watch(`exercises.${index}.unit`),
+                              )}
                               {...register(`exercises.${index}.reps`, {
-                                required: "Reps required",
+                                required:
+                                  watch(`exercises.${index}.unit`) === "TIME"
+                                    ? "Time required"
+                                    : "Reps required",
                               })}
                             />
                           </div>

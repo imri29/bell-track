@@ -67,9 +67,6 @@ your environment.
 
 ## Agent Workflow Expectations
 
-- Consult `FEATURES.md` before picking up work so the roadmap stays the single source of truth.
-- When a feature is marked as complete in `FEATURES.md`, verify the implementation matches the documented scope before
-  closing it out or marking it shipped.
 
 ## Instructions
 

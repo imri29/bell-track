@@ -28,6 +28,7 @@ const handleSubmitMock = vi.fn((cb) =>
       {
         exerciseId: "ex1",
         sets: 4,
+        unit: "REPS",
         reps: "10",
         weight: 20,
         restTime: 45,
@@ -61,6 +62,11 @@ vi.mock("react-hook-form", () => ({
     watch: () => ["tag1"],
     formState: { errors: {} },
   }),
+  Controller: ({
+    render,
+  }: {
+    render: (props: { field: unknown }) => unknown;
+  }) => render({ field: { value: "REPS", onChange: vi.fn() } }),
   useFieldArray: () => ({
     fields: [],
     append: vi.fn(),
@@ -172,6 +178,7 @@ describe("EditTemplatePage", () => {
             id: "te1",
             exerciseId: "ex1",
             sets: 3,
+            unit: "REPS",
             reps: "8",
             weight: 16,
             restTime: 60,
@@ -221,6 +228,7 @@ describe("EditTemplatePage", () => {
           {
             exerciseId: "ex1",
             sets: 4,
+            unit: "REPS",
             reps: "10",
             weight: 20,
             restTime: 45,

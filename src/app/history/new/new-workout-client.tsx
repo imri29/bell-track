@@ -56,6 +56,7 @@ export function NewWorkoutClient({
       exercises: templateResponse.exercises.map((exercise) => ({
         exerciseId: exercise.exerciseId,
         sets: exercise.sets,
+        unit: exercise.unit ?? "REPS",
         reps: exercise.reps,
         weight:
           typeof exercise.weight === "number" ? exercise.weight : undefined,

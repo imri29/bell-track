@@ -9,6 +9,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { preventEnterFromSelect } from "@/lib/form-handlers";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 import { EXERCISE_TYPES } from "@/types";
@@ -108,7 +109,11 @@ function EditSimpleExerciseModalContent({
   return (
     <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
       <DrawerContent className="max-h-[80vh]">
-        <form onSubmit={onSubmit} className="flex h-full flex-col">
+        <form
+          onSubmit={onSubmit}
+          onKeyDown={preventEnterFromSelect}
+          className="flex h-full flex-col"
+        >
           <DrawerHeader>
             <DrawerTitle>Edit Exercise</DrawerTitle>
           </DrawerHeader>
@@ -222,7 +227,11 @@ function EditComplexExerciseModalContent({
         repositionInputs={false}
       >
         <DrawerContent className="max-h-[80vh]" fullHeight>
-          <form onSubmit={onSubmit} className="flex h-full min-h-0 flex-col">
+          <form
+            onSubmit={onSubmit}
+            onKeyDown={preventEnterFromSelect}
+            className="flex h-full min-h-0 flex-col"
+          >
             <DrawerHeader>
               <DrawerTitle>Edit Complex</DrawerTitle>
             </DrawerHeader>

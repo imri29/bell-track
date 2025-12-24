@@ -11,6 +11,7 @@ import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ComplexSelect } from "@/components/complex-select";
 import { ExerciseOrderControls } from "@/components/exercise-order-controls";
 import { ExerciseSelect } from "@/components/exercise-select";
+import { ExerciseUnitField } from "@/components/exercise-unit-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,14 +32,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
+import {
+  getExerciseUnitLabel,
+  getExerciseUnitPlaceholder,
+} from "@/lib/exercise-units";
 import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn, normalizeRestTime } from "@/lib/utils";
 import { api } from "@/trpc/react";
+import type { ExerciseUnit } from "@/types";
 
 export type WorkoutExerciseFormValues = {
   exerciseId: string;
   sets: number;
+  unit: ExerciseUnit;
   reps: string;
   weight: number;
   restTime?: number;
@@ -158,6 +165,7 @@ export function WorkoutForm({
       return {
         exerciseId: exercise.exerciseId,
         sets: exercise.sets,
+        unit: exercise.unit ?? "REPS",
         reps: exercise.reps,
         weight: exercise.weight,
         restTime,
@@ -212,12 +220,17 @@ export function WorkoutForm({
     const defaults = buildExerciseFormDefaults(exercise, replaceIndex);
     const currentExercises = getValues("exercises");
     const current = currentExercises?.[replaceIndex];
+    const canKeepReps = exercise.type !== "COMPLEX";
 
     const nextValues = {
       ...defaults,
       exerciseId: exercise.id,
       order: replaceIndex,
       sets: current?.sets ?? defaults.sets,
+      unit:
+        exercise.type === "COMPLEX"
+          ? defaults.unit
+          : (current?.unit ?? defaults.unit),
       weight:
         typeof current?.weight === "number" ? current.weight : defaults.weight,
       restTime:
@@ -229,7 +242,9 @@ export function WorkoutForm({
       reps:
         exercise.type === "COMPLEX"
           ? defaults.reps
-          : (current?.reps ?? defaults.reps),
+          : canKeepReps
+            ? (current?.reps ?? defaults.reps)
+            : defaults.reps,
     };
 
     update(replaceIndex, nextValues);
@@ -517,18 +532,37 @@ export function WorkoutForm({
                         </div>
                         {exercise?.type !== "COMPLEX" && (
                           <div className="space-y-1">
-                            <label
-                              htmlFor={`reps-${index}`}
-                              className="text-xs font-medium"
-                            >
-                              Reps
-                            </label>
+                            <div className="flex items-center justify-between">
+                              <label
+                                htmlFor={`reps-${index}`}
+                                className="text-xs font-medium"
+                              >
+                                {getExerciseUnitLabel(
+                                  watch(`exercises.${index}.unit`),
+                                )}
+                              </label>
+                              <ExerciseUnitField
+                                control={control}
+                                name={`exercises.${index}.unit`}
+                                disabled={isSubmitting}
+                                label="Unit"
+                                hideLabel
+                                showLabels={false}
+                                triggerClassName="text-xs"
+                                size="sm"
+                              />
+                            </div>
                             <Input
                               id={`reps-${index}`}
-                              placeholder="12 or 12,10,8"
+                              placeholder={getExerciseUnitPlaceholder(
+                                watch(`exercises.${index}.unit`),
+                              )}
                               disabled={isSubmitting}
                               {...register(`exercises.${index}.reps`, {
-                                required: "Reps required",
+                                required:
+                                  watch(`exercises.${index}.unit`) === "TIME"
+                                    ? "Time required"
+                                    : "Reps required",
                               })}
                             />
                           </div>

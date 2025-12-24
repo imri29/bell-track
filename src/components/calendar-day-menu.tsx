@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { IconButton } from "@/components/ui/icon-button";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { formatExerciseUnitValue } from "@/lib/exercise-units";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
@@ -90,7 +91,11 @@ function WorkoutExerciseSummary({ workout }: { workout: WorkoutData }) {
                 subExercises={exercise.exercise.subExercises}
                 className="inline text-foreground font-medium"
               />
-              {` • ${exercise.sets}×${exercise.reps}`}
+              {` • ${exercise.sets}×${formatExerciseUnitValue(
+                exercise.reps,
+                exercise.unit,
+                { compact: true },
+              )}`}
               {exercise.weight ? ` • ${exercise.weight}kg` : ""}
             </div>
           </div>

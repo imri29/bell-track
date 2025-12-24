@@ -67,6 +67,7 @@ describe("NewWorkoutClient", () => {
           {
             exerciseId: "ex1",
             sets: 3,
+            unit: "REPS",
             reps: "10",
             weight: 24,
             restTime: 60,

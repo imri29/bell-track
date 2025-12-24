@@ -68,6 +68,7 @@ function serializeWorkout(workout: WorkoutWithRelations) {
       id: ex.id,
       exerciseId: ex.exerciseId,
       sets: ex.sets,
+      unit: ex.unit,
       reps: ex.reps,
       weight: ex.weight ?? 0,
       restTime: ex.restTime,
@@ -155,6 +156,7 @@ export const workoutRouter = createTRPCRouter({
               create: exercises.map((exercise) => ({
                 exerciseId: exercise.exerciseId,
                 sets: exercise.sets,
+                unit: exercise.unit,
                 reps: exercise.reps,
                 weight: exercise.weight,
                 restTime: exercise.restTime,
@@ -225,6 +227,7 @@ export const workoutRouter = createTRPCRouter({
                 create: exercises.map((exercise) => ({
                   exerciseId: exercise.exerciseId,
                   sets: exercise.sets,
+                  unit: exercise.unit,
                   reps: exercise.reps,
                   weight: exercise.weight,
                   restTime: exercise.restTime,

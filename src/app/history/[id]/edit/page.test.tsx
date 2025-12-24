@@ -77,6 +77,7 @@ const workoutFixture: WorkoutDetail = {
       id: "we1",
       exerciseId: "ex1",
       sets: 3,
+      unit: "REPS",
       reps: "12",
       weight: 24,
       restTime: 60,

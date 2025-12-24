@@ -42,6 +42,7 @@ export function AddWorkoutForm({
       exercises: sortedExercises.map((exercise, index) => ({
         exerciseId: exercise.exerciseId,
         sets: exercise.sets,
+        unit: exercise.unit ?? "REPS",
         reps: exercise.reps,
         weight: typeof exercise.weight === "number" ? exercise.weight : 0,
         restTime:

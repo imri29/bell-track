@@ -1,5 +1,5 @@
 import type { RouterOutputs } from "@/server/api/root";
-import type { TemplateData } from "@/types";
+import { EXERCISE_UNITS, type TemplateData } from "@/types";
 
 type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
 
@@ -15,6 +15,7 @@ export function templateToFormData(
     exercises: template.exercises.map((ex) => ({
       exerciseId: ex.exerciseId,
       sets: ex.sets,
+      unit: ex.unit ?? EXERCISE_UNITS.REPS,
       reps: ex.reps,
       weight: ex.weight ?? undefined,
       restTime: ex.restTime ?? undefined,
