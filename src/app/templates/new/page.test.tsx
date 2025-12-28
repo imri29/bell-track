@@ -68,8 +68,8 @@ vi.mock("@/components/complex-name-tooltip", () => ({
   ),
 }));
 
-vi.mock("@/components/complex-select", () => ({
-  ComplexSelect: ({
+vi.mock("@/components/complex-combobox", () => ({
+  ComplexCombobox: ({
     onValueChange,
   }: {
     onValueChange: (id: string) => void;
@@ -81,8 +81,8 @@ vi.mock("@/components/complex-select", () => ({
   ),
 }));
 
-vi.mock("@/components/exercise-select", () => ({
-  ExerciseSelect: ({
+vi.mock("@/components/exercise-combobox", () => ({
+  ExerciseCombobox: ({
     onValueChange,
   }: {
     onValueChange: (id: string) => void;

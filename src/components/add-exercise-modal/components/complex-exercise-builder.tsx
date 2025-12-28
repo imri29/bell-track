@@ -3,7 +3,7 @@
 import { useId } from "react";
 import type { Control, UseFormRegister } from "react-hook-form";
 import { useFieldArray } from "react-hook-form";
-import { ExerciseSelect } from "@/components/exercise-select";
+import { ExerciseCombobox } from "@/components/exercise-combobox";
 import type { SubExercise } from "@/types";
 
 interface Exercise {
@@ -51,7 +51,7 @@ export function ComplexExerciseBuilder({
         <label htmlFor={exerciseSelectId} className="text-sm font-medium">
           Select Exercises
         </label>
-        <ExerciseSelect
+        <ExerciseCombobox
           id={exerciseSelectId}
           className="bg-background"
           placeholder="Add exercises to complex"

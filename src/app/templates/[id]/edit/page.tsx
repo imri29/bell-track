@@ -8,10 +8,10 @@ import {
   AddComplexExerciseModal,
   AddExerciseModal,
 } from "@/components/add-exercise-modal";
+import { ComplexCombobox } from "@/components/complex-combobox";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
-import { ComplexSelect } from "@/components/complex-select";
+import { ExerciseCombobox } from "@/components/exercise-combobox";
 import { ExerciseOrderControls } from "@/components/exercise-order-controls";
-import { ExerciseSelect } from "@/components/exercise-select";
 import { ExerciseUnitField } from "@/components/exercise-unit-field";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -329,7 +329,7 @@ export default function EditTemplatePage({
               <label htmlFor={exerciseSelectId} className="text-sm font-medium">
                 Select Exercise
               </label>
-              <ExerciseSelect
+              <ExerciseCombobox
                 onValueChange={(value) => {
                   if (value) {
                     addExercise(value);
@@ -347,7 +347,7 @@ export default function EditTemplatePage({
               <label htmlFor={exerciseSelectId} className="text-sm font-medium">
                 Select Complex
               </label>
-              <ComplexSelect
+              <ComplexCombobox
                 onValueChange={(value) => {
                   if (value) {
                     addExercise(value);

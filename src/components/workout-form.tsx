@@ -7,10 +7,10 @@ import {
   AddComplexExerciseModal,
   AddExerciseModal,
 } from "@/components/add-exercise-modal";
+import { ComplexCombobox } from "@/components/complex-combobox";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
-import { ComplexSelect } from "@/components/complex-select";
+import { ExerciseCombobox } from "@/components/exercise-combobox";
 import { ExerciseOrderControls } from "@/components/exercise-order-controls";
-import { ExerciseSelect } from "@/components/exercise-select";
 import { ExerciseUnitField } from "@/components/exercise-unit-field";
 import { Button } from "@/components/ui/button";
 import {
@@ -416,7 +416,7 @@ export function WorkoutForm({
               <label htmlFor={exerciseSelectId} className="text-sm font-medium">
                 Select Exercise
               </label>
-              <ExerciseSelect
+              <ExerciseCombobox
                 onValueChange={(value) => {
                   if (value) {
                     addExercise(value);
@@ -435,7 +435,7 @@ export function WorkoutForm({
               <label htmlFor={complexSelectId} className="text-sm font-medium">
                 Select Complex
               </label>
-              <ComplexSelect
+              <ComplexCombobox
                 onValueChange={(value) => {
                   if (value) {
                     addExercise(value);
@@ -693,7 +693,7 @@ export function WorkoutForm({
                   doesn&apos;t use them.
                 </p>
                 <div className="space-y-3">
-                  <ExerciseSelect
+                  <ExerciseCombobox
                     value={replaceDialogExerciseValue}
                     onValueChange={handleReplaceExerciseSelect}
                     excludeIds={replaceDialogExcludeIds}
@@ -701,7 +701,7 @@ export function WorkoutForm({
                     className="bg-background"
                     onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
                   />
-                  <ComplexSelect
+                  <ComplexCombobox
                     value={replaceDialogComplexValue}
                     onValueChange={handleReplaceExerciseSelect}
                     excludeIds={replaceDialogExcludeIds}
@@ -732,7 +732,7 @@ export function WorkoutForm({
                   doesn&apos;t use them.
                 </p>
                 <div className="space-y-3">
-                  <ExerciseSelect
+                  <ExerciseCombobox
                     value={replaceDialogExerciseValue}
                     onValueChange={handleReplaceExerciseSelect}
                     excludeIds={replaceDialogExcludeIds}
@@ -740,7 +740,7 @@ export function WorkoutForm({
                     className="bg-background"
                     onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
                   />
-                  <ComplexSelect
+                  <ComplexCombobox
                     value={replaceDialogComplexValue}
                     onValueChange={handleReplaceExerciseSelect}
                     excludeIds={replaceDialogExcludeIds}
