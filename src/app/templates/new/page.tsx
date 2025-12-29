@@ -367,7 +367,7 @@ export default function NewTemplatePage() {
                         </ExerciseOrderControls>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                      <div className="grid items-end grid-cols-2 gap-4 md:grid-cols-4">
                         <div className="space-y-2">
                           <label
                             htmlFor={`sets-${index}`}

@@ -5,7 +5,6 @@ import {
   type FieldValues,
   type Path,
 } from "react-hook-form";
-import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { EXERCISE_UNIT_LABELS, EXERCISE_UNITS } from "@/types";
 
@@ -33,6 +32,7 @@ export function ExerciseUnitField<TFieldValues extends FieldValues>({
   containerClassName,
 }: ExerciseUnitFieldProps<TFieldValues>) {
   const unitId = useId();
+  const isCompact = !showLabels;
 
   return (
     <Controller
@@ -50,46 +50,45 @@ export function ExerciseUnitField<TFieldValues extends FieldValues>({
           )}
           <fieldset
             className={cn(
-              "inline-flex items-center gap-2 text-xs font-medium",
+              "inline-flex items-center rounded-md border border-input bg-muted/40 p-0.5 text-xs font-medium",
+              isCompact && "text-[10px]",
               triggerClassName,
             )}
             aria-label={label}
           >
-            {showLabels && (
-              <span
-                className={cn(
-                  "transition-colors",
-                  field.value === EXERCISE_UNITS.REPS
-                    ? "text-foreground"
-                    : "text-muted-foreground",
-                )}
-              >
-                {EXERCISE_UNIT_LABELS.REPS}
-              </span>
-            )}
-            <Switch
+            <button
               id={unitId}
-              aria-label={label}
+              type="button"
               disabled={disabled}
-              checked={field.value === EXERCISE_UNITS.TIME}
-              onCheckedChange={(checked) =>
-                field.onChange(
-                  checked ? EXERCISE_UNITS.TIME : EXERCISE_UNITS.REPS,
-                )
-              }
-            />
-            {showLabels && (
-              <span
-                className={cn(
-                  "transition-colors",
-                  field.value === EXERCISE_UNITS.TIME
-                    ? "text-foreground"
-                    : "text-muted-foreground",
-                )}
-              >
-                {EXERCISE_UNIT_LABELS.TIME}
-              </span>
-            )}
+              aria-pressed={field.value === EXERCISE_UNITS.REPS}
+              className={cn(
+                "rounded-sm px-2 py-0.5 transition-colors",
+                isCompact && "px-1.5",
+                field.value === EXERCISE_UNITS.REPS
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground",
+                disabled && "cursor-not-allowed opacity-50",
+              )}
+              onClick={() => field.onChange(EXERCISE_UNITS.REPS)}
+            >
+              {EXERCISE_UNIT_LABELS.REPS}
+            </button>
+            <button
+              type="button"
+              disabled={disabled}
+              aria-pressed={field.value === EXERCISE_UNITS.TIME}
+              className={cn(
+                "rounded-sm px-2 py-0.5 transition-colors",
+                isCompact && "px-1.5",
+                field.value === EXERCISE_UNITS.TIME
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground",
+                disabled && "cursor-not-allowed opacity-50",
+              )}
+              onClick={() => field.onChange(EXERCISE_UNITS.TIME)}
+            >
+              {EXERCISE_UNIT_LABELS.TIME}
+            </button>
           </fieldset>
         </div>
       )}

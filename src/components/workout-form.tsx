@@ -510,7 +510,7 @@ export function WorkoutForm({
                         </ExerciseOrderControls>
                       </div>
 
-                      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                      <div className="grid items-end gap-3 grid-cols-1 sm:grid-cols-2">
                         <div className="space-y-1">
                           <label
                             htmlFor={`sets-${index}`}
