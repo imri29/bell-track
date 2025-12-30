@@ -1,11 +1,7 @@
 import { z } from "zod";
 import type { Exercise as PrismaExercise } from "@/generated/prisma";
 import { prisma } from "@/server/db";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/trpc";
 import { EXERCISE_TYPES } from "@/types";
 
 const subExerciseSchema = z.object({
@@ -18,9 +14,7 @@ type SubExercise = z.infer<typeof subExerciseSchema>;
 // Helper function to transform exercise with parsed subExercises
 const transformExercise = (exercise: PrismaExercise) => ({
   ...exercise,
-  subExercises: exercise.subExercises
-    ? (JSON.parse(exercise.subExercises) as SubExercise[])
-    : null,
+  subExercises: exercise.subExercises ? (JSON.parse(exercise.subExercises) as SubExercise[]) : null,
 });
 
 // Exercise input schema for create/update
@@ -43,14 +37,12 @@ const exerciseOutputSchema = z.object({
 });
 
 export const exerciseRouter = createTRPCRouter({
-  getAll: publicProcedure
-    .output(z.array(exerciseOutputSchema))
-    .query(async () => {
-      const exercises = await prisma.exercise.findMany({
-        orderBy: { name: "asc" },
-      });
-      return exercises.map(transformExercise);
-    }),
+  getAll: publicProcedure.output(z.array(exerciseOutputSchema)).query(async () => {
+    const exercises = await prisma.exercise.findMany({
+      orderBy: { name: "asc" },
+    });
+    return exercises.map(transformExercise);
+  }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .output(exerciseOutputSchema.nullable())
@@ -60,18 +52,14 @@ export const exerciseRouter = createTRPCRouter({
       });
       return exercise ? transformExercise(exercise) : null;
     }),
-  create: protectedProcedure
-    .input(exerciseInputSchema)
-    .mutation(({ input }) => {
-      return prisma.exercise.create({
-        data: {
-          ...input,
-          subExercises: input.subExercises
-            ? JSON.stringify(input.subExercises)
-            : null,
-        },
-      });
-    }),
+  create: protectedProcedure.input(exerciseInputSchema).mutation(({ input }) => {
+    return prisma.exercise.create({
+      data: {
+        ...input,
+        subExercises: input.subExercises ? JSON.stringify(input.subExercises) : null,
+      },
+    });
+  }),
   update: protectedProcedure
     .input(exerciseInputSchema.extend({ id: z.string() }))
     .mutation(({ input }) => {
@@ -80,15 +68,11 @@ export const exerciseRouter = createTRPCRouter({
         where: { id },
         data: {
           ...exercise,
-          subExercises: exercise.subExercises
-            ? JSON.stringify(exercise.subExercises)
-            : undefined,
+          subExercises: exercise.subExercises ? JSON.stringify(exercise.subExercises) : undefined,
         },
       });
     }),
-  delete: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(({ input }) => {
-      return prisma.exercise.delete({ where: { id: input.id } });
-    }),
+  delete: protectedProcedure.input(z.object({ id: z.string() })).mutation(({ input }) => {
+    return prisma.exercise.delete({ where: { id: input.id } });
+  }),
 });

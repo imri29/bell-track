@@ -27,13 +27,7 @@ const TooltipContent = React.forwardRef<
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-function Tooltip({
-  children,
-  content,
-}: {
-  children: React.ReactNode;
-  content: React.ReactNode;
-}) {
+function Tooltip({ children, content }: { children: React.ReactNode; content: React.ReactNode }) {
   return (
     <TooltipProvider>
       <TooltipPrimitive.Root>
@@ -44,10 +38,4 @@ function Tooltip({
   );
 }
 
-export {
-  Tooltip,
-  TooltipRoot,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-};
+export { Tooltip, TooltipRoot, TooltipContent, TooltipProvider, TooltipTrigger };

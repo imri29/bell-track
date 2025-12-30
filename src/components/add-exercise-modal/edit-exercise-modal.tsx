@@ -30,11 +30,7 @@ type SimpleExerciseFormData = {
   description: string;
 };
 
-export function EditExerciseModal({
-  exercise,
-  isOpen,
-  onOpenChange,
-}: EditExerciseModalProps) {
+export function EditExerciseModal({ exercise, isOpen, onOpenChange }: EditExerciseModalProps) {
   if (!exercise) {
     return null;
   }
@@ -118,10 +114,7 @@ function EditSimpleExerciseModalContent({
             <DrawerTitle>Edit Exercise</DrawerTitle>
           </DrawerHeader>
           <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4">
-            <ExerciseModal.NameField
-              register={register}
-              errorMessage={errors.name?.message}
-            />
+            <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
             <ExerciseModal.DescriptionField register={register} />
           </div>
           <DrawerFooter>
@@ -170,21 +163,19 @@ function EditComplexExerciseModalContent({
   });
 
   useEffect(() => {
-    const matchedSubExercises = (exercise.subExercises ?? []).map(
-      (movement) => {
-        const matchingExercise = exercises?.find(
-          (ex) =>
-            ex.type === EXERCISE_TYPES.EXERCISE &&
-            ex.name.toLowerCase() === movement.exerciseName.toLowerCase(),
-        );
+    const matchedSubExercises = (exercise.subExercises ?? []).map((movement) => {
+      const matchingExercise = exercises?.find(
+        (ex) =>
+          ex.type === EXERCISE_TYPES.EXERCISE &&
+          ex.name.toLowerCase() === movement.exerciseName.toLowerCase(),
+      );
 
-        return {
-          exerciseId: matchingExercise?.id ?? "",
-          exerciseName: movement.exerciseName,
-          reps: movement.reps,
-        };
-      },
-    );
+      return {
+        exerciseId: matchingExercise?.id ?? "",
+        exerciseName: movement.exerciseName,
+        reps: movement.reps,
+      };
+    });
 
     reset({
       name: exercise.name,
@@ -221,11 +212,7 @@ function EditComplexExerciseModalContent({
         isOpen={isAddExerciseModalOpen}
         onOpenChange={(open) => setIsAddExerciseModalOpen(open)}
       />
-      <Drawer
-        open={isOpen}
-        onOpenChange={onOpenChange}
-        repositionInputs={false}
-      >
+      <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
         <DrawerContent className="max-h-[80vh]" fullHeight>
           <form
             onSubmit={onSubmit}
@@ -236,10 +223,7 @@ function EditComplexExerciseModalContent({
               <DrawerTitle>Edit Complex</DrawerTitle>
             </DrawerHeader>
             <div className="flex-1 min-h-0 space-y-4 overflow-y-auto px-4 pb-4">
-              <ExerciseModal.NameField
-                register={register}
-                errorMessage={errors.name?.message}
-              />
+              <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
               <ExerciseModal.ComplexBuilder
                 control={control}
                 register={register}

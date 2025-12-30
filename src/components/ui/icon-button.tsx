@@ -15,11 +15,7 @@ export type IconButtonProps = Omit<BaseButtonProps, "children"> & {
  * controls remain accessible. It always applies the `icon` size variant
  * so spacing and padding stay consistent.
  */
-export function IconButton({
-  children,
-  size = "icon",
-  ...props
-}: IconButtonProps) {
+export function IconButton({ children, size = "icon", ...props }: IconButtonProps) {
   return (
     <Button size={size} {...props}>
       {children}

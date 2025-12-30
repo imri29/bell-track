@@ -21,11 +21,7 @@ import { api } from "@/trpc/react";
 
 type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
 
-function TemplateExercisesList({
-  exercises,
-}: {
-  exercises: TemplateWithExercises["exercises"];
-}) {
+function TemplateExercisesList({ exercises }: { exercises: TemplateWithExercises["exercises"] }) {
   const sortedExercises = [...exercises].sort((a, b) => {
     if (a.group && b.group && a.group !== b.group) {
       return a.group.localeCompare(b.group);
@@ -38,9 +34,7 @@ function TemplateExercisesList({
       {sortedExercises.map((exercise, index) => {
         let displayLabel = "";
         const showDivider =
-          index > 0 &&
-          exercise.group &&
-          sortedExercises[index - 1]?.group !== exercise.group;
+          index > 0 && exercise.group && sortedExercises[index - 1]?.group !== exercise.group;
 
         if (exercise.group) {
           const groupIndex = sortedExercises
@@ -54,9 +48,7 @@ function TemplateExercisesList({
             {showDivider && <div className="my-2 border-t border-border" />}
             <div className="text-sm text-muted-foreground">
               {displayLabel && (
-                <span className="mr-1 font-medium text-foreground">
-                  {displayLabel}:
-                </span>
+                <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>
               )}
               <ComplexNameTooltip
                 name={exercise.exercise.name}
@@ -70,8 +62,8 @@ function TemplateExercisesList({
                         exercise.unit,
                       )} ${exercise.exercise.name}`
                     : exercise.exercise.name}
-                  {` • ${exercise.sets} sets`}
-                  {exercise.weight && ` • ${exercise.weight}kg`}
+                  {!!exercise.sets && ` • ${exercise.sets} sets`}
+                  {!!exercise.weight && ` • ${exercise.weight}kg`}
                 </span>
               </ComplexNameTooltip>
             </div>
@@ -117,18 +109,13 @@ export default function TemplatesPage() {
     error: templatesError,
   } = api.template.getAll.useQuery(queryInput);
 
-  const {
-    data: tags,
-    isPending: tagsPending,
-    error: tagsError,
-  } = api.template.getTags.useQuery();
+  const { data: tags, isPending: tagsPending, error: tagsError } = api.template.getTags.useQuery();
 
-  const { mutate: deleteTemplate, isPending: isDeleting } =
-    api.template.delete.useMutation({
-      onSuccess: () => {
-        utils.template.getAll.invalidate();
-      },
-    });
+  const { mutate: deleteTemplate, isPending: isDeleting } = api.template.delete.useMutation({
+    onSuccess: () => {
+      utils.template.getAll.invalidate();
+    },
+  });
 
   const handleDelete = async (template: { id: string; name: string }) => {
     const confirmed = await confirm({
@@ -169,9 +156,7 @@ export default function TemplatesPage() {
 
   const toggleTagSelection = (slug: string) => {
     setSelectedTagSlugs((prev) =>
-      prev.includes(slug)
-        ? prev.filter((existingSlug) => existingSlug !== slug)
-        : [...prev, slug],
+      prev.includes(slug) ? prev.filter((existingSlug) => existingSlug !== slug) : [...prev, slug],
     );
   };
 
@@ -182,19 +167,11 @@ export default function TemplatesPage() {
 
   return (
     <PageShell>
-      <PageHero
-        eyebrow="Bell Track"
-        title="Templates"
-        description={heroSubtitle}
-      >
+      <PageHero eyebrow="Bell Track" title="Templates" description={heroSubtitle}>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-5 py-2 text-sm text-muted-foreground">
-            <span className="text-2xl font-semibold text-foreground">
-              {totalTemplatesDisplay}
-            </span>
-            <span className="font-medium">
-              {totalTemplates === 1 ? "template" : "templates"}
-            </span>
+            <span className="text-2xl font-semibold text-foreground">{totalTemplatesDisplay}</span>
+            <span className="font-medium">{totalTemplates === 1 ? "template" : "templates"}</span>
           </div>
           <Button asChild className="gap-1.5">
             <Link href="/templates/new">
@@ -209,9 +186,7 @@ export default function TemplatesPage() {
         <div className="rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
           <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
-              <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
-                Your templates
-              </h2>
+              <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">Your templates</h2>
               <p className="text-sm text-muted-foreground">
                 Find the workout you need and log it in a few taps.
               </p>
@@ -222,9 +197,7 @@ export default function TemplatesPage() {
                 <Input
                   type="search"
                   value={searchQuery}
-                  onChange={(event) =>
-                    setSearchQuery(event.currentTarget.value)
-                  }
+                  onChange={(event) => setSearchQuery(event.currentTarget.value)}
                   placeholder="Search templates..."
                   aria-label="Search templates"
                   className="pl-9"
@@ -257,10 +230,7 @@ export default function TemplatesPage() {
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                         isSelected
-                          ? cn(
-                              palette.tint,
-                              "focus-visible:ring-offset-background",
-                            )
+                          ? cn(palette.tint, "focus-visible:ring-offset-background")
                           : "border-border/50 bg-muted/20 text-muted-foreground hover:bg-muted/40 focus-visible:ring-border",
                       )}
                     >
@@ -285,12 +255,8 @@ export default function TemplatesPage() {
               <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-10 text-center">
                 <Spinner />
                 <div>
-                  <p className="text-base font-semibold text-foreground">
-                    Loading your templates
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Stay with us for a moment.
-                  </p>
+                  <p className="text-base font-semibold text-foreground">Loading your templates</p>
+                  <p className="text-sm text-muted-foreground">Stay with us for a moment.</p>
                 </div>
               </div>
             ) : templatesError ? (
@@ -326,10 +292,7 @@ export default function TemplatesPage() {
                                 >
                                   <span
                                     aria-hidden="true"
-                                    className={cn(
-                                      "h-2 w-2 shrink-0 rounded-full",
-                                      palette.dot,
-                                    )}
+                                    className={cn("h-2 w-2 shrink-0 rounded-full", palette.dot)}
                                   />
                                   {tag.name}
                                 </span>
@@ -391,8 +354,7 @@ export default function TemplatesPage() {
               </div>
             ) : (
               <p className="text-muted-foreground">
-                No templates yet. Click "Add Template" to create your first
-                workout template.
+                No templates yet. Click "Add Template" to create your first workout template.
               </p>
             )}
           </div>

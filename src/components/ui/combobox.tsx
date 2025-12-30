@@ -34,8 +34,7 @@ export function Combobox<T>({
   emptyActionLabel,
   onEmptyAction,
 }: ComboboxProps<T>) {
-  const [portalContainer, setPortalContainer] =
-    React.useState<HTMLElement | null>(null);
+  const [portalContainer, setPortalContainer] = React.useState<HTMLElement | null>(null);
   const portalProps = portalContainer ? { container: portalContainer } : {};
 
   // Base UI renders the popup in a Portal (defaults to <body>), but when this field
@@ -49,9 +48,7 @@ export function Combobox<T>({
       return;
     }
 
-    const container = node.closest(
-      '[data-slot="dialog-content"], [data-slot="drawer-content"]',
-    );
+    const container = node.closest('[data-slot="dialog-content"], [data-slot="drawer-content"]');
     setPortalContainer(container instanceof HTMLElement ? container : null);
   };
 
@@ -61,9 +58,7 @@ export function Combobox<T>({
       value={value}
       onValueChange={onValueChange}
       itemToStringLabel={getItemLabel}
-      isItemEqualToValue={(item, selected) =>
-        getItemKey(item) === getItemKey(selected)
-      }
+      isItemEqualToValue={(item, selected) => getItemKey(item) === getItemKey(selected)}
       disabled={disabled}
     >
       <div className="flex items-center gap-1">
@@ -96,10 +91,7 @@ export function Combobox<T>({
       </div>
 
       <ComboboxPrimitive.Portal {...portalProps}>
-        <ComboboxPrimitive.Positioner
-          className="z-[1200] outline-none"
-          sideOffset={4}
-        >
+        <ComboboxPrimitive.Positioner className="z-[1200] outline-none" sideOffset={4}>
           <ComboboxPrimitive.Popup className="w-(--anchor-width) max-h-[min(18rem,var(--available-height))] overflow-y-auto rounded-md border border-border bg-popover text-popover-foreground shadow-md outline-none">
             <ComboboxPrimitive.Empty className="p-1.5 text-sm text-muted-foreground empty:hidden">
               {emptyActionLabel && onEmptyAction ? (

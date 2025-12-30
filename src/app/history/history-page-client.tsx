@@ -35,12 +35,11 @@ export function HistoryPageClient({ initialView }: { initialView: View }) {
     error: workoutsError,
   } = api.workout.getAll.useQuery();
 
-  const { mutate: deleteWorkout, isPending: isDeleting } =
-    api.workout.delete.useMutation({
-      onSuccess: () => {
-        utils.workout.getAll.invalidate();
-      },
-    });
+  const { mutate: deleteWorkout, isPending: isDeleting } = api.workout.delete.useMutation({
+    onSuccess: () => {
+      utils.workout.getAll.invalidate();
+    },
+  });
 
   const { data: templates } = api.template.getAll.useQuery();
 
@@ -78,11 +77,7 @@ export function HistoryPageClient({ initialView }: { initialView: View }) {
         description="View and manage your workout history"
       />
 
-      <Tabs
-        defaultValue="list"
-        value={initialView ?? "list"}
-        className="w-full"
-      >
+      <Tabs defaultValue="list" value={initialView ?? "list"} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger asChild value="list" className="w-full gap-2">
             <Link className="w-full" href="/history?view=list">

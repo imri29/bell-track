@@ -12,13 +12,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
 
-export function NewWorkoutClient({
-  date,
-  templateId,
-}: {
-  date?: string;
-  templateId?: string;
-}) {
+export function NewWorkoutClient({ date, templateId }: { date?: string; templateId?: string }) {
   const router = useRouter();
 
   const initialDate = useMemo(() => {
@@ -58,10 +52,8 @@ export function NewWorkoutClient({
         sets: exercise.sets,
         unit: exercise.unit ?? "REPS",
         reps: exercise.reps,
-        weight:
-          typeof exercise.weight === "number" ? exercise.weight : undefined,
-        restTime:
-          typeof exercise.restTime === "number" ? exercise.restTime : undefined,
+        weight: typeof exercise.weight === "number" ? exercise.weight : undefined,
+        restTime: typeof exercise.restTime === "number" ? exercise.restTime : undefined,
         notes: exercise.notes ? exercise.notes : undefined,
         group: exercise.group ? exercise.group : undefined,
         order: exercise.order,
@@ -75,19 +67,14 @@ export function NewWorkoutClient({
     router.refresh();
   };
 
-  const isLoadingTemplate =
-    Boolean(templateId) && templatePending && !templateResponse;
+  const isLoadingTemplate = Boolean(templateId) && templatePending && !templateResponse;
 
   return (
     <PageShell withGlow={false} mainClassName="max-w-4xl gap-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold leading-tight text-foreground">
-            Log workout
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Record a new training session.
-          </p>
+          <h1 className="text-3xl font-semibold leading-tight text-foreground">Log workout</h1>
+          <p className="text-sm text-muted-foreground">Record a new training session.</p>
         </div>
         <Button asChild variant="outline">
           <Link href="/history?view=list">Back to history</Link>

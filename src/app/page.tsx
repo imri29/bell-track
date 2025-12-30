@@ -15,18 +15,14 @@ export default async function Home() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
           <h3 className="text-lg font-semibold mb-2">Quick Start</h3>
-          <p className="text-muted-foreground mb-4">
-            Select a workout to get started.
-          </p>
+          <p className="text-muted-foreground mb-4">Select a workout to get started.</p>
           <Button asChild className="gap-1">
             <Link href="/templates">Select Workout</Link>
           </Button>
         </div>
         <div className="rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
           <h3 className="text-lg font-semibold mb-2">Exercises</h3>
-          <p className="text-muted-foreground mb-4">
-            Manage your exercise library.
-          </p>
+          <p className="text-muted-foreground mb-4">Manage your exercise library.</p>
           <Button asChild className="gap-1">
             <Link href="/exercises">View exercises</Link>
           </Button>

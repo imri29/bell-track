@@ -44,11 +44,8 @@ vi.mock("react-hook-form", () => ({
     watch: () => formData.tagIds,
     formState: { errors: {} },
   }),
-  Controller: ({
-    render,
-  }: {
-    render: (props: { field: unknown }) => unknown;
-  }) => render({ field: { value: "REPS", onChange: vi.fn() } }),
+  Controller: ({ render }: { render: (props: { field: unknown }) => unknown }) =>
+    render({ field: { value: "REPS", onChange: vi.fn() } }),
   useFieldArray: () => ({
     fields: formData.exercises,
     append: vi.fn(),
@@ -63,18 +60,11 @@ vi.mock("@/components/add-exercise-modal", () => ({
 }));
 
 vi.mock("@/components/complex-name-tooltip", () => ({
-  ComplexNameTooltip: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
+  ComplexNameTooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("@/components/complex-combobox", () => ({
-  ComplexCombobox: ({
-    onValueChange,
-  }: {
-    onValueChange: (id: string) => void;
-    id?: string;
-  }) => (
+  ComplexCombobox: ({ onValueChange }: { onValueChange: (id: string) => void; id?: string }) => (
     <button type="button" onClick={() => onValueChange("ex1")}>
       Select Complex
     </button>
@@ -82,12 +72,7 @@ vi.mock("@/components/complex-combobox", () => ({
 }));
 
 vi.mock("@/components/exercise-combobox", () => ({
-  ExerciseCombobox: ({
-    onValueChange,
-  }: {
-    onValueChange: (id: string) => void;
-    id?: string;
-  }) => (
+  ExerciseCombobox: ({ onValueChange }: { onValueChange: (id: string) => void; id?: string }) => (
     <button type="button" onClick={() => onValueChange("ex1")}>
       Select Exercise
     </button>
@@ -141,13 +126,9 @@ describe("NewTemplatePage", () => {
 
     render(<NewTemplatePage />);
 
-    expect(
-      screen.getByRole("heading", { name: /create new template/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /create new template/i })).toBeInTheDocument();
 
-    await userEvent.click(
-      screen.getByRole("button", { name: /create template/i }),
-    );
+    await userEvent.click(screen.getByRole("button", { name: /create template/i }));
 
     expect(handleSubmitMock).toHaveBeenCalled();
     expect(mockCreateTemplate).toHaveBeenCalledWith({

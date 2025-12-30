@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  BookIcon,
-  DumbbellIcon,
-  HistoryIcon,
-  HomeIcon,
-  UserRound,
-} from "lucide-react";
+import { BookIcon, DumbbellIcon, HistoryIcon, HomeIcon, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -50,9 +44,7 @@ export function Navigation() {
       <div className="flex md:h-full md:flex-col">
         {navigation.map((item) => {
           const isActive =
-            item.href === "/"
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
+            item.href === "/" ? pathname === item.href : pathname.startsWith(item.href);
 
           return (
             <Link
@@ -86,12 +78,8 @@ export function Navigation() {
               {session?.user && (
                 <>
                   <div className="flex flex-col gap-1 px-2 py-1.5">
-                    <span className="text-sm font-medium">
-                      {session.user.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {session.user.email}
-                    </span>
+                    <span className="text-sm font-medium">{session.user.name}</span>
+                    <span className="text-xs text-muted-foreground">{session.user.email}</span>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

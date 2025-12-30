@@ -6,9 +6,7 @@ type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
 /**
  * Converts template data from database format (null values) to form format (undefined values)
  */
-export function templateToFormData(
-  template: TemplateWithExercises,
-): TemplateData {
+export function templateToFormData(template: TemplateWithExercises): TemplateData {
   return {
     id: template.id,
     name: template.name,

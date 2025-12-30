@@ -33,18 +33,12 @@ export function PageHero({
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-          {title}
-        </h1>
+        <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">{title}</h1>
         {description ? (
           typeof description === "string" ? (
-            <p className="max-w-xl text-base text-muted-foreground">
-              {description}
-            </p>
+            <p className="max-w-xl text-base text-muted-foreground">{description}</p>
           ) : (
-            <div className="max-w-xl text-base text-muted-foreground">
-              {description}
-            </div>
+            <div className="max-w-xl text-base text-muted-foreground">{description}</div>
           )
         ) : null}
       </div>

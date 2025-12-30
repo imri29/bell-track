@@ -19,13 +19,7 @@ vi.mock("@/trpc/react", () => ({
 }));
 
 vi.mock("@/components/add-workout-form", () => ({
-  AddWorkoutForm: ({
-    onCancel,
-    onSuccess,
-  }: {
-    onCancel?: () => void;
-    onSuccess?: () => void;
-  }) => (
+  AddWorkoutForm: ({ onCancel, onSuccess }: { onCancel?: () => void; onSuccess?: () => void }) => (
     <div>
       <button type="button" onClick={onCancel}>
         Cancel
@@ -53,9 +47,10 @@ describe("NewWorkoutClient", () => {
     render(<NewWorkoutClient />);
 
     expect(screen.getByText(/log workout/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /back to history/i }),
-    ).toHaveAttribute("href", "/history?view=list");
+    expect(screen.getByRole("link", { name: /back to history/i })).toHaveAttribute(
+      "href",
+      "/history?view=list",
+    );
   });
 
   it("passes template data to the form when template is loaded", () => {

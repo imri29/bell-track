@@ -6,10 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { confirmMock, resetConfirmMock } from "@/tests/mocks/confirm";
 import { resetNextMocks } from "@/tests/mocks/next";
 
-import {
-  HistoryPageClient,
-  type WorkoutWithExercises,
-} from "./history-page-client";
+import { HistoryPageClient, type WorkoutWithExercises } from "./history-page-client";
 
 const mockInvalidateWorkouts = vi.fn();
 const mockDelete = vi.fn();
@@ -111,19 +108,11 @@ describe("HistoryPageClient", () => {
 
     renderHistory();
 
-    expect(
-      screen.getByRole("heading", { name: /workout history/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "01/11/2024 • 45 min" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /add workout/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /workout history/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "01/11/2024 • 45 min" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /add workout/i })).toBeInTheDocument();
 
-    const deleteButton = screen.getByLabelText(
-      /delete workout from 01\/11\/2024/i,
-    );
+    const deleteButton = screen.getByLabelText(/delete workout from 01\/11\/2024/i);
     await userEvent.click(deleteButton);
 
     await waitFor(() => {
@@ -148,9 +137,7 @@ describe("HistoryPageClient", () => {
 
     renderHistory();
 
-    const deleteButton = screen.getByLabelText(
-      /delete workout from 01\/11\/2024/i,
-    );
+    const deleteButton = screen.getByLabelText(/delete workout from 01\/11\/2024/i);
     await userEvent.click(deleteButton);
 
     await waitFor(() => {

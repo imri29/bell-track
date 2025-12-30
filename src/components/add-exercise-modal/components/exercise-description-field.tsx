@@ -16,8 +16,7 @@ export function ExerciseDescriptionField<TFieldValues extends FieldValues>({
   descriptionPath,
 }: ExerciseDescriptionFieldProps<TFieldValues>) {
   const descriptionId = useId();
-  const resolvedDescriptionPath =
-    descriptionPath ?? ("description" as Path<TFieldValues>);
+  const resolvedDescriptionPath = descriptionPath ?? ("description" as Path<TFieldValues>);
 
   return (
     <div className="space-y-2">

@@ -45,8 +45,7 @@ export function AddWorkoutForm({
         unit: exercise.unit ?? "REPS",
         reps: exercise.reps,
         weight: typeof exercise.weight === "number" ? exercise.weight : 0,
-        restTime:
-          typeof exercise.restTime === "number" ? exercise.restTime : undefined,
+        restTime: typeof exercise.restTime === "number" ? exercise.restTime : undefined,
         notes: exercise.notes ?? undefined,
         group: exercise.group ?? undefined,
         order: index,
@@ -55,10 +54,7 @@ export function AddWorkoutForm({
     };
   }, [getInitialDate, templateData]);
 
-  const initialValues = useMemo(
-    () => buildInitialValues(),
-    [buildInitialValues],
-  );
+  const initialValues = useMemo(() => buildInitialValues(), [buildInitialValues]);
 
   const createWorkout = api.workout.create.useMutation({
     onSuccess: () => {

@@ -9,8 +9,7 @@ export const workoutTags: Prisma.WorkoutTagCreateInput[] = [
   {
     name: "AMRAP",
     slug: "amrap",
-    description:
-      "As many rounds as possible—perfect for short, intense blocks.",
+    description: "As many rounds as possible—perfect for short, intense blocks.",
   },
   {
     name: "Main lift + accessory",

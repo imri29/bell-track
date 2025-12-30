@@ -7,10 +7,7 @@ import {
   AddExerciseModal,
   EditExerciseModal,
 } from "@/components/add-exercise-modal";
-import {
-  ExerciseCard,
-  type ExerciseCardData,
-} from "@/components/exercises/exercise-card";
+import { ExerciseCard, type ExerciseCardData } from "@/components/exercises/exercise-card";
 import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -20,14 +17,7 @@ import { useConfirm } from "@/contexts/confirm-context";
 import { api } from "@/trpc/react";
 import { EXERCISE_TYPES, type ExerciseType } from "@/types";
 
-const SKELETON_PLACEHOLDERS = [
-  "warmup",
-  "strength",
-  "power",
-  "complex",
-  "finisher",
-  "cooldown",
-];
+const SKELETON_PLACEHOLDERS = ["warmup", "strength", "power", "complex", "finisher", "cooldown"];
 
 type TypeFilter = ExerciseType | "ALL";
 
@@ -39,15 +29,9 @@ export default function ExercisesPage() {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
-  const [editingExercise, setEditingExercise] =
-    useState<ExerciseCardData | null>(null);
+  const [editingExercise, setEditingExercise] = useState<ExerciseCardData | null>(null);
 
-  const {
-    data: exercises,
-    isPending,
-    error,
-    refetch,
-  } = api.exercise.getAll.useQuery();
+  const { data: exercises, isPending, error, refetch } = api.exercise.getAll.useQuery();
 
   const { mutate: deleteExercise } = api.exercise.delete.useMutation({
     onMutate: ({ id }) => {
@@ -125,10 +109,7 @@ export default function ExercisesPage() {
 
   return (
     <PageShell>
-      <AddExerciseModal
-        isOpen={isExerciseModalOpened}
-        onOpenChange={setIsExerciseModalOpened}
-      />
+      <AddExerciseModal isOpen={isExerciseModalOpened} onOpenChange={setIsExerciseModalOpened} />
       <EditExerciseModal
         exercise={editingExercise}
         isOpen={editingExercise !== null}
@@ -151,12 +132,8 @@ export default function ExercisesPage() {
       >
         <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
           <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-5 py-2 text-sm text-muted-foreground">
-            <span className="text-2xl font-semibold text-foreground">
-              {totalExercises}
-            </span>
-            <span className="font-medium">
-              {totalExercises === 1 ? "exercise" : "exercises"}
-            </span>
+            <span className="text-2xl font-semibold text-foreground">{totalExercises}</span>
+            <span className="font-medium">{totalExercises === 1 ? "exercise" : "exercises"}</span>
           </div>
           <div className="flex w-full flex-col items-center gap-2 sm:w-auto sm:flex-row sm:items-center">
             <Button
@@ -181,9 +158,7 @@ export default function ExercisesPage() {
       <section className="space-y-6">
         <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
-            <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
-              All exercises
-            </h2>
+            <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">All exercises</h2>
             <p className="text-sm text-muted-foreground">
               Browse your saved movements and complexes.
             </p>
@@ -197,12 +172,8 @@ export default function ExercisesPage() {
               >
                 <TabsList className="w-full md:w-auto">
                   <TabsTrigger value="ALL">All</TabsTrigger>
-                  <TabsTrigger value={EXERCISE_TYPES.EXERCISE}>
-                    Exercises
-                  </TabsTrigger>
-                  <TabsTrigger value={EXERCISE_TYPES.COMPLEX}>
-                    Complexes
-                  </TabsTrigger>
+                  <TabsTrigger value={EXERCISE_TYPES.EXERCISE}>Exercises</TabsTrigger>
+                  <TabsTrigger value={EXERCISE_TYPES.COMPLEX}>Complexes</TabsTrigger>
                 </TabsList>
               </Tabs>
               <div className="w-full md:max-w-xs">
@@ -232,9 +203,7 @@ export default function ExercisesPage() {
             <p className="text-base font-medium text-destructive">
               We couldn't load your exercises.
             </p>
-            <p className="text-sm text-muted-foreground">
-              {error.message ?? "Please try again."}
-            </p>
+            <p className="text-sm text-muted-foreground">{error.message ?? "Please try again."}</p>
             <Button onClick={() => refetch()} variant="secondary">
               Retry
             </Button>
@@ -245,14 +214,10 @@ export default function ExercisesPage() {
               Start by adding your first exercise
             </p>
             <p className="max-w-md text-sm text-muted-foreground">
-              Create movements or complexes once and reuse them in workouts and
-              templates.
+              Create movements or complexes once and reuse them in workouts and templates.
             </p>
             <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:items-center">
-              <Button
-                className="w-full sm:w-auto"
-                onClick={() => setIsExerciseModalOpened(true)}
-              >
+              <Button className="w-full sm:w-auto" onClick={() => setIsExerciseModalOpened(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add exercise
               </Button>

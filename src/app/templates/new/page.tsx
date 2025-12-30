@@ -4,10 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import {
-  AddComplexExerciseModal,
-  AddExerciseModal,
-} from "@/components/add-exercise-modal";
+import { AddComplexExerciseModal, AddExerciseModal } from "@/components/add-exercise-modal";
 import { ComplexCombobox } from "@/components/complex-combobox";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ExerciseCombobox } from "@/components/exercise-combobox";
@@ -19,10 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
-import {
-  getExerciseUnitLabel,
-  getExerciseUnitPlaceholder,
-} from "@/lib/exercise-units";
+import { getExerciseUnitLabel, getExerciseUnitPlaceholder } from "@/lib/exercise-units";
 import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn, normalizeRestTime } from "@/lib/utils";
@@ -53,11 +47,7 @@ export default function NewTemplatePage() {
   const utils = api.useUtils();
 
   const { data: exercises } = api.exercise.getAll.useQuery();
-  const {
-    data: tags,
-    isPending: tagsPending,
-    error: tagsError,
-  } = api.template.getTags.useQuery();
+  const { data: tags, isPending: tagsPending, error: tagsError } = api.template.getTags.useQuery();
 
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
   const [isAddComplexModalOpen, setIsAddComplexModalOpen] = useState(false);
@@ -158,10 +148,7 @@ export default function NewTemplatePage() {
 
   return (
     <PageShell withGlow={false} mainClassName="max-w-4xl gap-8">
-      <AddExerciseModal
-        isOpen={isAddExerciseModalOpen}
-        onOpenChange={setIsAddExerciseModalOpen}
-      />
+      <AddExerciseModal isOpen={isAddExerciseModalOpen} onOpenChange={setIsAddExerciseModalOpen} />
       <AddComplexExerciseModal
         isOpen={isAddComplexModalOpen}
         onOpenChange={setIsAddComplexModalOpen}
@@ -172,9 +159,7 @@ export default function NewTemplatePage() {
           <h1 className="text-3xl font-semibold leading-tight text-foreground">
             Create new template
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Build a reusable workout template.
-          </p>
+          <p className="text-sm text-muted-foreground">Build a reusable workout template.</p>
         </div>
         <Button asChild variant="outline">
           <Link href="/templates">Cancel</Link>
@@ -202,9 +187,7 @@ export default function NewTemplatePage() {
                 })}
                 className={errors.name ? "border-red-500" : ""}
               />
-              {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
-              )}
+              {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -234,8 +217,7 @@ export default function NewTemplatePage() {
             </div>
             {tagsError ? (
               <p className="text-sm text-destructive">
-                Failed to load tags. You can save without tags and add them
-                later.
+                Failed to load tags. You can save without tags and add them later.
               </p>
             ) : tagsPending ? (
               <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/30 px-4 py-2 text-sm text-muted-foreground">
@@ -254,10 +236,7 @@ export default function NewTemplatePage() {
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                         isSelected
-                          ? cn(
-                              palette.tint,
-                              "focus-visible:ring-offset-background",
-                            )
+                          ? cn(palette.tint, "focus-visible:ring-offset-background")
                           : "border-border/50 bg-muted/20 text-muted-foreground hover:bg-muted/40 focus-visible:ring-border",
                       )}
                     >
@@ -275,9 +254,7 @@ export default function NewTemplatePage() {
                 })}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                No tags available yet.
-              </p>
+              <p className="text-sm text-muted-foreground">No tags available yet.</p>
             )}
           </div>
         </div>
@@ -329,9 +306,7 @@ export default function NewTemplatePage() {
               <h3 className="text-lg font-semibold">Template Exercises</h3>
               <div className="space-y-4">
                 {fields.map((field, index) => {
-                  const exercise = exercises?.find(
-                    (ex) => ex.id === field.exerciseId,
-                  );
+                  const exercise = exercises?.find((ex) => ex.id === field.exerciseId);
                   return (
                     <div
                       key={field.id}
@@ -369,33 +344,25 @@ export default function NewTemplatePage() {
 
                       <div className="grid items-end grid-cols-2 gap-4 md:grid-cols-4">
                         <div className="space-y-2">
-                          <label
-                            htmlFor={`sets-${index}`}
-                            className="text-sm font-medium"
-                          >
+                          <label htmlFor={`sets-${index}`} className="text-sm font-medium">
                             Sets
                           </label>
                           <Input
                             id={`sets-${index}`}
                             type="number"
-                            min="1"
+                            min="0"
                             {...register(`exercises.${index}.sets`, {
                               valueAsNumber: true,
                               required: "Sets required",
-                              min: { value: 1, message: "Min 1 set" },
+                              min: { value: 0, message: "Min 0 sets" },
                             })}
                           />
                         </div>
                         {exercise?.type !== "COMPLEX" && (
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <label
-                                htmlFor={`reps-${index}`}
-                                className="text-sm font-medium"
-                              >
-                                {getExerciseUnitLabel(
-                                  watch(`exercises.${index}.unit`),
-                                )}
+                              <label htmlFor={`reps-${index}`} className="text-sm font-medium">
+                                {getExerciseUnitLabel(watch(`exercises.${index}.unit`))}
                               </label>
                               <ExerciseUnitField
                                 control={control}
@@ -420,10 +387,7 @@ export default function NewTemplatePage() {
                           </div>
                         )}
                         <div className="space-y-2">
-                          <label
-                            htmlFor={`group-${index}`}
-                            className="text-sm font-medium"
-                          >
+                          <label htmlFor={`group-${index}`} className="text-sm font-medium">
                             Group
                           </label>
                           <Input
@@ -434,10 +398,7 @@ export default function NewTemplatePage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label
-                            htmlFor={`weight-${index}`}
-                            className="text-sm font-medium"
-                          >
+                          <label htmlFor={`weight-${index}`} className="text-sm font-medium">
                             Weight (kg)
                           </label>
                           <Input
@@ -453,10 +414,7 @@ export default function NewTemplatePage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label
-                            htmlFor={`rest-${index}`}
-                            className="text-sm font-medium"
-                          >
+                          <label htmlFor={`rest-${index}`} className="text-sm font-medium">
                             Rest (sec)
                           </label>
                           <Input
@@ -466,18 +424,12 @@ export default function NewTemplatePage() {
                             placeholder="Optional"
                             {...register(`exercises.${index}.restTime`, {
                               setValueAs: (value) => {
-                                if (
-                                  value === "" ||
-                                  value === null ||
-                                  value === undefined
-                                ) {
+                                if (value === "" || value === null || value === undefined) {
                                   return undefined;
                                 }
 
                                 const parsedValue = Number(value);
-                                return Number.isNaN(parsedValue)
-                                  ? undefined
-                                  : parsedValue;
+                                return Number.isNaN(parsedValue) ? undefined : parsedValue;
                               },
                             })}
                           />
@@ -485,10 +437,7 @@ export default function NewTemplatePage() {
                       </div>
 
                       <div className="space-y-2">
-                        <label
-                          htmlFor={`notes-${index}`}
-                          className="text-sm font-medium"
-                        >
+                        <label htmlFor={`notes-${index}`} className="text-sm font-medium">
                           Notes
                         </label>
                         <Input

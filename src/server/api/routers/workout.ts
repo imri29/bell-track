@@ -3,11 +3,7 @@ import { z } from "zod";
 import type { Prisma } from "@/generated/prisma";
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
-import {
-  idSchema,
-  workoutExerciseInputSchema,
-  workoutExerciseOutputSchema,
-} from "../schemas";
+import { idSchema, workoutExerciseInputSchema, workoutExerciseOutputSchema } from "../schemas";
 
 // Full workout output schema used by both getAll and getById
 const workoutTagOutputSchema = z.object({
@@ -92,29 +88,27 @@ function serializeWorkout(workout: WorkoutWithRelations) {
 }
 
 export const workoutRouter = createTRPCRouter({
-  getAll: protectedProcedure
-    .output(z.array(workoutOutputSchema))
-    .query(async ({ ctx }) => {
-      const workouts = await prisma.workout.findMany({
-        where: {
-          userId: ctx.userId,
-        },
-        orderBy: { createdAt: "desc" },
-        include: {
-          exercises: {
-            include: {
-              exercise: true,
-            },
-            orderBy: [{ group: "asc" }, { order: "asc" }],
+  getAll: protectedProcedure.output(z.array(workoutOutputSchema)).query(async ({ ctx }) => {
+    const workouts = await prisma.workout.findMany({
+      where: {
+        userId: ctx.userId,
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        exercises: {
+          include: {
+            exercise: true,
           },
-          tags: {
-            include: { tag: true },
-          },
+          orderBy: [{ group: "asc" }, { order: "asc" }],
         },
-      });
+        tags: {
+          include: { tag: true },
+        },
+      },
+    });
 
-      return workouts.map((workout) => serializeWorkout(workout));
-    }),
+    return workouts.map((workout) => serializeWorkout(workout));
+  }),
 
   getById: protectedProcedure
     .input(idSchema)
@@ -142,16 +136,83 @@ export const workoutRouter = createTRPCRouter({
       return serializeWorkout(workout);
     }),
 
-  create: protectedProcedure
-    .input(createWorkoutSchema)
-    .mutation(({ input, ctx }) => {
-      const { exercises, tagIds = [], ...workoutData } = input;
+  create: protectedProcedure.input(createWorkoutSchema).mutation(({ input, ctx }) => {
+    const { exercises, tagIds = [], ...workoutData } = input;
 
-      return prisma.workout
-        .create({
-          data: {
-            ...workoutData,
-            userId: ctx.userId,
+    return prisma.workout
+      .create({
+        data: {
+          ...workoutData,
+          userId: ctx.userId,
+          exercises: {
+            create: exercises.map((exercise) => ({
+              exerciseId: exercise.exerciseId,
+              sets: exercise.sets,
+              unit: exercise.unit,
+              reps: exercise.reps,
+              weight: exercise.weight,
+              restTime: exercise.restTime,
+              notes: exercise.notes,
+              group: exercise.group,
+              order: exercise.order,
+            })),
+          },
+          ...(tagIds.length > 0 && {
+            tags: {
+              create: tagIds.map((tagId) => ({
+                tag: { connect: { id: tagId } },
+              })),
+            },
+          }),
+        },
+        include: {
+          exercises: {
+            include: {
+              exercise: true,
+            },
+            orderBy: [{ group: "asc" }, { order: "asc" }],
+          },
+          tags: {
+            include: { tag: true },
+          },
+        },
+      })
+      .then((workout) => serializeWorkout(workout));
+  }),
+
+  update: protectedProcedure.input(updateWorkoutSchema).mutation(async ({ input, ctx }) => {
+    const { id, exercises, tagIds, ...workoutData } = input;
+
+    const existing = await prisma.workout.findFirst({
+      where: { id, userId: ctx.userId },
+    });
+
+    if (!existing) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Workout not found",
+      });
+    }
+
+    // If exercises are provided, replace all workout exercises
+    if (exercises) {
+      await prisma.workoutExercise.deleteMany({
+        where: { workoutId: id, workout: { userId: ctx.userId } },
+      });
+    }
+
+    if (tagIds) {
+      await prisma.workoutTagAssignment.deleteMany({
+        where: { workoutId: id, workout: { userId: ctx.userId } },
+      });
+    }
+
+    return prisma.workout
+      .update({
+        where: { id },
+        data: {
+          ...workoutData,
+          ...(exercises && {
             exercises: {
               create: exercises.map((exercise) => ({
                 exerciseId: exercise.exerciseId,
@@ -165,115 +226,42 @@ export const workoutRouter = createTRPCRouter({
                 order: exercise.order,
               })),
             },
-            ...(tagIds.length > 0 && {
-              tags: {
-                create: tagIds.map((tagId) => ({
-                  tag: { connect: { id: tagId } },
-                })),
-              },
-            }),
-          },
-          include: {
-            exercises: {
-              include: {
-                exercise: true,
-              },
-              orderBy: [{ group: "asc" }, { order: "asc" }],
-            },
+          }),
+          ...(tagIds && {
             tags: {
-              include: { tag: true },
+              create: tagIds.map((tagId) => ({
+                tag: { connect: { id: tagId } },
+              })),
             },
+          }),
+        },
+        include: {
+          exercises: {
+            include: {
+              exercise: true,
+            },
+            orderBy: [{ group: "asc" }, { order: "asc" }],
           },
-        })
-        .then((workout) => serializeWorkout(workout));
-    }),
+          tags: {
+            include: { tag: true },
+          },
+        },
+      })
+      .then((workout) => serializeWorkout(workout));
+  }),
 
-  update: protectedProcedure
-    .input(updateWorkoutSchema)
-    .mutation(async ({ input, ctx }) => {
-      const { id, exercises, tagIds, ...workoutData } = input;
+  delete: protectedProcedure.input(idSchema).mutation(async ({ input, ctx }) => {
+    const result = await prisma.workout.deleteMany({
+      where: { id: input.id, userId: ctx.userId },
+    });
 
-      const existing = await prisma.workout.findFirst({
-        where: { id, userId: ctx.userId },
+    if (result.count === 0) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Workout not found",
       });
+    }
 
-      if (!existing) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Workout not found",
-        });
-      }
-
-      // If exercises are provided, replace all workout exercises
-      if (exercises) {
-        await prisma.workoutExercise.deleteMany({
-          where: { workoutId: id, workout: { userId: ctx.userId } },
-        });
-      }
-
-      if (tagIds) {
-        await prisma.workoutTagAssignment.deleteMany({
-          where: { workoutId: id, workout: { userId: ctx.userId } },
-        });
-      }
-
-      return prisma.workout
-        .update({
-          where: { id },
-          data: {
-            ...workoutData,
-            ...(exercises && {
-              exercises: {
-                create: exercises.map((exercise) => ({
-                  exerciseId: exercise.exerciseId,
-                  sets: exercise.sets,
-                  unit: exercise.unit,
-                  reps: exercise.reps,
-                  weight: exercise.weight,
-                  restTime: exercise.restTime,
-                  notes: exercise.notes,
-                  group: exercise.group,
-                  order: exercise.order,
-                })),
-              },
-            }),
-            ...(tagIds && {
-              tags: {
-                create: tagIds.map((tagId) => ({
-                  tag: { connect: { id: tagId } },
-                })),
-              },
-            }),
-          },
-          include: {
-            exercises: {
-              include: {
-                exercise: true,
-              },
-              orderBy: [{ group: "asc" }, { order: "asc" }],
-            },
-            tags: {
-              include: { tag: true },
-            },
-          },
-        })
-        .then((workout) => serializeWorkout(workout));
-    }),
-
-  delete: protectedProcedure
-    .input(idSchema)
-    .mutation(async ({ input, ctx }) => {
-      const result = await prisma.workout.deleteMany({
-        where: { id: input.id, userId: ctx.userId },
-      });
-
-      if (result.count === 0) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Workout not found",
-        });
-      }
-
-      return { success: true };
-    }),
+    return { success: true };
+  }),
 });

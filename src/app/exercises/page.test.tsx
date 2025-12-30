@@ -89,9 +89,7 @@ describe("ExercisesPage", () => {
 
     renderExercisesPage();
 
-    expect(
-      screen.getByRole("heading", { name: /exercise library/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /exercise library/i })).toBeInTheDocument();
     expect(screen.getByText(/you have 2 exercises/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /add exercise/i })).toBeVisible();
     expect(screen.getByRole("button", { name: /add complex/i })).toBeVisible();
@@ -130,9 +128,7 @@ describe("ExercisesPage", () => {
 
     renderExercisesPage();
 
-    expect(
-      screen.getByText(/couldn't load your exercises/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/couldn't load your exercises/i)).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: /retry/i }));
     expect(refetchMock).toHaveBeenCalled();

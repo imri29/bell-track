@@ -3,9 +3,7 @@ import { PrismaClient } from "@/generated/prisma";
 const prisma = new PrismaClient();
 
 function getEmailFromArgs() {
-  const emailFlagIndex = process.argv.findIndex((arg) =>
-    ["--email", "-e"].includes(arg),
-  );
+  const emailFlagIndex = process.argv.findIndex((arg) => ["--email", "-e"].includes(arg));
 
   if (emailFlagIndex !== -1) {
     return process.argv[emailFlagIndex + 1];
@@ -18,9 +16,7 @@ async function main() {
   const email = getEmailFromArgs();
 
   if (!email) {
-    console.error(
-      "Missing user email. Pass --email you@example.com or set BACKFILL_EMAIL.",
-    );
+    console.error("Missing user email. Pass --email you@example.com or set BACKFILL_EMAIL.");
     process.exit(1);
   }
 
@@ -29,9 +25,7 @@ async function main() {
   });
 
   if (!user) {
-    console.error(
-      `No user found for ${email}. Sign in first so the user record exists.`,
-    );
+    console.error(`No user found for ${email}. Sign in first so the user record exists.`);
     process.exit(1);
   }
 
@@ -61,10 +55,8 @@ async function main() {
     WHERE "userId" = ''
   `;
 
-  const totalWorkouts =
-    Number(workoutsWithNullUser) + Number(workoutsWithEmptyUser);
-  const totalTemplates =
-    Number(templatesWithNullUser) + Number(templatesWithEmptyUser);
+  const totalWorkouts = Number(workoutsWithNullUser) + Number(workoutsWithEmptyUser);
+  const totalTemplates = Number(templatesWithNullUser) + Number(templatesWithEmptyUser);
 
   console.log(`Assigned ${totalWorkouts} workouts.`);
   console.log(`Assigned ${totalTemplates} workout templates.`);

@@ -27,14 +27,11 @@ export function ComplexCombobox({
   const { data: exercises } = api.exercise.getAll.useQuery();
   const availableComplexes =
     exercises?.filter(
-      (exercise) =>
-        exercise.type === "COMPLEX" && !excludeIds.includes(exercise.id),
+      (exercise) => exercise.type === "COMPLEX" && !excludeIds.includes(exercise.id),
     ) ?? [];
 
   const selectedComplex =
-    value === ""
-      ? null
-      : (availableComplexes.find((exercise) => exercise.id === value) ?? null);
+    value === "" ? null : (availableComplexes.find((exercise) => exercise.id === value) ?? null);
 
   return (
     <Combobox

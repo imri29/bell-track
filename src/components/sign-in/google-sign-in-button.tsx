@@ -11,10 +11,7 @@ interface GoogleSignInButtonProps {
   className?: string;
 }
 
-export function GoogleSignInButton({
-  callbackUrl = "/",
-  className,
-}: GoogleSignInButtonProps) {
+export function GoogleSignInButton({ callbackUrl = "/", className }: GoogleSignInButtonProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleClick = async () => {
@@ -51,12 +48,7 @@ export function GoogleSignInButton({
 
 function GoogleGlyph({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 18 18"
-      aria-hidden="true"
-      focusable="false"
-    >
+    <svg className={className} viewBox="0 0 18 18" aria-hidden="true" focusable="false">
       <path
         d="M17.64 9.2c0-.64-.06-1.25-.18-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62"
         fill="#4285F4"

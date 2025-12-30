@@ -45,8 +45,7 @@ export default function EditWorkoutPage() {
         unit: exercise.unit ?? "REPS",
         reps: exercise.reps,
         weight: typeof exercise.weight === "number" ? exercise.weight : 0,
-        restTime:
-          typeof exercise.restTime === "number" ? exercise.restTime : undefined,
+        restTime: typeof exercise.restTime === "number" ? exercise.restTime : undefined,
         notes: exercise.notes ?? undefined,
         group: exercise.group ?? undefined,
         order: index,
@@ -97,12 +96,8 @@ export default function EditWorkoutPage() {
     <PageShell withGlow={false} mainClassName="max-w-4xl gap-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold leading-tight text-foreground">
-            Edit workout
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Update details for this session.
-          </p>
+          <h1 className="text-3xl font-semibold leading-tight text-foreground">Edit workout</h1>
+          <p className="text-sm text-muted-foreground">Update details for this session.</p>
         </div>
         <Button asChild variant="outline">
           <Link href="/history?view=list">Back to history</Link>
@@ -121,8 +116,7 @@ export default function EditWorkoutPage() {
           </p>
         ) : !workout || !initialValues ? (
           <p className="text-sm text-muted-foreground">
-            We couldn&apos;t find that workout. Head back to history and pick a
-            different session.
+            We couldn&apos;t find that workout. Head back to history and pick a different session.
           </p>
         ) : (
           <WorkoutForm

@@ -64,9 +64,7 @@ function WorkoutExerciseSummary({ workout }: { workout: WorkoutData }) {
       {visibleExercises.map((exercise, index) => {
         let displayLabel = "";
         const showDivider =
-          index > 0 &&
-          exercise.group &&
-          visibleExercises[index - 1]?.group !== exercise.group;
+          index > 0 && exercise.group && visibleExercises[index - 1]?.group !== exercise.group;
 
         if (exercise.group) {
           const groupIndex = visibleExercises
@@ -77,25 +75,19 @@ function WorkoutExerciseSummary({ workout }: { workout: WorkoutData }) {
 
         return (
           <div key={exercise.id}>
-            {showDivider && (
-              <div className="my-1.5 border-t border-border/50" />
-            )}
+            {showDivider && <div className="my-1.5 border-t border-border/50" />}
             <div className="text-xs text-muted-foreground">
               {displayLabel && (
-                <span className="mr-1 font-medium text-foreground">
-                  {displayLabel}:
-                </span>
+                <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>
               )}
               <ComplexNameTooltip
                 name={exercise.exercise.name}
                 subExercises={exercise.exercise.subExercises}
                 className="inline text-foreground font-medium"
               />
-              {` • ${exercise.sets}×${formatExerciseUnitValue(
-                exercise.reps,
-                exercise.unit,
-                { compact: true },
-              )}`}
+              {` • ${exercise.sets}×${formatExerciseUnitValue(exercise.reps, exercise.unit, {
+                compact: true,
+              })}`}
               {exercise.weight ? ` • ${exercise.weight}kg` : ""}
             </div>
           </div>
@@ -215,11 +207,7 @@ export function CalendarDayMenu({
             <Plus className="h-4 w-4" />
             New Workout
           </Button>
-          <Button
-            asChild
-            variant="ghost"
-            className="w-full justify-start gap-2 px-2"
-          >
+          <Button asChild variant="ghost" className="w-full justify-start gap-2 px-2">
             <Link href="/templates" onClick={() => onOpenChange(false)}>
               <File className="h-4 w-4" />
               Manage templates
@@ -234,24 +222,17 @@ export function CalendarDayMenu({
   const workoutsSection = hasWorkouts ? (
     <div className="space-y-3">
       {workouts.map((workout, index) => (
-        <div
-          key={workout.id}
-          className="rounded-md border border-border/60 bg-muted/20 p-3"
-        >
+        <div key={workout.id} className="rounded-md border border-border/60 bg-muted/20 p-3">
           <div className="mb-2 flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <h4 className="text-sm font-semibold">Workout {index + 1}</h4>
                 {workout.duration && (
-                  <span className="text-xs text-muted-foreground">
-                    {workout.duration} min
-                  </span>
+                  <span className="text-xs text-muted-foreground">{workout.duration} min</span>
                 )}
               </div>
               {workout.notes && (
-                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                  {workout.notes}
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{workout.notes}</p>
               )}
             </div>
             <div className="ml-2 flex items-center gap-1">
@@ -410,9 +391,7 @@ export function CalendarDayMenu({
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      ADD ANOTHER
-                    </p>
+                    <p className="text-xs font-medium text-muted-foreground">ADD ANOTHER</p>
                     <IconButton
                       variant="ghost"
                       size="sm"
@@ -431,9 +410,7 @@ export function CalendarDayMenu({
         ) : (
           <DropdownMenuGroup>
             <div className="px-2 py-2">
-              <p className="text-xs font-medium text-muted-foreground mb-2">
-                GET STARTED
-              </p>
+              <p className="text-xs font-medium text-muted-foreground mb-2">GET STARTED</p>
               {templateSection}
             </div>
           </DropdownMenuGroup>

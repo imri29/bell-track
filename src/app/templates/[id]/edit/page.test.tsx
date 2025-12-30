@@ -4,11 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  getRouterMock,
-  resetNextMocks,
-  setParamsMock,
-} from "@/tests/mocks/next";
+import { getRouterMock, resetNextMocks, setParamsMock } from "@/tests/mocks/next";
 
 import EditTemplatePage from "./page";
 
@@ -62,11 +58,8 @@ vi.mock("react-hook-form", () => ({
     watch: () => ["tag1"],
     formState: { errors: {} },
   }),
-  Controller: ({
-    render,
-  }: {
-    render: (props: { field: unknown }) => unknown;
-  }) => render({ field: { value: "REPS", onChange: vi.fn() } }),
+  Controller: ({ render }: { render: (props: { field: unknown }) => unknown }) =>
+    render({ field: { value: "REPS", onChange: vi.fn() } }),
   useFieldArray: () => ({
     fields: [],
     append: vi.fn(),
@@ -81,18 +74,11 @@ vi.mock("@/components/add-exercise-modal", () => ({
 }));
 
 vi.mock("@/components/complex-name-tooltip", () => ({
-  ComplexNameTooltip: ({ children }: { children: ReactNode }) => (
-    <>{children}</>
-  ),
+  ComplexNameTooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("@/components/complex-combobox", () => ({
-  ComplexCombobox: ({
-    onValueChange,
-  }: {
-    onValueChange: (id: string) => void;
-    id?: string;
-  }) => (
+  ComplexCombobox: ({ onValueChange }: { onValueChange: (id: string) => void; id?: string }) => (
     <button type="button" onClick={() => onValueChange("ex1")}>
       Select Complex
     </button>
@@ -100,12 +86,7 @@ vi.mock("@/components/complex-combobox", () => ({
 }));
 
 vi.mock("@/components/exercise-combobox", () => ({
-  ExerciseCombobox: ({
-    onValueChange,
-  }: {
-    onValueChange: (id: string) => void;
-    id?: string;
-  }) => (
+  ExerciseCombobox: ({ onValueChange }: { onValueChange: (id: string) => void; id?: string }) => (
     <button type="button" onClick={() => onValueChange("ex1")}>
       Select Exercise
     </button>
@@ -212,9 +193,7 @@ describe("EditTemplatePage", () => {
 
     render(<EditTemplatePage params={Promise.resolve({ id: "tpl1" })} />);
 
-    expect(
-      screen.getByRole("heading", { name: /edit template/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /edit template/i })).toBeInTheDocument();
     expect(resetMock).toHaveBeenCalled();
 
     await userEvent.click(screen.getByRole("button", { name: /save/i }));

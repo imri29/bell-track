@@ -21,11 +21,7 @@ type WorkoutListViewProps = {
   isDeleting: boolean;
 };
 
-function WorkoutExercisesList({
-  exercises,
-}: {
-  exercises: WorkoutWithExercises["exercises"];
-}) {
+function WorkoutExercisesList({ exercises }: { exercises: WorkoutWithExercises["exercises"] }) {
   const sortedExercises = [...exercises].sort((a, b) => {
     if (a.group && b.group && a.group !== b.group) {
       return a.group.localeCompare(b.group);
@@ -38,9 +34,7 @@ function WorkoutExercisesList({
       {sortedExercises.map((exercise, index) => {
         let displayLabel = "";
         const showDivider =
-          index > 0 &&
-          exercise.group &&
-          sortedExercises[index - 1]?.group !== exercise.group;
+          index > 0 && exercise.group && sortedExercises[index - 1]?.group !== exercise.group;
 
         if (exercise.group) {
           const groupIndex = sortedExercises
@@ -54,16 +48,14 @@ function WorkoutExercisesList({
             {showDivider && <div className="border-t border-border my-2" />}
             <div className="text-sm text-muted-foreground">
               {displayLabel && (
-                <span className="font-medium text-foreground mr-1">
-                  {displayLabel}:
-                </span>
+                <span className="font-medium text-foreground mr-1">{displayLabel}:</span>
               )}
               <ComplexNameTooltip
                 name={exercise.exercise.name}
                 subExercises={exercise.exercise.subExercises}
                 className="inline text-foreground font-medium"
               />
-              {` • ${exercise.sets} sets • ${exercise.weight}kg`}
+              {!!exercise.sets && ` • ${exercise.sets} sets • ${exercise.weight}kg`}
             </div>
           </div>
         );
@@ -91,16 +83,10 @@ export function WorkoutListView({
       ) : workouts && workouts.length > 0 ? (
         <div className="space-y-3">
           {workouts.map((workout) => {
-            const workoutDateLabel = format(
-              new Date(workout.date),
-              "dd/MM/yyyy",
-            );
+            const workoutDateLabel = format(new Date(workout.date), "dd/MM/yyyy");
 
             return (
-              <div
-                key={workout.id}
-                className="p-4 bg-background rounded border group"
-              >
+              <div key={workout.id} className="p-4 bg-background rounded border group">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-semibold">
@@ -111,9 +97,7 @@ export function WorkoutListView({
                       {workout.exercises.length} exercise
                       {workout.exercises.length !== 1 ? "s" : ""}
                     </p>
-                    {workout.notes && (
-                      <p className="text-sm mt-2">{workout.notes}</p>
-                    )}
+                    {workout.notes && <p className="text-sm mt-2">{workout.notes}</p>}
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -150,10 +134,7 @@ export function WorkoutListView({
                         >
                           <span
                             aria-hidden="true"
-                            className={cn(
-                              "h-2 w-2 shrink-0 rounded-full",
-                              palette.dot,
-                            )}
+                            className={cn("h-2 w-2 shrink-0 rounded-full", palette.dot)}
                           />
                           {tag.name}
                         </span>
@@ -168,8 +149,7 @@ export function WorkoutListView({
         </div>
       ) : (
         <p className="text-muted-foreground">
-          No workouts yet. Click "Add Workout" to create your first workout
-          plan.
+          No workouts yet. Click "Add Workout" to create your first workout plan.
         </p>
       )}
     </div>

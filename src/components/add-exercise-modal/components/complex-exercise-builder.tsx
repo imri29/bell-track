@@ -71,9 +71,7 @@ export function ComplexExerciseBuilder({
               if (field.exerciseId) {
                 return field.exerciseId === value;
               }
-              return (
-                field.exerciseName.toLowerCase() === exercise.name.toLowerCase()
-              );
+              return field.exerciseName.toLowerCase() === exercise.name.toLowerCase();
             });
 
             if (isDuplicate) {
@@ -95,10 +93,7 @@ export function ComplexExerciseBuilder({
           <p className="text-sm font-medium">Exercise Sequence & Reps</p>
           <div className="space-y-2">
             {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="flex items-center gap-2 p-2 bg-muted rounded"
-              >
+              <div key={field.id} className="flex items-center gap-2 p-2 bg-muted rounded">
                 <span className="text-sm font-medium w-4">{index + 1}.</span>
                 <span className="flex-1 text-sm">{field.exerciseName}</span>
                 <input

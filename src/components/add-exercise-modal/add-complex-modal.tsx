@@ -79,10 +79,7 @@ export function AddComplexExerciseModal({
 
   const formFields = (
     <>
-      <ExerciseModal.NameField
-        register={register}
-        errorMessage={errors.name?.message}
-      />
+      <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
       <ExerciseModal.ComplexBuilder
         control={control}
         register={register}
@@ -101,11 +98,7 @@ export function AddComplexExerciseModal({
         onExerciseCreated={onExerciseCreated}
       />
       {isMobile ? (
-        <Drawer
-          open={isOpen}
-          onOpenChange={onOpenChange}
-          repositionInputs={false}
-        >
+        <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
           <DrawerContent className="max-h-[80vh]" fullHeight>
             <form
               onSubmit={handleSubmit(onSubmit)}
@@ -115,9 +108,7 @@ export function AddComplexExerciseModal({
               <DrawerHeader>
                 <DrawerTitle>Add New Complex</DrawerTitle>
               </DrawerHeader>
-              <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4 min-h-0">
-                {formFields}
-              </div>
+              <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4 min-h-0">{formFields}</div>
               <DrawerFooter>
                 <ExerciseModal.Actions
                   onCancel={() => onOpenChange(false)}
@@ -140,9 +131,7 @@ export function AddComplexExerciseModal({
               onKeyDown={preventEnterFromSelect}
               className="flex flex-col gap-4 max-h-[70vh] overflow-hidden"
             >
-              <div className="flex-1 space-y-4 overflow-y-auto pr-1">
-                {formFields}
-              </div>
+              <div className="flex-1 space-y-4 overflow-y-auto pr-1">{formFields}</div>
               <DialogFooter>
                 <ExerciseModal.Actions
                   onCancel={() => onOpenChange(false)}

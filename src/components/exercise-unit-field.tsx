@@ -1,10 +1,5 @@
 import { useId } from "react";
-import {
-  type Control,
-  Controller,
-  type FieldValues,
-  type Path,
-} from "react-hook-form";
+import { type Control, Controller, type FieldValues, type Path } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { EXERCISE_UNIT_LABELS, EXERCISE_UNITS } from "@/types";
 
@@ -41,10 +36,7 @@ export function ExerciseUnitField<TFieldValues extends FieldValues>({
       render={({ field }) => (
         <div className={cn("space-y-2", containerClassName)}>
           {!hideLabel && (
-            <label
-              htmlFor={unitId}
-              className={cn("text-sm font-medium", labelClassName)}
-            >
+            <label htmlFor={unitId} className={cn("text-sm font-medium", labelClassName)}>
               {label}
             </label>
           )}

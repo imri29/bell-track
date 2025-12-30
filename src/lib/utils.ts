@@ -6,9 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function normalizeRestTime(restTime: unknown) {
-  return typeof restTime === "number" && Number.isFinite(restTime)
-    ? restTime
-    : undefined;
+  return typeof restTime === "number" && Number.isFinite(restTime) ? restTime : undefined;
 }
 
 export function extractSearchParam(sp: string | string[] | undefined) {

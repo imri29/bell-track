@@ -272,8 +272,7 @@ const exercises: Prisma.ExerciseCreateInput[] = [
   {
     name: "Gandalf",
     type: ExerciseType.COMPLEX,
-    description:
-      "Swing + Tactical Clean & Thruster + Tactical Snatch + Windmill x2 reps",
+    description: "Swing + Tactical Clean & Thruster + Tactical Snatch + Windmill x2 reps",
     subExercises: JSON.stringify([
       { exerciseName: "Swings", reps: 2 },
       { exerciseName: "Clean & Thruster", reps: 2, note: "tactical" },
@@ -344,8 +343,7 @@ const exercises: Prisma.ExerciseCreateInput[] = [
   {
     name: "4x4 (double bell)",
     type: ExerciseType.COMPLEX,
-    description:
-      "4/side Gorilla Rows + 4 Gunslingers + 4 Squats + 4 Push Press",
+    description: "4/side Gorilla Rows + 4 Gunslingers + 4 Squats + 4 Push Press",
     subExercises: JSON.stringify([
       { exerciseName: "Gorilla Rows", reps: 4, note: "per side" },
       { exerciseName: "Gunslingers", reps: 4 },
@@ -542,8 +540,7 @@ async function main() {
     data: {
       date: new Date(),
       duration: 45, // 45 minutes
-      notes:
-        "Sample workout with A/B grouping - Leonidas complex + accessory work",
+      notes: "Sample workout with A/B grouping - Leonidas complex + accessory work",
       userId: seedUser.id,
       exercises: {
         create: [

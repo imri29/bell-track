@@ -22,10 +22,7 @@ export function UserMenu() {
     return null;
   }
 
-  const firstName =
-    session.user.name?.split(" ")[0] ??
-    session.user.email?.split("@")[0] ??
-    "User";
+  const firstName = session.user.name?.split(" ")[0] ?? session.user.email?.split("@")[0] ?? "User";
 
   const handleSignOut = async () => {
     try {
@@ -53,9 +50,7 @@ export function UserMenu() {
         <DropdownMenuContent align="end" className="w-56">
           <div className="flex flex-col gap-1 px-2 py-1.5">
             <span className="text-sm font-medium">{session.user.name}</span>
-            <span className="text-xs text-muted-foreground">
-              {session.user.email}
-            </span>
+            <span className="text-xs text-muted-foreground">{session.user.email}</span>
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem

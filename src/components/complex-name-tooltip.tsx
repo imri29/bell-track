@@ -57,11 +57,7 @@ export function ComplexNameTooltip({
 
   if (parsedSubExercises.length === 0) {
     if (isMobile) {
-      return (
-        <span className={cn("cursor-pointer", className)}>
-          {children ?? name}
-        </span>
-      );
+      return <span className={cn("cursor-pointer", className)}>{children ?? name}</span>;
     }
 
     return <span className={className}>{children ?? name}</span>;
@@ -70,13 +66,8 @@ export function ComplexNameTooltip({
   const exerciseList = (
     <ul className="space-y-1 text-xs text-muted-foreground">
       {parsedSubExercises.map((item, index) => (
-        <li
-          key={`${item.exerciseName}-${index}`}
-          className="flex items-center gap-2"
-        >
-          <span className="whitespace-nowrap font-medium text-foreground">
-            {item.reps}
-          </span>
+        <li key={`${item.exerciseName}-${index}`} className="flex items-center gap-2">
+          <span className="whitespace-nowrap font-medium text-foreground">{item.reps}</span>
           <span className="truncate" title={item.exerciseName}>
             {item.exerciseName}
           </span>
@@ -89,10 +80,7 @@ export function ComplexNameTooltip({
     return (
       <Drawer>
         <DrawerTrigger asChild>
-          <button
-            type="button"
-            className={cn("cursor-pointer text-left", className)}
-          >
+          <button type="button" className={cn("cursor-pointer text-left", className)}>
             {children ?? name}
           </button>
         </DrawerTrigger>
@@ -120,9 +108,7 @@ export function ComplexNameTooltip({
     <TooltipProvider delayDuration={150} skipDelayDuration={0}>
       <TooltipRoot>
         <TooltipTrigger asChild>
-          <span className={cn("cursor-help", className)}>
-            {children ?? name}
-          </span>
+          <span className={cn("cursor-help", className)}>{children ?? name}</span>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs space-y-2">
           <p className="text-sm font-medium leading-none">{name}</p>

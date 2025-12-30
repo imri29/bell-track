@@ -27,14 +27,11 @@ export function ExerciseCombobox({
   const { data: exercises } = api.exercise.getAll.useQuery();
   const availableExercises =
     exercises?.filter(
-      (exercise) =>
-        exercise.type === "EXERCISE" && !excludeIds.includes(exercise.id),
+      (exercise) => exercise.type === "EXERCISE" && !excludeIds.includes(exercise.id),
     ) ?? [];
 
   const selectedExercise =
-    value === ""
-      ? null
-      : (availableExercises.find((exercise) => exercise.id === value) ?? null);
+    value === "" ? null : (availableExercises.find((exercise) => exercise.id === value) ?? null);
 
   return (
     <Combobox

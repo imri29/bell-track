@@ -24,8 +24,8 @@ export default function HistoryError({
           We can't load your workout history
         </h2>
         <p className="text-sm text-muted-foreground">
-          Something unexpected happened while fetching your workouts. You can
-          try again or head back to the dashboard.
+          Something unexpected happened while fetching your workouts. You can try again or head back
+          to the dashboard.
         </p>
       </div>
       <div className="flex flex-wrap justify-center gap-3">

@@ -21,10 +21,7 @@ export const metadata: Metadata = {
   title: "Bell Track",
   description: "Kettlebell workout tracker",
   icons: {
-    icon:
-      process.env.NODE_ENV === "development"
-        ? "/favicon-dev.svg"
-        : "/favicon.ico",
+    icon: process.env.NODE_ENV === "development" ? "/favicon-dev.svg" : "/favicon.ico",
     apple: "./apple-icon.jpeg",
   },
 };
@@ -36,9 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 md:pb-0`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16 md:pb-0`}>
         <SessionProvider>
           <TRPCReactProvider>
             <ConfirmProvider>

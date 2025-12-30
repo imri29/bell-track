@@ -3,28 +3,15 @@
 import { Replace, X } from "lucide-react";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import {
-  AddComplexExerciseModal,
-  AddExerciseModal,
-} from "@/components/add-exercise-modal";
+import { AddComplexExerciseModal, AddExerciseModal } from "@/components/add-exercise-modal";
 import { ComplexCombobox } from "@/components/complex-combobox";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ExerciseCombobox } from "@/components/exercise-combobox";
 import { ExerciseOrderControls } from "@/components/exercise-order-controls";
 import { ExerciseUnitField } from "@/components/exercise-unit-field";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -32,10 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
-import {
-  getExerciseUnitLabel,
-  getExerciseUnitPlaceholder,
-} from "@/lib/exercise-units";
+import { getExerciseUnitLabel, getExerciseUnitPlaceholder } from "@/lib/exercise-units";
 import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn, normalizeRestTime } from "@/lib/utils";
@@ -62,10 +46,7 @@ export type WorkoutFormValues = {
   tagIds: string[];
 };
 
-export type WorkoutFormSubmitExercise = Omit<
-  WorkoutExerciseFormValues,
-  "order" | "restTime"
-> & {
+export type WorkoutFormSubmitExercise = Omit<WorkoutExerciseFormValues, "order" | "restTime"> & {
   restTime?: number;
   order: number;
 };
@@ -98,11 +79,7 @@ export function WorkoutForm({
   enableReplaceExercise = true,
 }: WorkoutFormProps) {
   const { data: exercises } = api.exercise.getAll.useQuery();
-  const {
-    data: tags,
-    isPending: tagsPending,
-    error: tagsError,
-  } = api.template.getTags.useQuery();
+  const { data: tags, isPending: tagsPending, error: tagsError } = api.template.getTags.useQuery();
 
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
   const [isAddComplexModalOpen, setIsAddComplexModalOpen] = useState(false);
@@ -227,16 +204,9 @@ export function WorkoutForm({
       exerciseId: exercise.id,
       order: replaceIndex,
       sets: current?.sets ?? defaults.sets,
-      unit:
-        exercise.type === "COMPLEX"
-          ? defaults.unit
-          : (current?.unit ?? defaults.unit),
-      weight:
-        typeof current?.weight === "number" ? current.weight : defaults.weight,
-      restTime:
-        typeof current?.restTime === "number"
-          ? current.restTime
-          : defaults.restTime,
+      unit: exercise.type === "COMPLEX" ? defaults.unit : (current?.unit ?? defaults.unit),
+      weight: typeof current?.weight === "number" ? current.weight : defaults.weight,
+      restTime: typeof current?.restTime === "number" ? current.restTime : defaults.restTime,
       notes: current?.notes ?? defaults.notes,
       group: current?.group ?? defaults.group,
       reps:
@@ -267,9 +237,7 @@ export function WorkoutForm({
   const replaceDialogExcludeIds =
     replaceIndex === null
       ? []
-      : fields
-          .filter((_, idx) => idx !== replaceIndex)
-          .map((field) => field.exerciseId);
+      : fields.filter((_, idx) => idx !== replaceIndex).map((field) => field.exerciseId);
 
   const replaceDialogCurrentExercise =
     replaceIndex === null
@@ -277,21 +245,14 @@ export function WorkoutForm({
       : exercises?.find((ex) => ex.id === fields[replaceIndex]?.exerciseId);
 
   const replaceDialogExerciseValue =
-    replaceDialogCurrentExercise?.type === "EXERCISE"
-      ? replaceDialogCurrentExercise.id
-      : "";
+    replaceDialogCurrentExercise?.type === "EXERCISE" ? replaceDialogCurrentExercise.id : "";
 
   const replaceDialogComplexValue =
-    replaceDialogCurrentExercise?.type === "COMPLEX"
-      ? replaceDialogCurrentExercise.id
-      : "";
+    replaceDialogCurrentExercise?.type === "COMPLEX" ? replaceDialogCurrentExercise.id : "";
 
   return (
     <>
-      <AddExerciseModal
-        isOpen={isAddExerciseModalOpen}
-        onOpenChange={setIsAddExerciseModalOpen}
-      />
+      <AddExerciseModal isOpen={isAddExerciseModalOpen} onOpenChange={setIsAddExerciseModalOpen} />
       <AddComplexExerciseModal
         isOpen={isAddComplexModalOpen}
         onOpenChange={setIsAddComplexModalOpen}
@@ -314,9 +275,7 @@ export function WorkoutForm({
               {...register("date", { required: "Date is required" })}
               className={`[&::-webkit-calendar-picker-indicator]:invert ${errors.date ? "border-red-500" : ""}`}
             />
-            {errors.date && (
-              <p className="text-sm text-red-500">{errors.date.message}</p>
-            )}
+            {errors.date && <p className="text-sm text-red-500">{errors.date.message}</p>}
           </div>
           <div className="space-y-2">
             <label htmlFor={durationId} className="text-sm font-medium">
@@ -362,8 +321,7 @@ export function WorkoutForm({
           </div>
           {tagsError ? (
             <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-              Couldn&apos;t load tags. Save your changes without them and retry
-              later.
+              Couldn&apos;t load tags. Save your changes without them and retry later.
             </div>
           ) : tagsPending ? (
             <div className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
@@ -383,10 +341,7 @@ export function WorkoutForm({
                     className={cn(
                       "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                       isSelected
-                        ? cn(
-                            palette.tint,
-                            "focus-visible:ring-offset-background",
-                          )
+                        ? cn(palette.tint, "focus-visible:ring-offset-background")
                         : "border-border/50 bg-muted/20 text-muted-foreground hover:bg-muted/40 focus-visible:ring-border",
                     )}
                   >
@@ -404,9 +359,7 @@ export function WorkoutForm({
               })}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              No tags available yet.
-            </p>
+            <p className="text-sm text-muted-foreground">No tags available yet.</p>
           )}
         </div>
 
@@ -456,14 +409,9 @@ export function WorkoutForm({
               <p className="text-sm font-medium">Workout Exercises</p>
               <div className="space-y-3">
                 {fields.map((field, index) => {
-                  const exercise = exercises?.find(
-                    (ex) => ex.id === field.exerciseId,
-                  );
+                  const exercise = exercises?.find((ex) => ex.id === field.exerciseId);
                   return (
-                    <div
-                      key={field.id}
-                      className="p-3 bg-muted rounded border space-y-3"
-                    >
+                    <div key={field.id} className="p-3 bg-muted rounded border space-y-3">
                       <div className="flex justify-between items-center gap-2">
                         <h5 className="font-medium">
                           {exercise ? (
@@ -480,9 +428,7 @@ export function WorkoutForm({
                           onMoveUp={() => moveExerciseUp(index)}
                           onMoveDown={() => moveExerciseDown(index)}
                           disableUp={isSubmitting || index === 0}
-                          disableDown={
-                            isSubmitting || index === fields.length - 1
-                          }
+                          disableDown={isSubmitting || index === fields.length - 1}
                         >
                           {enableReplaceExercise && (
                             <Tooltip content="Replace">
@@ -512,34 +458,26 @@ export function WorkoutForm({
 
                       <div className="grid items-end gap-3 grid-cols-1 sm:grid-cols-2">
                         <div className="space-y-1">
-                          <label
-                            htmlFor={`sets-${index}`}
-                            className="text-xs font-medium"
-                          >
+                          <label htmlFor={`sets-${index}`} className="text-xs font-medium">
                             Sets
                           </label>
                           <Input
                             id={`sets-${index}`}
                             type="number"
-                            min="1"
+                            min="0"
                             disabled={isSubmitting}
                             {...register(`exercises.${index}.sets`, {
                               valueAsNumber: true,
                               required: "Sets required",
-                              min: { value: 1, message: "Min 1 set" },
+                              min: { value: 0, message: "Min 0 sets" },
                             })}
                           />
                         </div>
                         {exercise?.type !== "COMPLEX" && (
                           <div className="space-y-1">
                             <div className="flex items-center justify-between">
-                              <label
-                                htmlFor={`reps-${index}`}
-                                className="text-xs font-medium"
-                              >
-                                {getExerciseUnitLabel(
-                                  watch(`exercises.${index}.unit`),
-                                )}
+                              <label htmlFor={`reps-${index}`} className="text-xs font-medium">
+                                {getExerciseUnitLabel(watch(`exercises.${index}.unit`))}
                               </label>
                               <ExerciseUnitField
                                 control={control}
@@ -567,10 +505,7 @@ export function WorkoutForm({
                           </div>
                         )}
                         <div className="space-y-1">
-                          <label
-                            htmlFor={`weight-${index}`}
-                            className="text-xs font-medium"
-                          >
+                          <label htmlFor={`weight-${index}`} className="text-xs font-medium">
                             Weight (kg)
                           </label>
                           <Input
@@ -587,10 +522,7 @@ export function WorkoutForm({
                           />
                         </div>
                         <div className="space-y-1">
-                          <label
-                            htmlFor={`group-${index}`}
-                            className="text-xs font-medium"
-                          >
+                          <label htmlFor={`group-${index}`} className="text-xs font-medium">
                             Group
                           </label>
                           <Input
@@ -602,10 +534,7 @@ export function WorkoutForm({
                           />
                         </div>
                         <div className="space-y-1">
-                          <label
-                            htmlFor={`rest-${index}`}
-                            className="text-xs font-medium"
-                          >
+                          <label htmlFor={`rest-${index}`} className="text-xs font-medium">
                             Rest (sec)
                           </label>
                           <Input
@@ -616,27 +545,18 @@ export function WorkoutForm({
                             disabled={isSubmitting}
                             {...register(`exercises.${index}.restTime`, {
                               setValueAs: (value) => {
-                                if (
-                                  value === "" ||
-                                  value === null ||
-                                  value === undefined
-                                ) {
+                                if (value === "" || value === null || value === undefined) {
                                   return undefined;
                                 }
 
                                 const parsedValue = Number(value);
-                                return Number.isNaN(parsedValue)
-                                  ? undefined
-                                  : parsedValue;
+                                return Number.isNaN(parsedValue) ? undefined : parsedValue;
                               },
                             })}
                           />
                         </div>
                         <div className="space-y-1 sm:col-span-2">
-                          <label
-                            htmlFor={`notes-${index}`}
-                            className="text-xs font-medium"
-                          >
+                          <label htmlFor={`notes-${index}`} className="text-xs font-medium">
                             Notes
                           </label>
                           <Input
@@ -657,12 +577,7 @@ export function WorkoutForm({
 
         <div className="flex justify-end gap-2 pt-4 border-t">
           {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
               {cancelLabel}
             </Button>
           )}
@@ -689,8 +604,8 @@ export function WorkoutForm({
               </DrawerHeader>
               <div className="px-4 pb-4 space-y-4 overflow-y-auto">
                 <p className="text-sm text-muted-foreground">
-                  Existing sets, weight, and notes stay unless the new exercise
-                  doesn&apos;t use them.
+                  Existing sets, weight, and notes stay unless the new exercise doesn&apos;t use
+                  them.
                 </p>
                 <div className="space-y-3">
                   <ExerciseCombobox
@@ -728,8 +643,8 @@ export function WorkoutForm({
               </DialogHeader>
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Existing sets, weight, and notes stay unless the new exercise
-                  doesn&apos;t use them.
+                  Existing sets, weight, and notes stay unless the new exercise doesn&apos;t use
+                  them.
                 </p>
                 <div className="space-y-3">
                   <ExerciseCombobox

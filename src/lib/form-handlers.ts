@@ -4,9 +4,7 @@ import type React from "react";
  * Prevents Enter keypresses originating from Radix Select triggers/content
  * from bubbling up and submitting the parent form.
  */
-export function preventEnterFromSelect(
-  event: React.KeyboardEvent<HTMLFormElement>,
-) {
+export function preventEnterFromSelect(event: React.KeyboardEvent<HTMLFormElement>) {
   if (event.key !== "Enter") {
     return;
   }

@@ -72,10 +72,7 @@ export function AddExerciseModal({
   const formFields = (
     <>
       <div className="px-4 pb-4 space-y-4 overflow-y-auto flex-1">
-        <ExerciseModal.NameField
-          register={register}
-          errorMessage={errors.name?.message}
-        />
+        <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
         <ExerciseModal.DescriptionField register={register} />
       </div>
       <DrawerFooter>
@@ -99,10 +96,7 @@ export function AddExerciseModal({
             onKeyDown={preventEnterFromSelect}
             className="flex flex-col gap-4"
           >
-            <ExerciseModal.NameField
-              register={register}
-              errorMessage={errors.name?.message}
-            />
+            <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
             <ExerciseModal.DescriptionField register={register} />
             <DialogFooter className="pt-2">
               <ExerciseModal.Actions

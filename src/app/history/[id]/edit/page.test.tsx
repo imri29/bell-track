@@ -5,11 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RouterOutputs } from "@/server/api/root";
-import {
-  getRouterMock,
-  resetNextMocks,
-  setParamsMock,
-} from "@/tests/mocks/next";
+import { getRouterMock, resetNextMocks, setParamsMock } from "@/tests/mocks/next";
 import EditWorkoutPage from "./page";
 
 type WorkoutDetail = NonNullable<RouterOutputs["workout"]["getById"]>;
@@ -125,9 +121,7 @@ describe("EditWorkoutPage", () => {
 
     render(<EditWorkoutPage />);
 
-    expect(
-      screen.getByRole("heading", { name: /edit workout/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /edit workout/i })).toBeInTheDocument();
     expect(screen.getByText(/save changes/i)).toBeInTheDocument();
 
     await userEvent.click(screen.getByText(/save changes/i));

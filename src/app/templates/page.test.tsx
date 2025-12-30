@@ -167,9 +167,7 @@ describe("TemplatesPage", () => {
 
     renderTemplates();
 
-    expect(
-      screen.getByRole("heading", { name: "Templates", level: 1 }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Templates", level: 1 })).toBeInTheDocument();
     expect(screen.getByText(/you have 2 templates/i)).toBeInTheDocument();
     expect(screen.getByText("Strength Builder")).toBeInTheDocument();
     expect(screen.getByText("Conditioning")).toBeInTheDocument();
@@ -177,9 +175,7 @@ describe("TemplatesPage", () => {
     await userEvent.click(screen.getByLabelText(/log strength builder/i));
 
     await waitFor(() => {
-      expect(getRouterMock().push).toHaveBeenCalledWith(
-        "/history/new?templateId=t1",
-      );
+      expect(getRouterMock().push).toHaveBeenCalledWith("/history/new?templateId=t1");
     });
   });
 

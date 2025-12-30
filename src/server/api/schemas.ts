@@ -28,10 +28,8 @@ export const exerciseInputSchema = z.object({
 // Workout exercise schemas (shared between workout and template)
 export const workoutExerciseInputSchema = z.object({
   exerciseId: z.string(),
-  sets: z.number().min(1),
-  unit: z
-    .enum([EXERCISE_UNITS.REPS, EXERCISE_UNITS.TIME])
-    .default(EXERCISE_UNITS.REPS),
+  sets: z.number().min(0),
+  unit: z.enum([EXERCISE_UNITS.REPS, EXERCISE_UNITS.TIME]).default(EXERCISE_UNITS.REPS),
   reps: z.string(), // JSON array like "[12, 10, 8]"
   weight: z.number().min(0),
   restTime: z.number().optional().nullable(),
