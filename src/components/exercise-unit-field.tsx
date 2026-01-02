@@ -1,3 +1,4 @@
+import { Repeat, Timer } from "lucide-react";
 import { useId } from "react";
 import { type Control, Controller, type FieldValues, type Path } from "react-hook-form";
 import { cn } from "@/lib/utils";
@@ -54,7 +55,7 @@ export function ExerciseUnitField<TFieldValues extends FieldValues>({
               disabled={disabled}
               aria-pressed={field.value === EXERCISE_UNITS.REPS}
               className={cn(
-                "rounded-sm px-2 py-0.5 transition-colors",
+                "flex items-center justify-center rounded-sm px-2 py-0.5 transition-colors",
                 isCompact && "px-1.5",
                 field.value === EXERCISE_UNITS.REPS
                   ? "bg-background text-foreground shadow-xs"
@@ -63,14 +64,15 @@ export function ExerciseUnitField<TFieldValues extends FieldValues>({
               )}
               onClick={() => field.onChange(EXERCISE_UNITS.REPS)}
             >
-              {EXERCISE_UNIT_LABELS.REPS}
+              <Repeat className={cn("size-3.5", isCompact && "size-3")} aria-hidden="true" />
+              <span className="sr-only">{EXERCISE_UNIT_LABELS.REPS}</span>
             </button>
             <button
               type="button"
               disabled={disabled}
               aria-pressed={field.value === EXERCISE_UNITS.TIME}
               className={cn(
-                "rounded-sm px-2 py-0.5 transition-colors",
+                "flex items-center justify-center rounded-sm px-2 py-0.5 transition-colors",
                 isCompact && "px-1.5",
                 field.value === EXERCISE_UNITS.TIME
                   ? "bg-background text-foreground shadow-xs"
@@ -79,7 +81,8 @@ export function ExerciseUnitField<TFieldValues extends FieldValues>({
               )}
               onClick={() => field.onChange(EXERCISE_UNITS.TIME)}
             >
-              {EXERCISE_UNIT_LABELS.TIME}
+              <Timer className={cn("size-3.5", isCompact && "size-3")} aria-hidden="true" />
+              <span className="sr-only">{EXERCISE_UNIT_LABELS.TIME}</span>
             </button>
           </fieldset>
         </div>

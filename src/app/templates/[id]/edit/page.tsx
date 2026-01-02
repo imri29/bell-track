@@ -11,6 +11,11 @@ import { ExerciseCombobox } from "@/components/exercise-combobox";
 import { ExerciseOrderControls } from "@/components/exercise-order-controls";
 import { ExerciseUnitField } from "@/components/exercise-unit-field";
 import { PageShell } from "@/components/page-shell";
+import {
+  TemplateExerciseCard,
+  TemplateExercisesList,
+  TemplateExercisesPanel,
+} from "@/components/template-exercise-blocks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -203,9 +208,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
         onKeyDown={preventEnterFromSelect}
         className="space-y-8"
       >
-        <div className="space-y-6 rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
-          <h2 className="text-2xl font-semibold">Template Details</h2>
-
+        <TemplateExercisesPanel title="Template Details">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label htmlFor={nameId} className="text-sm font-medium">
@@ -289,11 +292,9 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
               <p className="text-sm text-muted-foreground">No tags available yet.</p>
             )}
           </div>
-        </div>
+        </TemplateExercisesPanel>
 
-        <div className="space-y-6 rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
-          <h2 className="text-2xl font-semibold">Add Exercises</h2>
-
+        <TemplateExercisesPanel title="Add Exercises">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label htmlFor={exerciseSelectId} className="text-sm font-medium">
@@ -334,157 +335,151 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
 
           {/* Selected Exercises */}
           {fields.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Template Exercises</h3>
-              <div className="space-y-4">
-                {fields.map((field, index) => {
-                  const exercise = exercises?.find((ex) => ex.id === field.exerciseId);
-                  return (
-                    <div
-                      key={field.id}
-                      className="space-y-4 rounded-2xl border border-border/60 bg-background/80 p-4"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-lg font-medium">
-                          {exercise ? (
-                            <ComplexNameTooltip
-                              name={exercise.name}
-                              subExercises={exercise.subExercises}
-                              className="inline-flex"
-                            />
-                          ) : (
-                            "Exercise"
-                          )}
-                        </h4>
-                        <ExerciseOrderControls
-                          onMoveUp={() => moveExerciseUp(index)}
-                          onMoveDown={() => moveExerciseDown(index)}
-                          disableUp={index === 0}
-                          disableDown={index === fields.length - 1}
-                        >
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => remove(index)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            Remove
-                          </Button>
-                        </ExerciseOrderControls>
-                      </div>
-
-                      <div className="grid items-end grid-cols-2 gap-4 md:grid-cols-4">
-                        <div className="space-y-2">
-                          <label htmlFor={`sets-${index}`} className="text-sm font-medium">
-                            Sets
-                          </label>
-                          <Input
-                            id={`sets-${index}`}
-                            type="number"
-                            min="0"
-                            {...register(`exercises.${index}.sets`, {
-                              valueAsNumber: true,
-                              required: "Sets required",
-                              min: { value: 0, message: "Min 0 sets" },
-                            })}
+            <TemplateExercisesList>
+              {fields.map((field, index) => {
+                const exercise = exercises?.find((ex) => ex.id === field.exerciseId);
+                return (
+                  <TemplateExerciseCard key={field.id}>
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="text-lg font-medium">
+                        {exercise ? (
+                          <ComplexNameTooltip
+                            name={exercise.name}
+                            subExercises={exercise.subExercises}
+                            className="inline-flex"
                           />
-                        </div>
-                        {exercise?.type !== "COMPLEX" && (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <label htmlFor={`reps-${index}`} className="text-sm font-medium">
-                                {getExerciseUnitLabel(watch(`exercises.${index}.unit`))}
-                              </label>
-                              <ExerciseUnitField
-                                control={control}
-                                name={`exercises.${index}.unit`}
-                                label="Unit"
-                                hideLabel
-                                showLabels={false}
-                              />
-                            </div>
-                            <Input
-                              id={`reps-${index}`}
-                              placeholder={getExerciseUnitPlaceholder(
-                                watch(`exercises.${index}.unit`),
-                              )}
-                              {...register(`exercises.${index}.reps`, {
-                                required:
-                                  watch(`exercises.${index}.unit`) === "TIME"
-                                    ? "Time required"
-                                    : "Reps required",
-                              })}
-                            />
-                          </div>
+                        ) : (
+                          "Exercise"
                         )}
-                        <div className="space-y-2">
-                          <label htmlFor={`group-${index}`} className="text-sm font-medium">
-                            Group
-                          </label>
-                          <Input
-                            id={`group-${index}`}
-                            placeholder="A, B, C..."
-                            maxLength={1}
-                            {...register(`exercises.${index}.group`)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label htmlFor={`weight-${index}`} className="text-sm font-medium">
-                            Weight (kg)
-                          </label>
-                          <Input
-                            id={`weight-${index}`}
-                            type="number"
-                            min="0"
-                            step="0.5"
-                            placeholder="Optional default"
-                            {...register(`exercises.${index}.weight`, {
-                              valueAsNumber: true,
-                              min: { value: 0, message: "Min 0kg" },
-                            })}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label htmlFor={`rest-${index}`} className="text-sm font-medium">
-                            Rest (sec)
-                          </label>
-                          <Input
-                            id={`rest-${index}`}
-                            type="number"
-                            min="0"
-                            placeholder="Optional"
-                            {...register(`exercises.${index}.restTime`, {
-                              setValueAs: (value) => {
-                                if (value === "" || value === null || value === undefined) {
-                                  return undefined;
-                                }
+                      </h4>
+                      <ExerciseOrderControls
+                        onMoveUp={() => moveExerciseUp(index)}
+                        onMoveDown={() => moveExerciseDown(index)}
+                        disableUp={index === 0}
+                        disableDown={index === fields.length - 1}
+                      >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => remove(index)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          Remove
+                        </Button>
+                      </ExerciseOrderControls>
+                    </div>
 
-                                const parsedValue = Number(value);
-                                return Number.isNaN(parsedValue) ? undefined : parsedValue;
-                              },
-                            })}
-                          />
-                        </div>
-                      </div>
-
+                    <div className="grid items-end grid-cols-2 gap-4 md:grid-cols-4">
                       <div className="space-y-2">
-                        <label htmlFor={`notes-${index}`} className="text-sm font-medium">
-                          Notes
+                        <label htmlFor={`sets-${index}`} className="text-sm font-medium">
+                          Sets
                         </label>
                         <Input
-                          id={`notes-${index}`}
-                          placeholder="Optional exercise notes"
-                          {...register(`exercises.${index}.notes`)}
+                          id={`sets-${index}`}
+                          type="number"
+                          min="0"
+                          {...register(`exercises.${index}.sets`, {
+                            valueAsNumber: true,
+                            required: "Sets required",
+                            min: { value: 0, message: "Min 0 sets" },
+                          })}
+                        />
+                      </div>
+                      {exercise?.type !== "COMPLEX" && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label htmlFor={`reps-${index}`} className="text-sm font-medium">
+                              {getExerciseUnitLabel(watch(`exercises.${index}.unit`))}
+                            </label>
+                            <ExerciseUnitField
+                              control={control}
+                              name={`exercises.${index}.unit`}
+                              label="Unit"
+                              hideLabel
+                              showLabels={false}
+                            />
+                          </div>
+                          <Input
+                            id={`reps-${index}`}
+                            placeholder={getExerciseUnitPlaceholder(
+                              watch(`exercises.${index}.unit`),
+                            )}
+                            {...register(`exercises.${index}.reps`, {
+                              required:
+                                watch(`exercises.${index}.unit`) === "TIME"
+                                  ? "Time required"
+                                  : "Reps required",
+                            })}
+                          />
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        <label htmlFor={`group-${index}`} className="text-sm font-medium">
+                          Group
+                        </label>
+                        <Input
+                          id={`group-${index}`}
+                          placeholder="A, B, C..."
+                          maxLength={1}
+                          {...register(`exercises.${index}.group`)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor={`weight-${index}`} className="text-sm font-medium">
+                          Weight (kg)
+                        </label>
+                        <Input
+                          id={`weight-${index}`}
+                          type="number"
+                          min="0"
+                          step="0.5"
+                          placeholder="Optional default"
+                          {...register(`exercises.${index}.weight`, {
+                            valueAsNumber: true,
+                            min: { value: 0, message: "Min 0kg" },
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor={`rest-${index}`} className="text-sm font-medium">
+                          Rest (sec)
+                        </label>
+                        <Input
+                          id={`rest-${index}`}
+                          type="number"
+                          min="0"
+                          placeholder="Optional"
+                          {...register(`exercises.${index}.restTime`, {
+                            setValueAs: (value) => {
+                              if (value === "" || value === null || value === undefined) {
+                                return undefined;
+                              }
+
+                              const parsedValue = Number(value);
+                              return Number.isNaN(parsedValue) ? undefined : parsedValue;
+                            },
+                          })}
                         />
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor={`notes-${index}`} className="text-sm font-medium">
+                        Notes
+                      </label>
+                      <Input
+                        id={`notes-${index}`}
+                        placeholder="Optional exercise notes"
+                        {...register(`exercises.${index}.notes`)}
+                      />
+                    </div>
+                  </TemplateExerciseCard>
+                );
+              })}
+            </TemplateExercisesList>
           )}
-        </div>
+        </TemplateExercisesPanel>
 
         <div className="flex justify-end gap-4 border-t border-border/60 pt-6">
           <Button asChild type="button" variant="outline">
