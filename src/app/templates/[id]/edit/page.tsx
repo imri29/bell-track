@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useId, useMemo, useState } from "react";
@@ -168,7 +169,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
 
   if (templateLoading) {
     return (
-      <PageShell withGlow={false} mainClassName="max-w-4xl">
+      <PageShell withGlow={false} mainClassName="max-w-4xl items-center justify-center">
         <p>Loading template...</p>
       </PageShell>
     );
@@ -360,12 +361,12 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
                       >
                         <Button
                           type="button"
-                          variant="ghost"
+                          variant="ghost-destructive"
                           size="sm"
                           onClick={() => remove(index)}
-                          className="text-destructive hover:text-destructive"
+                          aria-label="Remove"
                         >
-                          Remove
+                          <X />
                         </Button>
                       </ExerciseOrderControls>
                     </div>

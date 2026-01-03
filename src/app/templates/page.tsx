@@ -1,12 +1,16 @@
 "use client";
 
-import { BadgePlus, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ClipboardCheck, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
+import {
+  TemplateExerciseCard,
+  TemplateExercisesPanel,
+} from "@/components/template-exercise-blocks";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +25,11 @@ import { api } from "@/trpc/react";
 
 type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
 
-function TemplateExercisesList({ exercises }: { exercises: TemplateWithExercises["exercises"] }) {
+function TemplateExerciseSummaryList({
+  exercises,
+}: {
+  exercises: TemplateWithExercises["exercises"];
+}) {
   const sortedExercises = [...exercises].sort((a, b) => {
     if (a.group && b.group && a.group !== b.group) {
       return a.group.localeCompare(b.group);
@@ -183,10 +191,9 @@ export default function TemplatesPage() {
       </PageHero>
 
       <div className="space-y-6">
-        <div className="rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
-          <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <TemplateExercisesPanel title="Your templates">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
-              <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">Your templates</h2>
               <p className="text-sm text-muted-foreground">
                 Find the workout you need and log it in a few taps.
               </p>
@@ -264,10 +271,7 @@ export default function TemplatesPage() {
             ) : hasTemplates ? (
               <div className="space-y-3">
                 {templates.map((template) => (
-                  <div
-                    key={template.id}
-                    className="group rounded-2xl border border-border/60 bg-background/80 p-4 shadow-sm"
-                  >
+                  <TemplateExerciseCard key={template.id} className="group">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="font-semibold">{template.name}</h3>
@@ -310,7 +314,7 @@ export default function TemplatesPage() {
                             className="gap-1.5"
                             aria-label={`Log ${template.name}`}
                           >
-                            <BadgePlus className="h-4 w-4" />
+                            <ClipboardCheck className="h-4 w-4" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip content="Edit template">
@@ -336,8 +340,8 @@ export default function TemplatesPage() {
                         </IconButton>
                       </div>
                     </div>
-                    <TemplateExercisesList exercises={template.exercises} />
-                  </div>
+                    <TemplateExerciseSummaryList exercises={template.exercises} />
+                  </TemplateExerciseCard>
                 ))}
               </div>
             ) : hasActiveFilters ? (
@@ -358,7 +362,7 @@ export default function TemplatesPage() {
               </p>
             )}
           </div>
-        </div>
+        </TemplateExercisesPanel>
       </div>
     </PageShell>
   );

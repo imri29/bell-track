@@ -39,7 +39,7 @@ export default function RootLayout({
             <ConfirmProvider>
               <div className="md:flex">
                 <Navigation />
-                <main className="relative min-h-dvh md:flex-1 nameee">
+                <main className="relative min-h-dvh md:flex-1">
                   <UserMenu />
                   {children}
                 </main>

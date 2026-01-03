@@ -445,10 +445,9 @@ export function WorkoutForm({
                           )}
                           <IconButton
                             type="button"
-                            variant="ghost"
+                            variant="ghost-destructive"
                             onClick={() => remove(index)}
                             disabled={isSubmitting}
-                            className="dark:hover:text-destructive dark:focus-visible:text-destructive"
                             aria-label="Remove exercise"
                           >
                             <X className="h-4 w-4" />
