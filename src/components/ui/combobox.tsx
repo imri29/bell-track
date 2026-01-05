@@ -109,11 +109,13 @@ export function Combobox<T>({
                 <ComboboxPrimitive.Item
                   key={getItemKey(item)}
                   value={item}
-                  className="relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-2 text-sm outline-none data-highlighted:bg-accent data-[highlighted]:text-accent-foreground"
+                  className="flex cursor-default select-none items-center gap-2 rounded-sm py-1.5 pl-2 pr-2 text-sm outline-none data-highlighted:bg-accent data-[highlighted]:text-accent-foreground"
                 >
-                  <ComboboxPrimitive.ItemIndicator className="absolute left-1.5 flex h-4 w-4 items-center justify-center text-primary">
-                    <Check className="h-4 w-4" />
-                  </ComboboxPrimitive.ItemIndicator>
+                  <span className="flex h-4 w-4 items-center justify-center text-primary">
+                    <ComboboxPrimitive.ItemIndicator>
+                      <Check className="h-4 w-4" />
+                    </ComboboxPrimitive.ItemIndicator>
+                  </span>
                   <span>{getItemLabel(item)}</span>
                 </ComboboxPrimitive.Item>
               )}
