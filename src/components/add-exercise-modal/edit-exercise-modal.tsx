@@ -143,6 +143,11 @@ function EditComplexExerciseModalContent({
   const utils = api.useUtils();
   const { data: exercises } = api.exercise.getAll.useQuery();
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
+  const [createdSubExercise, setCreatedSubExercise] = useState<{
+    id: string;
+    name: string;
+    type: string;
+  } | null>(null);
 
   const {
     register,
@@ -211,6 +216,7 @@ function EditComplexExerciseModalContent({
       <AddExerciseModal
         isOpen={isAddExerciseModalOpen}
         onOpenChange={(open) => setIsAddExerciseModalOpen(open)}
+        onExerciseCreated={(exercise) => setCreatedSubExercise(exercise)}
       />
       <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
         <DrawerContent className="max-h-[80vh]" fullHeight>
@@ -228,6 +234,8 @@ function EditComplexExerciseModalContent({
                 control={control}
                 register={register}
                 exercises={exercises}
+                createdExercise={createdSubExercise}
+                onConsumeCreatedExercise={() => setCreatedSubExercise(null)}
                 onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
               />
               <ExerciseModal.DescriptionField register={register} />

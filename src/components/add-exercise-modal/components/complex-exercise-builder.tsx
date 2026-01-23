@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useCallback, useEffect, useId } from "react";
 import type { Control, UseFormRegister } from "react-hook-form";
 import { useFieldArray } from "react-hook-form";
 import { ExerciseCombobox } from "@/components/exercise-combobox";
@@ -23,6 +23,8 @@ interface ComplexExerciseBuilderProps {
   register: UseFormRegister<ComplexExerciseFormValues>;
   exercises?: Exercise[];
   onCreateNewExercise?: () => void;
+  createdExercise?: { id: string; name: string; type: string } | null;
+  onConsumeCreatedExercise?: () => void;
 }
 
 export function ComplexExerciseBuilder({
@@ -30,6 +32,8 @@ export function ComplexExerciseBuilder({
   register,
   exercises = [],
   onCreateNewExercise,
+  createdExercise,
+  onConsumeCreatedExercise,
 }: ComplexExerciseBuilderProps) {
   const exerciseSelectId = useId();
 
@@ -41,6 +45,42 @@ export function ComplexExerciseBuilder({
   const selectedExerciseIds = fields
     .map((field) => field.exerciseId)
     .filter((id): id is string => Boolean(id));
+
+  const addExerciseToSequence = useCallback(
+    (exercise: { id: string; name: string }) => {
+      const isDuplicate = fields.some((field) => {
+        if (field.exerciseId) {
+          return field.exerciseId === exercise.id;
+        }
+        return field.exerciseName.toLowerCase() === exercise.name.toLowerCase();
+      });
+
+      if (isDuplicate) {
+        return;
+      }
+
+      append({
+        exerciseId: exercise.id,
+        exerciseName: exercise.name,
+        reps: 1,
+      });
+    },
+    [append, fields],
+  );
+
+  useEffect(() => {
+    if (!createdExercise) {
+      return;
+    }
+
+    if (createdExercise.type !== "EXERCISE") {
+      onConsumeCreatedExercise?.();
+      return;
+    }
+
+    addExerciseToSequence(createdExercise);
+    onConsumeCreatedExercise?.();
+  }, [createdExercise, onConsumeCreatedExercise, addExerciseToSequence]);
 
   return (
     <div className="space-y-4 border-t pt-4">
@@ -66,23 +106,7 @@ export function ComplexExerciseBuilder({
             if (!exercise) {
               return;
             }
-
-            const isDuplicate = fields.some((field) => {
-              if (field.exerciseId) {
-                return field.exerciseId === value;
-              }
-              return field.exerciseName.toLowerCase() === exercise.name.toLowerCase();
-            });
-
-            if (isDuplicate) {
-              return;
-            }
-
-            append({
-              exerciseId: exercise.id,
-              exerciseName: exercise.name,
-              reps: 1,
-            });
+            addExerciseToSequence(exercise);
           }}
         />
       </div>

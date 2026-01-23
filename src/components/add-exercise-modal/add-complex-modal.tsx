@@ -27,7 +27,7 @@ import { ExerciseModal } from "./index";
 interface AddComplexExerciseModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onExerciseCreated?: (exerciseId: string) => void;
+  onExerciseCreated?: (exercise: { id: string; name: string; type: string }) => void;
 }
 
 export function AddComplexExerciseModal({
@@ -39,6 +39,11 @@ export function AddComplexExerciseModal({
   const utils = api.useUtils();
   const { data: exercises } = api.exercise.getAll.useQuery();
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
+  const [createdSubExercise, setCreatedSubExercise] = useState<{
+    id: string;
+    name: string;
+    type: string;
+  } | null>(null);
 
   const {
     register,
@@ -57,7 +62,7 @@ export function AddComplexExerciseModal({
   const createExercise = api.exercise.create.useMutation({
     onSuccess: (data) => {
       utils.exercise.getAll.invalidate();
-      onExerciseCreated?.(data.id);
+      onExerciseCreated?.({ id: data.id, name: data.name, type: data.type });
       reset();
       onOpenChange(false);
     },
@@ -84,6 +89,8 @@ export function AddComplexExerciseModal({
         control={control}
         register={register}
         exercises={exercises}
+        createdExercise={createdSubExercise}
+        onConsumeCreatedExercise={() => setCreatedSubExercise(null)}
         onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
       />
       <ExerciseModal.DescriptionField register={register} />
@@ -95,7 +102,7 @@ export function AddComplexExerciseModal({
       <AddExerciseModal
         isOpen={isAddExerciseModalOpen}
         onOpenChange={(open) => setIsAddExerciseModalOpen(open)}
-        onExerciseCreated={onExerciseCreated}
+        onExerciseCreated={(exercise) => setCreatedSubExercise(exercise)}
       />
       {isMobile ? (
         <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>

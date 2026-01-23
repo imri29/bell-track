@@ -11,12 +11,14 @@ const mockCreateTemplate = vi.fn();
 const mockInvalidateTemplates = vi.fn();
 const mockExercisesQuery = vi.fn();
 const mockTagsQuery = vi.fn();
+const appendMock = vi.fn();
 
 const formData = {
   name: "Power Day",
   description: "",
   exercises: [
     {
+      id: "field-1",
       exerciseId: "ex1",
       sets: 3,
       unit: "REPS",
@@ -48,14 +50,28 @@ vi.mock("react-hook-form", () => ({
     render({ field: { value: "REPS", onChange: vi.fn() } }),
   useFieldArray: () => ({
     fields: formData.exercises,
-    append: vi.fn(),
+    append: appendMock,
     remove: vi.fn(),
     move: vi.fn(),
   }),
 }));
 
 vi.mock("@/components/add-exercise-modal", () => ({
-  AddExerciseModal: () => null,
+  AddExerciseModal: ({
+    isOpen,
+    onExerciseCreated,
+  }: {
+    isOpen: boolean;
+    onExerciseCreated?: (exercise: { id: string; name: string; type: string }) => void;
+  }) =>
+    isOpen ? (
+      <button
+        type="button"
+        onClick={() => onExerciseCreated?.({ id: "ex-new", name: "New", type: "EXERCISE" })}
+      >
+        Save Exercise
+      </button>
+    ) : null,
   AddComplexExerciseModal: () => null,
 }));
 
@@ -72,10 +88,22 @@ vi.mock("@/components/complex-combobox", () => ({
 }));
 
 vi.mock("@/components/exercise-combobox", () => ({
-  ExerciseCombobox: ({ onValueChange }: { onValueChange: (id: string) => void; id?: string }) => (
-    <button type="button" onClick={() => onValueChange("ex1")}>
-      Select Exercise
-    </button>
+  ExerciseCombobox: ({
+    onValueChange,
+    onCreateNewExercise,
+  }: {
+    onValueChange: (id: string) => void;
+    onCreateNewExercise?: () => void;
+    id?: string;
+  }) => (
+    <div>
+      <button type="button" onClick={() => onValueChange("ex1")}>
+        Select Exercise
+      </button>
+      <button type="button" onClick={onCreateNewExercise}>
+        Create Exercise
+      </button>
+    </div>
   ),
 }));
 
@@ -136,6 +164,7 @@ describe("NewTemplatePage", () => {
       description: undefined,
       exercises: [
         {
+          id: "field-1",
           exerciseId: "ex1",
           sets: 3,
           unit: "REPS",
@@ -151,5 +180,31 @@ describe("NewTemplatePage", () => {
     });
     expect(mockInvalidateTemplates).toHaveBeenCalled();
     expect(getRouterMock().push).toHaveBeenCalledWith("/templates");
+  });
+
+  it("adds a newly created exercise to the template list", async () => {
+    mockExercisesQuery.mockReturnValue({ data: [], isPending: false });
+    mockTagsQuery.mockReturnValue({
+      data: [],
+      isPending: false,
+      error: undefined,
+    });
+
+    render(<NewTemplatePage />);
+
+    await userEvent.click(screen.getByRole("button", { name: /create exercise/i }));
+    await userEvent.click(screen.getByRole("button", { name: /save exercise/i }));
+
+    expect(appendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        exerciseId: "ex-new",
+        order: formData.exercises.length,
+        reps: "12",
+        sets: 5,
+        unit: "REPS",
+        weight: 16,
+        restTime: 60,
+      }),
+    );
   });
 });

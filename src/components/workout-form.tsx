@@ -83,6 +83,7 @@ export function WorkoutForm({
 
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
   const [isAddComplexModalOpen, setIsAddComplexModalOpen] = useState(false);
+  const [createExerciseTarget, setCreateExerciseTarget] = useState<"add" | "replace" | null>(null);
 
   const dateId = useId();
   const durationId = useId();
@@ -161,10 +162,19 @@ export function WorkoutForm({
     });
   };
 
-  const addExercise = (exerciseId: string) => {
+  const addExercise = (exerciseId: string, exerciseType?: string) => {
+    if (fields.some((field) => field.exerciseId === exerciseId)) {
+      return;
+    }
+
     const exercise = exercises?.find((ex) => ex.id === exerciseId);
-    if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
+    if (exercise) {
       append(buildExerciseFormDefaults(exercise, fields.length));
+      return;
+    }
+
+    if (exerciseType) {
+      append(buildExerciseFormDefaults({ id: exerciseId, type: exerciseType }, fields.length));
     }
   };
 
@@ -184,33 +194,39 @@ export function WorkoutForm({
     move(index, index + 1);
   };
 
-  const handleReplaceExerciseSelect = (exerciseId: string) => {
+  const handleReplaceExerciseSelect = (exerciseId: string, exerciseType?: string) => {
     if (replaceIndex === null) {
       return;
     }
 
-    const exercise = exercises?.find((ex) => ex.id === exerciseId);
-    if (!exercise) {
+    const exercise = exercises?.find((ex) => ex.id === exerciseId) ?? null;
+    if (!exercise && !exerciseType) {
       return;
     }
 
-    const defaults = buildExerciseFormDefaults(exercise, replaceIndex);
+    const exerciseDefaults =
+      exercise ?? (exerciseType ? { id: exerciseId, type: exerciseType } : null);
+    if (!exerciseDefaults) {
+      return;
+    }
+
+    const defaults = buildExerciseFormDefaults(exerciseDefaults, replaceIndex);
     const currentExercises = getValues("exercises");
     const current = currentExercises?.[replaceIndex];
-    const canKeepReps = exercise.type !== "COMPLEX";
+    const canKeepReps = exerciseDefaults.type !== "COMPLEX";
 
     const nextValues = {
       ...defaults,
-      exerciseId: exercise.id,
+      exerciseId: exerciseDefaults.id,
       order: replaceIndex,
       sets: current?.sets ?? defaults.sets,
-      unit: exercise.type === "COMPLEX" ? defaults.unit : (current?.unit ?? defaults.unit),
+      unit: exerciseDefaults.type === "COMPLEX" ? defaults.unit : (current?.unit ?? defaults.unit),
       weight: typeof current?.weight === "number" ? current.weight : defaults.weight,
       restTime: typeof current?.restTime === "number" ? current.restTime : defaults.restTime,
       notes: current?.notes ?? defaults.notes,
       group: current?.group ?? defaults.group,
       reps:
-        exercise.type === "COMPLEX"
+        exerciseDefaults.type === "COMPLEX"
           ? defaults.reps
           : canKeepReps
             ? (current?.reps ?? defaults.reps)
@@ -252,10 +268,39 @@ export function WorkoutForm({
 
   return (
     <>
-      <AddExerciseModal isOpen={isAddExerciseModalOpen} onOpenChange={setIsAddExerciseModalOpen} />
+      <AddExerciseModal
+        isOpen={isAddExerciseModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCreateExerciseTarget(null);
+          }
+          setIsAddExerciseModalOpen(open);
+        }}
+        onExerciseCreated={(exercise) => {
+          if (createExerciseTarget === "replace") {
+            handleReplaceExerciseSelect(exercise.id, exercise.type);
+          } else {
+            addExercise(exercise.id, exercise.type);
+          }
+          setCreateExerciseTarget(null);
+        }}
+      />
       <AddComplexExerciseModal
         isOpen={isAddComplexModalOpen}
-        onOpenChange={setIsAddComplexModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCreateExerciseTarget(null);
+          }
+          setIsAddComplexModalOpen(open);
+        }}
+        onExerciseCreated={(exercise) => {
+          if (createExerciseTarget === "replace") {
+            handleReplaceExerciseSelect(exercise.id, exercise.type);
+          } else {
+            addExercise(exercise.id, exercise.type);
+          }
+          setCreateExerciseTarget(null);
+        }}
       />
 
       <form
@@ -379,7 +424,10 @@ export function WorkoutForm({
                 id={exerciseSelectId}
                 className="bg-background"
                 placeholder="Add individual exercise"
-                onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
+                onCreateNewExercise={() => {
+                  setCreateExerciseTarget("add");
+                  setIsAddExerciseModalOpen(true);
+                }}
                 disabled={isSubmitting}
               />
             </div>
@@ -398,7 +446,10 @@ export function WorkoutForm({
                 id={complexSelectId}
                 className="bg-background"
                 placeholder="Add complex exercise"
-                onCreateNewComplex={() => setIsAddComplexModalOpen(true)}
+                onCreateNewComplex={() => {
+                  setCreateExerciseTarget("add");
+                  setIsAddComplexModalOpen(true);
+                }}
                 disabled={isSubmitting}
               />
             </div>
@@ -613,7 +664,10 @@ export function WorkoutForm({
                     excludeIds={replaceDialogExcludeIds}
                     placeholder="Choose exercise"
                     className="bg-background"
-                    onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
+                    onCreateNewExercise={() => {
+                      setCreateExerciseTarget("replace");
+                      setIsAddExerciseModalOpen(true);
+                    }}
                   />
                   <ComplexCombobox
                     value={replaceDialogComplexValue}
@@ -621,7 +675,10 @@ export function WorkoutForm({
                     excludeIds={replaceDialogExcludeIds}
                     placeholder="Choose complex"
                     className="bg-background"
-                    onCreateNewComplex={() => setIsAddComplexModalOpen(true)}
+                    onCreateNewComplex={() => {
+                      setCreateExerciseTarget("replace");
+                      setIsAddComplexModalOpen(true);
+                    }}
                   />
                 </div>
               </div>
@@ -652,7 +709,10 @@ export function WorkoutForm({
                     excludeIds={replaceDialogExcludeIds}
                     placeholder="Choose exercise"
                     className="bg-background"
-                    onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
+                    onCreateNewExercise={() => {
+                      setCreateExerciseTarget("replace");
+                      setIsAddExerciseModalOpen(true);
+                    }}
                   />
                   <ComplexCombobox
                     value={replaceDialogComplexValue}
@@ -660,7 +720,10 @@ export function WorkoutForm({
                     excludeIds={replaceDialogExcludeIds}
                     placeholder="Choose complex"
                     className="bg-background"
-                    onCreateNewComplex={() => setIsAddComplexModalOpen(true)}
+                    onCreateNewComplex={() => {
+                      setCreateExerciseTarget("replace");
+                      setIsAddComplexModalOpen(true);
+                    }}
                   />
                 </div>
               </div>

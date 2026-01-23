@@ -29,7 +29,7 @@ type SimpleExerciseFormData = {
 interface AddSimpleExerciseModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onExerciseCreated?: (exerciseId: string) => void;
+  onExerciseCreated?: (exercise: { id: string; name: string; type: string }) => void;
 }
 
 export function AddExerciseModal({
@@ -55,7 +55,7 @@ export function AddExerciseModal({
   const createExercise = api.exercise.create.useMutation({
     onSuccess: (data) => {
       utils.exercise.getAll.invalidate();
-      onExerciseCreated?.(data.id);
+      onExerciseCreated?.({ id: data.id, name: data.name, type: data.type });
       reset();
       onOpenChange(false);
     },

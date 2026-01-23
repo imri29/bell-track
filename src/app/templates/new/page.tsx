@@ -128,10 +128,19 @@ export default function NewTemplatePage() {
     });
   };
 
-  const addExercise = (exerciseId: string) => {
+  const addExercise = (exerciseId: string, exerciseType?: string) => {
+    if (fields.some((field) => field.exerciseId === exerciseId)) {
+      return;
+    }
+
     const exercise = exercises?.find((ex) => ex.id === exerciseId);
-    if (exercise && !fields.some((field) => field.exerciseId === exerciseId)) {
+    if (exercise) {
       append(buildExerciseFormDefaults(exercise, fields.length));
+      return;
+    }
+
+    if (exerciseType) {
+      append(buildExerciseFormDefaults({ id: exerciseId, type: exerciseType }, fields.length));
     }
   };
 
@@ -153,10 +162,15 @@ export default function NewTemplatePage() {
 
   return (
     <PageShell withGlow={false} mainClassName="max-w-4xl gap-8">
-      <AddExerciseModal isOpen={isAddExerciseModalOpen} onOpenChange={setIsAddExerciseModalOpen} />
+      <AddExerciseModal
+        isOpen={isAddExerciseModalOpen}
+        onOpenChange={setIsAddExerciseModalOpen}
+        onExerciseCreated={(exercise) => addExercise(exercise.id, exercise.type)}
+      />
       <AddComplexExerciseModal
         isOpen={isAddComplexModalOpen}
         onOpenChange={setIsAddComplexModalOpen}
+        onExerciseCreated={(exercise) => addExercise(exercise.id, exercise.type)}
       />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

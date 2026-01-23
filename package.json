@@ -16,6 +16,7 @@
     "ts": "yarn tsc --noEmit",
     "test": "vitest",
     "test:watch": "vitest watch",
+    "test:coverage": "vitest --coverage",
     "postinstall": "prisma generate",
     "vercel-build": "prisma migrate deploy && npm run db:seed:prod && next build"
   },
@@ -60,6 +61,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/coverage-v8": "^4.0.18",
     "husky": "^9.1.7",
     "jsdom": "^27.4.0",
     "lint-staged": "^16.2.7",
