@@ -32,6 +32,11 @@ export const workoutTags: Prisma.WorkoutTagCreateInput[] = [
     description: "Sweat-focused sessions when you want to move fast.",
   },
   {
+    name: "Finisher",
+    slug: "finisher",
+    description: "Close out the workout with a short, spicy final block.",
+  },
+  {
     name: "Double Complex",
     slug: "double-complex",
     description: "Double kettlebell complex workout",

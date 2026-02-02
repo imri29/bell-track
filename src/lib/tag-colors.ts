@@ -56,6 +56,7 @@ const TAG_COLOR_OVERRIDES: Record<string, number> = {
   supersets: 3,
   complex: 4,
   conditioning: 5,
+  finisher: 9,
 };
 
 type TagPalette = (typeof TAG_DISPLAY_COLORS)[number];
