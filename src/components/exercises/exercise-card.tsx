@@ -2,11 +2,12 @@
 
 import { format, formatDistanceToNow } from "date-fns";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import type { ComponentPropsWithoutRef } from "react";
+import { type ComponentPropsWithoutRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
-import { EXERCISE_TYPE_LABELS } from "@/types";
+import { EXERCISE_TYPE_LABELS, EXERCISE_TYPES } from "@/types";
 
 export type ExerciseCardData = RouterOutputs["exercise"]["getAll"][number];
 
@@ -25,8 +26,12 @@ export function ExerciseCard({
   onEdit,
   ...articleProps
 }: ExerciseCardProps) {
-  const breakdownPreview = exercise.subExercises?.slice(0, 3) ?? [];
   const movementsTotal = exercise.subExercises?.length ?? 0;
+  const isComplex = exercise.type === EXERCISE_TYPES.COMPLEX;
+  const previewLimit = isComplex ? 5 : 3;
+  const [isExpanded, setIsExpanded] = useState(false);
+  const breakdownPreview = exercise.subExercises?.slice(0, previewLimit) ?? [];
+  const breakdownItems = isComplex && isExpanded ? (exercise.subExercises ?? []) : breakdownPreview;
 
   const createdAt = new Date(exercise.createdAt);
   const updatedAt = new Date(exercise.updatedAt);
@@ -104,7 +109,7 @@ export function ExerciseCard({
             Breakdown
           </p>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            {breakdownPreview.map((movement, index) => (
+            {breakdownItems.map((movement, index) => (
               <li key={`${movement.exerciseName}-${index}`} className="flex items-center gap-2">
                 <span className="font-semibold text-foreground">{movement.reps}</span>
                 <span className="truncate" title={movement.exerciseName}>
@@ -113,7 +118,17 @@ export function ExerciseCard({
               </li>
             ))}
           </ul>
-          {movementsTotal > breakdownPreview.length ? (
+          {isComplex && movementsTotal > previewLimit ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setIsExpanded((value) => !value)}
+            >
+              {isExpanded ? "Show less" : `Show all ${movementsTotal} movements`}
+            </Button>
+          ) : movementsTotal > breakdownPreview.length ? (
             <p className="text-xs text-muted-foreground">
               +{movementsTotal - breakdownPreview.length} more movements
             </p>
