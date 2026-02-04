@@ -5,11 +5,11 @@ feature-specific notes.
 
 ## Getting Started
 
-Development tooling is wired for npm.
+Development tooling is wired for pnpm.
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Turbopack serves the app at [http://localhost:8080](http://localhost:8080).
@@ -20,7 +20,7 @@ The project now targets PostgreSQL. Earlier revisions used SQLite, so existing e
 need a one-time reconciliation step:
 
 ```bash
-npx prisma migrate resolve --applied 20251004153013_init_postgres
+pnpm exec prisma migrate resolve --applied 20251004153013_init_postgres
 ```
 
 Run that once per environment before executing `prisma migrate deploy`.
@@ -30,7 +30,7 @@ Run that once per environment before executing `prisma migrate deploy`.
 Templates rely on a base catalog of tags. For a brand-new environment you can simply run the standard seed script:
 
 ```bash
-npm run db:seed 
+pnpm run db:seed 
 ```
 
 If you cannot seed the full dataset (for example, on an existing production database), upsert the tags manually. The

@@ -124,7 +124,7 @@ This project uses two separate server-side layers:
     - Created Neon PostgreSQL database in Vercel
     - Updated Prisma schema: `provider = "sqlite"` → `provider = "postgresql"`
     - Configured Vercel environment variables with PostgreSQL connection string
-    - Successfully pushed schema to PostgreSQL: `npx prisma db push`
+    - Successfully pushed schema to PostgreSQL: `pnpm exec prisma db push`
 
 2. **Environment Configuration**
     - Production: Uses PostgreSQL via Vercel environment variable `DATABASE_URL`
@@ -176,7 +176,7 @@ This project uses two separate server-side layers:
    DATABASE_URL="file:./dev.db"
 
    # Create data export script or use Prisma Studio to view/copy data
-   npx prisma studio
+   pnpm exec prisma studio
    ```
 
 2. **Import data to PostgreSQL:**
@@ -217,18 +217,18 @@ This project uses two separate server-side layers:
 
 ### Available Scripts
 
-- `npm run dev` - Start development server (Next.js with Turbopack on port 8080)
-- `npm run build` - Build production application (Next.js with Turbopack)
-- `npm run start` - Start production server
-- `npm run lint` - Run Biome linter checks
-- `npm run format` - Format code with Biome
-- `npm run ts` - Run TypeScript type checking without emitting files
-- `npm run db:seed` - Seed the database with sample data
-- `npm run db:studio` - Open Prisma Studio for database management
+- `pnpm run dev` - Start development server (Next.js with Turbopack on port 8080)
+- `pnpm run build` - Build production application (Next.js with Turbopack)
+- `pnpm run start` - Start production server
+- `pnpm run lint` - Run Biome linter checks
+- `pnpm run format` - Format code with Biome
+- `pnpm run ts` - Run TypeScript type checking without emitting files
+- `pnpm run db:seed` - Seed the database with sample data
+- `pnpm run db:studio` - Open Prisma Studio for database management
 
 ### Important Notes
 
 - Always prefer to derive state instead of adding useless useState
-- **TypeScript checking**: Use `npm run ts` (NOT `npm run typecheck`)
+- **TypeScript checking**: Use `pnpm run ts` (NOT `pnpm run typecheck`)
 - use shadcn components unless instructed otherwise
 - do not allow "any" or ts erros

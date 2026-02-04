@@ -8,9 +8,9 @@ consistent styling. Production deploys run on Vercel with a Neon PostgreSQL data
 
 - Required env vars: `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `DATABASE_URL`. Keep production secrets
   distinct from local; generate a new `AUTH_SECRET` via `openssl rand -hex 32`.
-- Vercel uses the `vercel-build` script (`prisma migrate deploy && npm run db:seed:prod && next build`). Ensure the prod
+- Vercel uses the `vercel-build` script (`prisma migrate deploy && pnpm run db:seed:prod && next build`). Ensure the prod
   project has the database URL (direct connection string) so migrations can run during deploys.
-- Legacy workout data needs ownership backfill after the first Google sign-in: `npm run db:backfill:user -- --email
+- Legacy workout data needs ownership backfill after the first Google sign-in: `pnpm run db:backfill:user -- --email
   you@example.com` while `DATABASE_URL` is pointed at production. Run `prisma migrate resolve --rolled-back
   20251031131354_require_user_ownership` if that migration previously failed.
 - If the prod UI cannot create a user yet, insert one manually via `prisma db execute` and rerun the backfill before
@@ -31,15 +31,15 @@ code that imports them.
 
 ## Build, Test, and Development Commands
 
-- `npm run dev` — Next.js + Turbopack on http://localhost:8080.
-- `npm run build` — production bundle; run before pushing deploy branches.
-- `npm run start` — serve the previously built app for smoke checks.
-- `npm run lint` — Biome lint rules (fails on style + simple bugs).
-- `npm run format` — apply Biome's auto-format.
-- `npm run ts` — TypeScript `--noEmit` verification.
-- `npm run db:seed` — execute `prisma/seed.ts` against the configured database.
-- `npm run db:seed:prod` — seed only canonical data (workout tags) for production.
-- `npm run db:studio` — open Prisma Studio for local data inspection.
+- `pnpm run dev` — Next.js + Turbopack on http://localhost:8080.
+- `pnpm run build` — production bundle; run before pushing deploy branches.
+- `pnpm run start` — serve the previously built app for smoke checks.
+- `pnpm run lint` — Biome lint rules (fails on style + simple bugs).
+- `pnpm run format` — apply Biome's auto-format.
+- `pnpm run ts` — TypeScript `--noEmit` verification.
+- `pnpm run db:seed` — execute `prisma/seed.ts` against the configured database.
+- `pnpm run db:seed:prod` — seed only canonical data (workout tags) for production.
+- `pnpm run db:studio` — open Prisma Studio for local data inspection.
 
 ## Coding Style & Naming Conventions
 
@@ -56,13 +56,13 @@ Treat TypeScript errors as blockers: do not ignore diagnostics or introduce `any
 Automated tests are not yet standardized; align in your PR when adding them (Vitest + React Testing Library is the
 expected direction). Co-locate specs as `*.test.ts(x)` near implementation code and seed deterministic data if the
 scenarios depend on Prisma. Until a test command lands in `package.json`, cover changes through manual flows in
-`npm run dev` and record the steps or media in the PR.
+`pnpm run dev` and record the steps or media in the PR.
 
 ## Commit & Pull Request Guidelines
 
 Follow the current history: concise, present-tense subjects (`add workout log card`) and focused diffs. Summaries should
 mention schema or seed impacts. PR descriptions must call out the problem, solution, and verification, link issues or
-Linear tickets, and attach screenshots for UI updates. Highlight any required `npm run db:seed` so reviewers can mirror
+Linear tickets, and attach screenshots for UI updates. Highlight any required `pnpm run db:seed` so reviewers can mirror
 your environment.
 
 ## Agent Workflow Expectations
