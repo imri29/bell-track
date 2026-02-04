@@ -31,6 +31,14 @@ vi.mock("@/components/add-workout-form", () => ({
   ),
 }));
 
+vi.mock("@/components/template-combobox", () => ({
+  TemplateCombobox: ({ onValueChange }: { onValueChange: (value: string) => void }) => (
+    <button type="button" onClick={() => onValueChange("tpl-choose")}>
+      Pick template
+    </button>
+  ),
+}));
+
 afterEach(() => {
   resetNextMocks();
   vi.clearAllMocks();
@@ -101,5 +109,21 @@ describe("NewWorkoutClient", () => {
     await userEvent.click(screen.getByText("Submit"));
     expect(getRouterMock().push).toHaveBeenCalledTimes(2);
     expect(getRouterMock().refresh).toHaveBeenCalled();
+  });
+
+  it("navigates to new workout with template when selected", async () => {
+    mockTemplateQuery.mockReturnValue({
+      data: undefined,
+      isPending: false,
+      error: undefined,
+    });
+
+    render(<NewWorkoutClient date="2026-02-01" />);
+
+    await userEvent.click(screen.getByText("Pick template"));
+
+    expect(getRouterMock().push).toHaveBeenCalledWith(
+      "/history/new?date=2026-02-01&templateId=tpl-choose",
+    );
   });
 });

@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { AddWorkoutForm } from "@/components/add-workout-form";
 
 import { PageShell } from "@/components/page-shell";
+import { TemplateCombobox } from "@/components/template-combobox";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/trpc/react";
@@ -67,6 +68,18 @@ export function NewWorkoutClient({ date, templateId }: { date?: string; template
     router.refresh();
   };
 
+  const handleTemplateSelect = (selectedTemplateId: string) => {
+    if (!selectedTemplateId) {
+      return;
+    }
+    const params = new URLSearchParams();
+    if (date) {
+      params.set("date", date);
+    }
+    params.set("templateId", selectedTemplateId);
+    router.push(`/history/new?${params.toString()}`);
+  };
+
   const isLoadingTemplate = Boolean(templateId) && templatePending && !templateResponse;
 
   return (
@@ -76,9 +89,17 @@ export function NewWorkoutClient({ date, templateId }: { date?: string; template
           <h1 className="text-3xl font-semibold leading-tight text-foreground">Log workout</h1>
           <p className="text-sm text-muted-foreground">Record a new training session.</p>
         </div>
-        <Button asChild variant="outline">
-          <Link href="/history?view=list">Back to history</Link>
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <TemplateCombobox
+            value={templateId}
+            onValueChange={handleTemplateSelect}
+            placeholder="Add from templates"
+            className="w-full sm:w-64"
+          />
+          <Button asChild variant="outline">
+            <Link href="/history?view=list">Back to history</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-3xl border border-border/60 bg-card/80 p-6 shadow-sm">
