@@ -3,12 +3,20 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Drawer,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { preventEnterFromSelect } from "@/lib/form-handlers";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
@@ -66,6 +74,7 @@ function EditSimpleExerciseModalContent({
   onOpenChange: (open: boolean) => void;
 }) {
   const utils = api.useUtils();
+  const isMobile = useIsMobile();
 
   const {
     register,
@@ -101,6 +110,34 @@ function EditSimpleExerciseModalContent({
       description: data.description.trim() ? data.description : undefined,
     });
   });
+
+  if (!isMobile) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Exercise</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={onSubmit}
+            onKeyDown={preventEnterFromSelect}
+            className="flex flex-col gap-4"
+          >
+            <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
+            <ExerciseModal.DescriptionField register={register} />
+            <DialogFooter className="pt-2">
+              <ExerciseModal.Actions
+                onCancel={() => onOpenChange(false)}
+                isPending={updateExercise.isPending}
+                submitText="Save Changes"
+                loadingText="Saving..."
+              />
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
@@ -141,6 +178,7 @@ function EditComplexExerciseModalContent({
   onOpenChange: (open: boolean) => void;
 }) {
   const utils = api.useUtils();
+  const isMobile = useIsMobile();
   const { data: exercises } = api.exercise.getAll.useQuery();
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
   const [createdSubExercise, setCreatedSubExercise] = useState<{
@@ -211,6 +249,21 @@ function EditComplexExerciseModalContent({
     });
   });
 
+  const formFields = (
+    <>
+      <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
+      <ExerciseModal.ComplexBuilder
+        control={control}
+        register={register}
+        exercises={exercises}
+        createdExercise={createdSubExercise}
+        onConsumeCreatedExercise={() => setCreatedSubExercise(null)}
+        onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
+      />
+      <ExerciseModal.DescriptionField register={register} />
+    </>
+  );
+
   return (
     <>
       <AddExerciseModal
@@ -218,39 +271,53 @@ function EditComplexExerciseModalContent({
         onOpenChange={(open) => setIsAddExerciseModalOpen(open)}
         onExerciseCreated={(exercise) => setCreatedSubExercise(exercise)}
       />
-      <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
-        <DrawerContent className="max-h-[80vh]" fullHeight>
-          <form
-            onSubmit={onSubmit}
-            onKeyDown={preventEnterFromSelect}
-            className="flex h-full min-h-0 flex-col"
-          >
-            <DrawerHeader>
-              <DrawerTitle>Edit Complex</DrawerTitle>
-            </DrawerHeader>
-            <div className="flex-1 min-h-0 space-y-4 overflow-y-auto px-4 pb-4">
-              <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
-              <ExerciseModal.ComplexBuilder
-                control={control}
-                register={register}
-                exercises={exercises}
-                createdExercise={createdSubExercise}
-                onConsumeCreatedExercise={() => setCreatedSubExercise(null)}
-                onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
-              />
-              <ExerciseModal.DescriptionField register={register} />
-            </div>
-            <DrawerFooter>
-              <ExerciseModal.Actions
-                onCancel={() => onOpenChange(false)}
-                isPending={updateExercise.isPending}
-                submitText="Save Changes"
-                loadingText="Saving..."
-              />
-            </DrawerFooter>
-          </form>
-        </DrawerContent>
-      </Drawer>
+      {isMobile ? (
+        <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
+          <DrawerContent className="max-h-[80vh]" fullHeight>
+            <form
+              onSubmit={onSubmit}
+              onKeyDown={preventEnterFromSelect}
+              className="flex h-full min-h-0 flex-col"
+            >
+              <DrawerHeader>
+                <DrawerTitle>Edit Complex</DrawerTitle>
+              </DrawerHeader>
+              <div className="flex-1 min-h-0 space-y-4 overflow-y-auto px-4 pb-4">{formFields}</div>
+              <DrawerFooter>
+                <ExerciseModal.Actions
+                  onCancel={() => onOpenChange(false)}
+                  isPending={updateExercise.isPending}
+                  submitText="Save Changes"
+                  loadingText="Saving..."
+                />
+              </DrawerFooter>
+            </form>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Complex</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={onSubmit}
+              onKeyDown={preventEnterFromSelect}
+              className="flex max-h-[70vh] flex-col gap-4 overflow-hidden"
+            >
+              <div className="flex-1 space-y-4 overflow-y-auto pr-1">{formFields}</div>
+              <DialogFooter>
+                <ExerciseModal.Actions
+                  onCancel={() => onOpenChange(false)}
+                  isPending={updateExercise.isPending}
+                  submitText="Save Changes"
+                  loadingText="Saving..."
+                />
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }
