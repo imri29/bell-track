@@ -1,11 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import {
-  WorkoutForm,
-  type WorkoutFormSubmitData,
-  type WorkoutFormValues,
-} from "@/components/workout-form";
+import { WorkoutForm } from "@/components/workout-form";
+import type { WorkoutFormSubmitData, WorkoutFormValues } from "@/components/workout-form-types";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
 
@@ -48,6 +45,7 @@ export function AddWorkoutForm({
         restTime: typeof exercise.restTime === "number" ? exercise.restTime : undefined,
         notes: exercise.notes ?? undefined,
         group: exercise.group ?? undefined,
+        sectionTitle: exercise.sectionTitle ?? undefined,
         order: index,
       })),
       tagIds: templateData?.tagIds ?? [],

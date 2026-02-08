@@ -76,6 +76,7 @@ const templateFixture: TemplateWithRelations = {
       restTime: null,
       notes: null,
       group: null,
+      sectionTitle: null,
       order: 1,
       exercise: {
         id: "ex1",
@@ -165,6 +166,7 @@ describe("templateRouter", () => {
     expect(result?.exercises[0]?.restTime).toBeUndefined();
     expect(result?.exercises[0]?.notes).toBe("");
     expect(result?.exercises[0]?.group).toBe("");
+    expect(result?.exercises[0]?.sectionTitle).toBeUndefined();
   });
 
   it("returns null when template is not found", async () => {
@@ -194,6 +196,7 @@ describe("templateRouter", () => {
           restTime: 60,
           notes: "Keep form",
           group: "A",
+          sectionTitle: "Main Lift",
           order: 0,
         },
       ],
@@ -215,6 +218,7 @@ describe("templateRouter", () => {
                 restTime: 60,
                 notes: "Keep form",
                 group: "A",
+                sectionTitle: "Main Lift",
                 order: 0,
               }),
             ],
@@ -261,6 +265,7 @@ describe("templateRouter", () => {
           restTime: 45,
           notes: "Tempo",
           group: "B",
+          sectionTitle: "Finisher",
           order: 1,
         },
       ],
@@ -301,6 +306,7 @@ describe("templateRouter", () => {
                 restTime: 45,
                 notes: "Tempo",
                 group: "B",
+                sectionTitle: "Finisher",
                 order: 1,
               }),
             ],

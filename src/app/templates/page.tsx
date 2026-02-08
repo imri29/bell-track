@@ -41,6 +41,9 @@ function TemplateExerciseSummaryList({
     <div className="mt-3 space-y-1">
       {sortedExercises.map((exercise, index) => {
         let displayLabel = "";
+        const sectionTitle = exercise.sectionTitle?.trim();
+        const previousSectionTitle = sortedExercises[index - 1]?.sectionTitle?.trim();
+        const showSectionHeader = Boolean(sectionTitle) && sectionTitle !== previousSectionTitle;
         const showDivider =
           index > 0 && exercise.group && sortedExercises[index - 1]?.group !== exercise.group;
 
@@ -54,6 +57,11 @@ function TemplateExerciseSummaryList({
         return (
           <div key={exercise.id}>
             {showDivider && <div className="my-2 border-t border-border" />}
+            {showSectionHeader && (
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary/90">
+                {sectionTitle}
+              </p>
+            )}
             <div className="text-sm text-muted-foreground">
               {displayLabel && (
                 <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>

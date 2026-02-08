@@ -164,6 +164,7 @@ const workoutFixture: WorkoutData = {
       restTime: 45,
       notes: "",
       group: "B",
+      sectionTitle: "Finisher",
       order: 3,
       exercise: {
         id: "ex3",
@@ -250,6 +251,7 @@ const templateFixture: TemplateData = {
         subExercises: "[]",
         description: null,
       },
+      sectionTitle: null,
     },
   ],
   tags: [],
@@ -285,6 +287,7 @@ describe("CalendarDayMenu", () => {
     expect(screen.getByText("01/11/2024")).toBeInTheDocument();
     expect(screen.getByText("Workout 1")).toBeInTheDocument();
     expect(screen.getByText("Strength")).toBeInTheDocument();
+    expect(screen.getByText("FINISHER")).toBeInTheDocument();
     expect(screen.getByText(/and 1 more exercise/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /add another workout/i }));

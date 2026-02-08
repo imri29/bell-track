@@ -16,6 +16,7 @@ import {
   TemplateExercisesList,
   TemplateExercisesPanel,
 } from "@/components/template-exercise-blocks";
+import type { TemplateFormData } from "@/components/template-form-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -26,26 +27,6 @@ import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn, normalizeRestTime } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import type { ExerciseUnit } from "@/types";
-
-type TemplateExerciseFormData = {
-  exerciseId: string;
-  sets: number;
-  unit: ExerciseUnit;
-  reps: string;
-  weight?: number;
-  restTime?: number;
-  notes?: string;
-  group?: string;
-  order: number;
-};
-
-type TemplateFormData = {
-  name: string;
-  description?: string;
-  exercises: TemplateExerciseFormData[];
-  tagIds: string[];
-};
 
 export default function NewTemplatePage() {
   const router = useRouter();
@@ -405,6 +386,17 @@ export default function NewTemplatePage() {
                           placeholder="A, B, C..."
                           maxLength={1}
                           {...register(`exercises.${index}.group`)}
+                        />
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <label htmlFor={`section-title-${index}`} className="text-sm font-medium">
+                          Section title (optional)
+                        </label>
+                        <Input
+                          id={`section-title-${index}`}
+                          placeholder="Finisher, EMOM..."
+                          maxLength={60}
+                          {...register(`exercises.${index}.sectionTitle`)}
                         />
                       </div>
                       <div className="space-y-2">

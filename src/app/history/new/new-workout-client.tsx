@@ -57,6 +57,7 @@ export function NewWorkoutClient({ date, templateId }: { date?: string; template
         restTime: typeof exercise.restTime === "number" ? exercise.restTime : undefined,
         notes: exercise.notes ? exercise.notes : undefined,
         group: exercise.group ? exercise.group : undefined,
+        sectionTitle: exercise.sectionTitle ? exercise.sectionTitle : undefined,
         order: exercise.order,
       })),
       tagIds: templateResponse.tags.map((tag) => tag.id),

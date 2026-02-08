@@ -63,6 +63,7 @@ export type TemplateData = {
     restTime?: number;
     notes?: string;
     group?: string;
+    sectionTitle?: string;
     order: number;
   }>;
   tagIds?: string[];

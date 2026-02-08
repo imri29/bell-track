@@ -72,6 +72,7 @@ const workoutFixture: WorkoutWithRelations = {
       restTime: 60,
       notes: null,
       group: null,
+      sectionTitle: null,
       order: 1,
       exercise: {
         id: "ex1",
@@ -129,6 +130,7 @@ describe("workoutRouter", () => {
     expect(result[0]?.exercises[0]?.weight).toBe(0);
     expect(result[0]?.exercises[0]?.notes).toBe("");
     expect(result[0]?.exercises[0]?.group).toBe("");
+    expect(result[0]?.exercises[0]?.sectionTitle).toBeUndefined();
     expect(result[0]?.tags.map((tag) => tag.name)).toEqual(["Alpha", "Beta"]);
   });
 
@@ -187,6 +189,7 @@ describe("workoutRouter", () => {
           restTime: 90,
           notes: "Tempo",
           group: "B",
+          sectionTitle: "Finisher - EMOM 40/20",
           order: 1,
         },
       ],
@@ -227,6 +230,7 @@ describe("workoutRouter", () => {
                 restTime: 90,
                 notes: "Tempo",
                 group: "B",
+                sectionTitle: "Finisher - EMOM 40/20",
                 order: 1,
               }),
             ],
@@ -281,6 +285,7 @@ describe("workoutRouter", () => {
           restTime: 60,
           notes: "",
           group: "A",
+          sectionTitle: "Main Lift",
           order: 0,
         },
       ],
@@ -291,6 +296,13 @@ describe("workoutRouter", () => {
       expect.objectContaining({
         data: expect.objectContaining({
           userId: "user-1",
+          exercises: {
+            create: [
+              expect.objectContaining({
+                sectionTitle: "Main Lift",
+              }),
+            ],
+          },
           tags: {
             create: [{ tag: { connect: { id: "tag-a" } } }, { tag: { connect: { id: "tag-b" } } }],
           },

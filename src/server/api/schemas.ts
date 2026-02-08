@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { EXERCISE_TYPES, EXERCISE_UNITS } from "@/types";
 
+export const nullableStringToOptional = z
+  .string()
+  .nullable()
+  .transform((val) => val ?? undefined);
+
 // Common input schemas
 export const idSchema = z.object({ id: z.string() });
 
@@ -35,6 +40,11 @@ export const workoutExerciseInputSchema = z.object({
   restTime: z.number().optional().nullable(),
   notes: z.string().optional(),
   group: z.string().optional(), // Exercise group (A, B, C, etc.)
+  sectionTitle: z
+    .string()
+    .trim()
+    .max(60, "Section title must be 60 characters or fewer")
+    .optional(),
   order: z.number().min(0),
 });
 
@@ -52,14 +62,9 @@ export const workoutExerciseOutputSchema = z.object({
     .number()
     .nullable()
     .transform((val) => val || undefined),
-  notes: z
-    .string()
-    .nullable()
-    .transform((val) => val ?? ""),
-  group: z
-    .string()
-    .nullable()
-    .transform((val) => val ?? ""),
+  notes: nullableStringToOptional,
+  group: nullableStringToOptional,
   order: z.number(),
+  sectionTitle: nullableStringToOptional,
   exercise: exerciseSchema,
 });

@@ -63,6 +63,9 @@ function WorkoutExerciseSummary({ workout }: { workout: WorkoutData }) {
     <div className="space-y-1">
       {visibleExercises.map((exercise, index) => {
         let displayLabel = "";
+        const sectionTitle = exercise.sectionTitle?.trim();
+        const previousSectionTitle = visibleExercises[index - 1]?.sectionTitle?.trim();
+        const showSectionHeader = Boolean(sectionTitle) && sectionTitle !== previousSectionTitle;
         const showDivider =
           index > 0 && exercise.group && visibleExercises[index - 1]?.group !== exercise.group;
 
@@ -76,6 +79,11 @@ function WorkoutExerciseSummary({ workout }: { workout: WorkoutData }) {
         return (
           <div key={exercise.id}>
             {showDivider && <div className="my-1.5 border-t border-border/50" />}
+            {showSectionHeader && (
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-primary/90">
+                {sectionTitle}
+              </p>
+            )}
             <div className="text-xs text-muted-foreground">
               {displayLabel && (
                 <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>

@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip } from "@/components/ui/tooltip";
+import type { WorkoutFormSubmitData, WorkoutFormValues } from "@/components/workout-form-types";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import { getExerciseUnitLabel, getExerciseUnitPlaceholder } from "@/lib/exercise-units";
@@ -24,40 +25,6 @@ import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { getTagPalette } from "@/lib/tag-colors";
 import { cn, normalizeRestTime } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import type { ExerciseUnit } from "@/types";
-
-export type WorkoutExerciseFormValues = {
-  exerciseId: string;
-  sets: number;
-  unit: ExerciseUnit;
-  reps: string;
-  weight: number;
-  restTime?: number;
-  notes?: string;
-  group?: string;
-  order: number;
-};
-
-export type WorkoutFormValues = {
-  date: string;
-  duration?: number;
-  notes?: string;
-  exercises: WorkoutExerciseFormValues[];
-  tagIds: string[];
-};
-
-export type WorkoutFormSubmitExercise = Omit<WorkoutExerciseFormValues, "order" | "restTime"> & {
-  restTime?: number;
-  order: number;
-};
-
-export type WorkoutFormSubmitData = {
-  date: string;
-  duration?: number;
-  notes?: string;
-  exercises: WorkoutFormSubmitExercise[];
-  tagIds: string[];
-};
 
 interface WorkoutFormProps {
   initialValues: WorkoutFormValues;
@@ -150,6 +117,7 @@ export function WorkoutForm({
         notes: exercise.notes,
         group: exercise.group,
         order: index,
+        sectionTitle: exercise.sectionTitle,
       };
     });
 
@@ -581,6 +549,18 @@ export function WorkoutForm({
                             maxLength={1}
                             disabled={isSubmitting}
                             {...register(`exercises.${index}.group`)}
+                          />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <label htmlFor={`section-title-${index}`} className="text-xs font-medium">
+                            Section title (optional)
+                          </label>
+                          <Input
+                            id={`section-title-${index}`}
+                            placeholder="Finisher, EMOM..."
+                            maxLength={60}
+                            disabled={isSubmitting}
+                            {...register(`exercises.${index}.sectionTitle`)}
                           />
                         </div>
                         <div className="space-y-1">

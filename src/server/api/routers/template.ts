@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/trpc";
 import { EXERCISE_UNITS } from "@/types";
+import { nullableStringToOptional } from "../schemas";
 
 const templateExerciseSchema = z.object({
   exerciseId: z.string(),
@@ -14,6 +15,7 @@ const templateExerciseSchema = z.object({
   notes: z.string().optional(),
   group: z.string().optional(), // Exercise group (A, B, C, etc.)
   order: z.number().min(0),
+  sectionTitle: z.string().optional(),
 });
 
 // Output schema for template exercises to match workout input format
@@ -40,6 +42,7 @@ const templateExerciseOutputSchema = z.object({
     .nullable()
     .transform((val) => val ?? ""), // Default empty string for forms
   order: z.number(),
+  sectionTitle: nullableStringToOptional,
 });
 
 const templateTagOutputSchema = z.object({
@@ -101,6 +104,7 @@ function serializeTemplate(template: {
     notes: string | null;
     group: string | null;
     order: number;
+    sectionTitle: string | null;
     exercise: {
       id: string;
       name: string;
@@ -124,6 +128,7 @@ function serializeTemplate(template: {
   return {
     ...template,
     exercises: template.exercises.map((exercise) => ({
+      ...exercise,
       id: exercise.id,
       exerciseId: exercise.exerciseId,
       sets: exercise.sets,
@@ -248,6 +253,7 @@ export const templateRouter = createTRPCRouter({
             notes: exercise.notes,
             group: exercise.group,
             order: exercise.order,
+            sectionTitle: exercise.sectionTitle,
           })),
         },
         ...(tagIds.length > 0 && {
@@ -317,6 +323,7 @@ export const templateRouter = createTRPCRouter({
               notes: exercise.notes,
               group: exercise.group,
               order: exercise.order,
+              sectionTitle: exercise.sectionTitle,
             })),
           },
         }),

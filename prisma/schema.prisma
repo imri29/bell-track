@@ -36,14 +36,14 @@ model Exercise {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  workouts Workout[]
+  id               String            @id @default(cuid())
+  name             String?
+  email            String?           @unique
+  emailVerified    DateTime?
+  image            String?
+  accounts         Account[]
+  sessions         Session[]
+  workouts         Workout[]
   workoutTemplates WorkoutTemplate[]
 
   createdAt DateTime @default(now())
@@ -106,19 +106,20 @@ model Workout {
 }
 
 model WorkoutExercise {
-  id         String   @id @default(cuid())
-  workoutId  String?
-  templateId String?
-  exerciseId String
-  sets       Int
-  unit       ExerciseUnit @default(REPS)
-  reps       String // JSON array to handle different reps per set: "[12, 10, 8]"
-  weight     Float? // Weight in kg
-  restTime   Int? // Rest time in seconds
-  notes      String?
-  group      String? // Exercise group for notation (A, B, C, etc.)
-  order      Int // Order of exercise within group
-  createdAt  DateTime @default(now())
+  id           String       @id @default(cuid())
+  workoutId    String?
+  templateId   String?
+  exerciseId   String
+  sets         Int
+  unit         ExerciseUnit @default(REPS)
+  reps         String // JSON array to handle different reps per set: "[12, 10, 8]"
+  weight       Float? // Weight in kg
+  restTime     Int? // Rest time in seconds
+  notes        String?
+  group        String? // Exercise group for notation (A, B, C, etc.)
+  order        Int // Order of exercise within group
+  createdAt    DateTime     @default(now())
+  sectionTitle String?
 
   workout  Workout?         @relation(fields: [workoutId], references: [id], onDelete: Cascade)
   template WorkoutTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade)

@@ -72,6 +72,7 @@ function serializeWorkout(workout: WorkoutWithRelations) {
       group: ex.group ?? "",
       order: ex.order,
       exercise: ex.exercise,
+      sectionTitle: ex.sectionTitle,
     })),
     tags: workout.tags
       .map(({ assignedAt, tag }) => ({
@@ -155,6 +156,7 @@ export const workoutRouter = createTRPCRouter({
               notes: exercise.notes,
               group: exercise.group,
               order: exercise.order,
+              sectionTitle: exercise.sectionTitle,
             })),
           },
           ...(tagIds.length > 0 && {
@@ -224,6 +226,7 @@ export const workoutRouter = createTRPCRouter({
                 notes: exercise.notes,
                 group: exercise.group,
                 order: exercise.order,
+                sectionTitle: exercise.sectionTitle,
               })),
             },
           }),

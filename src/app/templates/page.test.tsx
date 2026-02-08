@@ -86,6 +86,27 @@ const templateOne: TemplateWithExercises = {
         subExercises: "[]",
         description: null,
       },
+      sectionTitle: null,
+    },
+    {
+      id: "te1b",
+      exerciseId: "ex2",
+      sets: 2,
+      unit: "REPS",
+      reps: "12",
+      weight: 20,
+      restTime: 60,
+      notes: "",
+      group: "B",
+      order: 2,
+      exercise: {
+        id: "ex2",
+        name: "Push Press",
+        type: "EXERCISE",
+        subExercises: "[]",
+        description: null,
+      },
+      sectionTitle: "Finisher",
     },
   ],
   tags: [
@@ -126,6 +147,7 @@ const templateTwo: TemplateWithExercises = {
         subExercises: "[]",
         description: null,
       },
+      sectionTitle: null,
     },
   ],
   tags: [],
@@ -220,5 +242,22 @@ describe("TemplatesPage", () => {
     const editLink = screen.getByLabelText(/edit strength builder/i);
     expect(editLink).toHaveAttribute("href", "/templates/t1/edit");
     await userEvent.click(editLink);
+  });
+
+  it("renders section title headers in template summaries", () => {
+    mockTemplateQuery.mockReturnValue({
+      data: [templateOne],
+      isPending: false,
+      error: undefined,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [],
+      isPending: false,
+      error: undefined,
+    });
+
+    renderTemplates();
+
+    expect(screen.getByText("FINISHER")).toBeInTheDocument();
   });
 });

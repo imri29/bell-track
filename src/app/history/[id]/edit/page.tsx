@@ -7,11 +7,8 @@ import { useMemo } from "react";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  WorkoutForm,
-  type WorkoutFormSubmitData,
-  type WorkoutFormValues,
-} from "@/components/workout-form";
+import { WorkoutForm } from "@/components/workout-form";
+import type { WorkoutFormSubmitData, WorkoutFormValues } from "@/components/workout-form-types";
 import { api } from "@/trpc/react";
 
 export default function EditWorkoutPage() {
@@ -49,6 +46,7 @@ export default function EditWorkoutPage() {
         notes: exercise.notes ?? undefined,
         group: exercise.group ?? undefined,
         order: index,
+        sectionTitle: exercise?.sectionTitle,
       }));
 
     const rawDate = workout.date as unknown as string | Date;
