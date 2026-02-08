@@ -3,11 +3,10 @@
 import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
+import { SessionCard } from "@/components/session-card";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Spinner } from "@/components/ui/spinner";
-import { getTagPalette } from "@/lib/tag-colors";
-import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
 
 type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
@@ -22,53 +21,24 @@ type WorkoutListViewProps = {
 };
 
 function WorkoutExercisesList({ exercises }: { exercises: WorkoutWithExercises["exercises"] }) {
-  const sortedExercises = [...exercises].sort((a, b) => {
-    if (a.group && b.group && a.group !== b.group) {
-      return a.group.localeCompare(b.group);
-    }
-    return a.order - b.order;
-  });
-
   return (
-    <div className="mt-3 space-y-1">
-      {sortedExercises.map((exercise, index) => {
-        let displayLabel = "";
-        const sectionTitle = exercise.sectionTitle?.trim();
-        const previousSectionTitle = sortedExercises[index - 1]?.sectionTitle?.trim();
-        const showSectionHeader = Boolean(sectionTitle) && sectionTitle !== previousSectionTitle;
-        const showDivider =
-          index > 0 && exercise.group && sortedExercises[index - 1]?.group !== exercise.group;
-
-        if (exercise.group) {
-          const groupIndex = sortedExercises
-            .slice(0, index + 1)
-            .filter((ex) => ex.group === exercise.group).length;
-          displayLabel = `${exercise.group}${groupIndex}`;
-        }
-
-        return (
-          <div key={exercise.id}>
-            {showDivider && <div className="border-t border-border my-2" />}
-            {showSectionHeader && (
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary/90">
-                {sectionTitle}
-              </p>
-            )}
-            <div className="text-sm text-muted-foreground">
-              {displayLabel && (
-                <span className="font-medium text-foreground mr-1">{displayLabel}:</span>
-              )}
-              <ComplexNameTooltip
-                name={exercise.exercise.name}
-                subExercises={exercise.exercise.subExercises}
-                className="inline text-foreground font-medium"
-              />
-              {!!exercise.sets && ` • ${exercise.sets} sets • ${exercise.weight}kg`}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+    <SessionCard.ExerciseList
+      className="mt-3"
+      exercises={exercises}
+      renderItem={({ exercise, displayLabel }) => (
+        <div className="text-sm text-muted-foreground">
+          {displayLabel && (
+            <span className="font-medium text-foreground mr-1">{displayLabel}:</span>
+          )}
+          <ComplexNameTooltip
+            name={exercise.exercise.name}
+            subExercises={exercise.exercise.subExercises}
+            className="inline text-foreground font-medium"
+          />
+          {!!exercise.sets && ` • ${exercise.sets} sets • ${exercise.weight}kg`}
+        </div>
+      )}
+    />
   );
 }
 
@@ -94,20 +64,20 @@ export function WorkoutListView({
             const workoutDateLabel = format(new Date(workout.date), "dd/MM/yyyy");
 
             return (
-              <div key={workout.id} className="p-4 bg-background rounded border group">
-                <div className="flex justify-between items-start">
+              <SessionCard.Root key={workout.id} className="group">
+                <SessionCard.Header>
                   <div>
-                    <h3 className="font-semibold">
+                    <SessionCard.Title>
                       {workoutDateLabel}
                       {workout.duration && ` • ${workout.duration} min`}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    </SessionCard.Title>
+                    <SessionCard.Subtitle>
                       {workout.exercises.length} exercise
                       {workout.exercises.length !== 1 ? "s" : ""}
-                    </p>
+                    </SessionCard.Subtitle>
                     {workout.notes && <p className="text-sm mt-2">{workout.notes}</p>}
                   </div>
-                  <div className="flex gap-2">
+                  <SessionCard.Actions>
                     <Button
                       variant="outline"
                       size="sm"
@@ -126,32 +96,11 @@ export function WorkoutListView({
                     >
                       <Trash2 className="h-4 w-4" />
                     </IconButton>
-                  </div>
-                </div>
-                {(workout.tags?.length ?? 0) > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {workout.tags.map((tag) => {
-                      const palette = getTagPalette(tag.slug);
-                      return (
-                        <span
-                          key={tag.id}
-                          className={cn(
-                            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight",
-                            palette.tint,
-                          )}
-                        >
-                          <span
-                            aria-hidden="true"
-                            className={cn("h-2 w-2 shrink-0 rounded-full", palette.dot)}
-                          />
-                          {tag.name}
-                        </span>
-                      );
-                    })}
-                  </div>
-                )}
+                  </SessionCard.Actions>
+                </SessionCard.Header>
+                <SessionCard.Tags tags={workout.tags} />
                 <WorkoutExercisesList exercises={workout.exercises} />
-              </div>
+              </SessionCard.Root>
             );
           })}
         </div>

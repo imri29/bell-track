@@ -258,6 +258,6 @@ describe("TemplatesPage", () => {
 
     renderTemplates();
 
-    expect(screen.getByText("FINISHER")).toBeInTheDocument();
+    expect(screen.getByText("Finisher")).toBeInTheDocument();
   });
 });

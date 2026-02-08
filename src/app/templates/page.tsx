@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
+import { SessionCard } from "@/components/session-card";
 import {
   TemplateExerciseCard,
   TemplateExercisesPanel,
@@ -30,63 +31,31 @@ function TemplateExerciseSummaryList({
 }: {
   exercises: TemplateWithExercises["exercises"];
 }) {
-  const sortedExercises = [...exercises].sort((a, b) => {
-    if (a.group && b.group && a.group !== b.group) {
-      return a.group.localeCompare(b.group);
-    }
-    return a.order - b.order;
-  });
-
   return (
-    <div className="mt-3 space-y-1">
-      {sortedExercises.map((exercise, index) => {
-        let displayLabel = "";
-        const sectionTitle = exercise.sectionTitle?.trim();
-        const previousSectionTitle = sortedExercises[index - 1]?.sectionTitle?.trim();
-        const showSectionHeader = Boolean(sectionTitle) && sectionTitle !== previousSectionTitle;
-        const showDivider =
-          index > 0 && exercise.group && sortedExercises[index - 1]?.group !== exercise.group;
-
-        if (exercise.group) {
-          const groupIndex = sortedExercises
-            .slice(0, index + 1)
-            .filter((ex) => ex.group === exercise.group).length;
-          displayLabel = `${exercise.group}${groupIndex}`;
-        }
-
-        return (
-          <div key={exercise.id}>
-            {showDivider && <div className="my-2 border-t border-border" />}
-            {showSectionHeader && (
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary/90">
-                {sectionTitle}
-              </p>
-            )}
-            <div className="text-sm text-muted-foreground">
-              {displayLabel && (
-                <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>
-              )}
-              <ComplexNameTooltip
-                name={exercise.exercise.name}
-                subExercises={exercise.exercise.subExercises}
-                className="inline font-medium text-foreground"
-              >
-                <span className="inline font-medium text-foreground">
-                  {exercise.exercise.type !== "COMPLEX" && exercise.reps
-                    ? `${formatExerciseUnitValue(
-                        exercise.reps,
-                        exercise.unit,
-                      )} ${exercise.exercise.name}`
-                    : exercise.exercise.name}
-                  {!!exercise.sets && ` • ${exercise.sets} sets`}
-                  {!!exercise.weight && ` • ${exercise.weight}kg`}
-                </span>
-              </ComplexNameTooltip>
-            </div>
-          </div>
-        );
-      })}
-    </div>
+    <SessionCard.ExerciseList
+      className="mt-3"
+      exercises={exercises}
+      renderItem={({ exercise, displayLabel }) => (
+        <div className="text-sm text-muted-foreground">
+          {displayLabel && (
+            <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>
+          )}
+          <ComplexNameTooltip
+            name={exercise.exercise.name}
+            subExercises={exercise.exercise.subExercises}
+            className="inline font-medium text-foreground"
+          >
+            <span className="inline font-medium text-foreground">
+              {exercise.exercise.type !== "COMPLEX" && exercise.reps
+                ? `${formatExerciseUnitValue(exercise.reps, exercise.unit)} ${exercise.exercise.name}`
+                : exercise.exercise.name}
+              {!!exercise.sets && ` • ${exercise.sets} sets`}
+              {!!exercise.weight && ` • ${exercise.weight}kg`}
+            </span>
+          </ComplexNameTooltip>
+        </div>
+      )}
+    />
   );
 }
 
@@ -282,38 +251,17 @@ export default function TemplatesPage() {
                   <TemplateExerciseCard key={template.id} className="group">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-semibold">{template.name}</h3>
-                        <p className="mt-1 text-sm text-muted-foreground">
+                        <SessionCard.Title>{template.name}</SessionCard.Title>
+                        <SessionCard.Subtitle>
                           {template.exercises.length} exercise
                           {template.exercises.length !== 1 ? "s" : ""}
-                        </p>
+                        </SessionCard.Subtitle>
                         {template.description && (
                           <p className="mt-2 text-sm">{template.description}</p>
                         )}
-                        {(template.tags?.length ?? 0) > 0 ? (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {template.tags?.map((tag) => {
-                              const palette = getTagPalette(tag.slug);
-                              return (
-                                <span
-                                  key={tag.id}
-                                  className={cn(
-                                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium leading-tight",
-                                    palette.tint,
-                                  )}
-                                >
-                                  <span
-                                    aria-hidden="true"
-                                    className={cn("h-2 w-2 shrink-0 rounded-full", palette.dot)}
-                                  />
-                                  {tag.name}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        ) : null}
+                        <SessionCard.Tags tags={template.tags} />
                       </div>
-                      <div className="flex gap-2 opacity-100 transition-opacity duration-500 md:opacity-0 md:group-hover:opacity-100">
+                      <SessionCard.Actions className="opacity-100 transition-opacity duration-500 md:opacity-0 md:group-hover:opacity-100">
                         <Tooltip content="Log workout">
                           <IconButton
                             size="sm"
@@ -346,7 +294,7 @@ export default function TemplatesPage() {
                         >
                           <Trash2 className="h-4 w-4" />
                         </IconButton>
-                      </div>
+                      </SessionCard.Actions>
                     </div>
                     <TemplateExerciseSummaryList exercises={template.exercises} />
                   </TemplateExerciseCard>

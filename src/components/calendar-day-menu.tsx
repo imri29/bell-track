@@ -5,6 +5,7 @@ import { ChevronDown, Edit, File, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
+import { SessionCard } from "@/components/session-card";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -26,7 +27,6 @@ import {
 import { IconButton } from "@/components/ui/icon-button";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { formatExerciseUnitValue } from "@/lib/exercise-units";
-import { getTagPalette } from "@/lib/tag-colors";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
 
@@ -49,94 +49,35 @@ type CalendarDayMenuProps = {
 // Helper component to render workout exercise summary
 function WorkoutExerciseSummary({ workout }: { workout: WorkoutData }) {
   const MAX_EXERCISES_SHOWN = 4;
-  const sortedExercises = [...workout.exercises].sort((a, b) => {
-    if (a.group && b.group && a.group !== b.group) {
-      return a.group.localeCompare(b.group);
-    }
-    return a.order - b.order;
-  });
-
-  const visibleExercises = sortedExercises.slice(0, MAX_EXERCISES_SHOWN);
-  const remainingCount = sortedExercises.length - MAX_EXERCISES_SHOWN;
 
   return (
-    <div className="space-y-1">
-      {visibleExercises.map((exercise, index) => {
-        let displayLabel = "";
-        const sectionTitle = exercise.sectionTitle?.trim();
-        const previousSectionTitle = visibleExercises[index - 1]?.sectionTitle?.trim();
-        const showSectionHeader = Boolean(sectionTitle) && sectionTitle !== previousSectionTitle;
-        const showDivider =
-          index > 0 && exercise.group && visibleExercises[index - 1]?.group !== exercise.group;
-
-        if (exercise.group) {
-          const groupIndex = visibleExercises
-            .slice(0, index + 1)
-            .filter((ex) => ex.group === exercise.group).length;
-          displayLabel = `${exercise.group}${groupIndex}`;
-        }
-
-        return (
-          <div key={exercise.id}>
-            {showDivider && <div className="my-1.5 border-t border-border/50" />}
-            {showSectionHeader && (
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-primary/90">
-                {sectionTitle}
-              </p>
-            )}
-            <div className="text-xs text-muted-foreground">
-              {displayLabel && (
-                <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>
-              )}
-              <ComplexNameTooltip
-                name={exercise.exercise.name}
-                subExercises={exercise.exercise.subExercises}
-                className="inline text-foreground font-medium"
-              />
-              {` • ${exercise.sets}×${formatExerciseUnitValue(exercise.reps, exercise.unit, {
-                compact: true,
-              })}`}
-              {exercise.weight ? ` • ${exercise.weight}kg` : ""}
-            </div>
-          </div>
-        );
-      })}
-      {remainingCount > 0 && (
-        <div className="pt-1 text-xs text-muted-foreground italic">
-          and {remainingCount} more exercise{remainingCount > 1 ? "s" : ""}
+    <SessionCard.ExerciseList
+      exercises={workout.exercises}
+      maxItems={MAX_EXERCISES_SHOWN}
+      dividerClassName="my-1.5 border-border/50"
+      sectionTitleClassName="text-[10px]"
+      renderItem={({ exercise, displayLabel }) => (
+        <div className="text-xs text-muted-foreground">
+          {displayLabel && (
+            <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>
+          )}
+          <ComplexNameTooltip
+            name={exercise.exercise.name}
+            subExercises={exercise.exercise.subExercises}
+            className="inline text-foreground font-medium"
+          />
+          {` • ${exercise.sets}×${formatExerciseUnitValue(exercise.reps, exercise.unit, {
+            compact: true,
+          })}`}
+          {exercise.weight ? ` • ${exercise.weight}kg` : ""}
         </div>
       )}
-    </div>
+    />
   );
 }
 
 function WorkoutTagList({ tags }: { tags: WorkoutData["tags"] }) {
-  if (!tags || tags.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="mt-2 flex flex-wrap gap-1.5">
-      {tags.map((tag) => {
-        const palette = getTagPalette(tag.slug);
-        return (
-          <span
-            key={tag.id}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-medium leading-tight",
-              palette.tint,
-            )}
-          >
-            <span
-              aria-hidden="true"
-              className={cn("h-1.5 w-1.5 shrink-0 rounded-full", palette.dot)}
-            />
-            {tag.name}
-          </span>
-        );
-      })}
-    </div>
-  );
+  return <SessionCard.Tags tags={tags} size="sm" className="mt-2 gap-1.5" />;
 }
 
 export function CalendarDayMenu({

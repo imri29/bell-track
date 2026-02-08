@@ -287,7 +287,7 @@ describe("CalendarDayMenu", () => {
     expect(screen.getByText("01/11/2024")).toBeInTheDocument();
     expect(screen.getByText("Workout 1")).toBeInTheDocument();
     expect(screen.getByText("Strength")).toBeInTheDocument();
-    expect(screen.getByText("FINISHER")).toBeInTheDocument();
+    expect(screen.getByText("Finisher")).toBeInTheDocument();
     expect(screen.getByText(/and 1 more exercise/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /add another workout/i }));
