@@ -4,6 +4,14 @@
 
 This project is designed to help me practice and learn full-stack app development with focus on:
 
+### Collaboration Mode (Claude Code)
+
+- Prioritize backend learning and end-to-end feature development.
+- Work as a pair: the assistant guides architecture, API, schema, and testing decisions while I (the developer) implement.
+- Prefer small, complete features over large unfinished work.
+- For each feature, break work into clear steps and include why each backend decision matters.
+- After implementation, review code with actionable feedback focused on backend fundamentals.
+
 ### Technologies to Learn/Practice
 
 - **Next.js**: Using App Router, Server Components, API routes

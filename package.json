@@ -76,7 +76,7 @@
     "vitest": "^4.0.18"
   },
   "lint-staged": {
-    "**/*.{ts,tsx,js,jsx,cjs,mjs,json,css,scss,md}": [
+    "**/*.{ts,tsx,js,jsx,cjs,mjs,json,css,scss}": [
       "pnpm run format"
     ]
   },
