@@ -2,6 +2,7 @@
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getRouterMock, resetNextMocks } from "@/tests/mocks/next";
 
@@ -36,6 +37,7 @@ const formData = {
 const handleSubmitMock = vi.fn((cb) => () => cb(formData));
 const registerMock = vi.fn();
 const setValueMock = vi.fn();
+const getValuesMock = vi.fn();
 
 vi.mock("react-hook-form", () => ({
   useForm: () => ({
@@ -43,6 +45,7 @@ vi.mock("react-hook-form", () => ({
     handleSubmit: handleSubmitMock,
     control: {},
     setValue: setValueMock,
+    getValues: getValuesMock,
     watch: () => formData.tagIds,
     formState: { errors: {} },
   }),
@@ -53,6 +56,7 @@ vi.mock("react-hook-form", () => ({
     append: appendMock,
     remove: vi.fn(),
     move: vi.fn(),
+    update: vi.fn(),
   }),
 }));
 
@@ -108,7 +112,7 @@ vi.mock("@/components/exercise-combobox", () => ({
 }));
 
 vi.mock("@/components/exercise-order-controls", () => ({
-  ExerciseOrderControls: () => <div>OrderControls</div>,
+  ExerciseOrderControls: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("@/trpc/react", () => ({
@@ -206,5 +210,22 @@ describe("NewTemplatePage", () => {
         restTime: 60,
       }),
     );
+  });
+
+  it("shows replace exercise control for each exercise row", () => {
+    mockExercisesQuery.mockReturnValue({
+      data: [{ id: "ex1", name: "Swing", type: "EXERCISE", subExercises: null }],
+      isPending: false,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [],
+      isPending: false,
+      error: undefined,
+    });
+    getValuesMock.mockReturnValue(formData.exercises[0]);
+
+    render(<NewTemplatePage />);
+
+    expect(screen.getByRole("button", { name: /replace exercise/i })).toBeInTheDocument();
   });
 });

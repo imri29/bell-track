@@ -14,6 +14,7 @@ const mockInvalidateTemplate = vi.fn();
 const mockExercisesQuery = vi.fn();
 const mockTagsQuery = vi.fn();
 const mockTemplateQuery = vi.fn();
+const mockFieldArray = vi.fn();
 
 const resetMock = vi.fn();
 const handleSubmitMock = vi.fn((cb) =>
@@ -60,12 +61,7 @@ vi.mock("react-hook-form", () => ({
   }),
   Controller: ({ render }: { render: (props: { field: unknown }) => unknown }) =>
     render({ field: { value: "REPS", onChange: vi.fn() } }),
-  useFieldArray: () => ({
-    fields: [],
-    append: vi.fn(),
-    remove: vi.fn(),
-    move: vi.fn(),
-  }),
+  useFieldArray: () => mockFieldArray(),
 }));
 
 vi.mock("@/components/add-exercise-modal", () => ({
@@ -94,7 +90,7 @@ vi.mock("@/components/exercise-combobox", () => ({
 }));
 
 vi.mock("@/components/exercise-order-controls", () => ({
-  ExerciseOrderControls: () => <div>OrderControls</div>,
+  ExerciseOrderControls: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock("@/trpc/react", () => ({
@@ -132,6 +128,13 @@ vi.mock("@/trpc/react", () => ({
 
 beforeEach(() => {
   setParamsMock({ id: "tpl1" });
+  mockFieldArray.mockReturnValue({
+    fields: [],
+    append: vi.fn(),
+    remove: vi.fn(),
+    move: vi.fn(),
+    update: vi.fn(),
+  });
 });
 
 afterEach(() => {
@@ -222,5 +225,41 @@ describe("EditTemplatePage", () => {
       expect(mockInvalidateTemplate).toHaveBeenCalledWith({ id: "tpl1" });
       expect(getRouterMock().push).toHaveBeenCalledWith("/templates");
     });
+  });
+
+  it("shows replace exercise control for each exercise row", () => {
+    mockFieldArray.mockReturnValue({
+      fields: [{ id: "row1", exerciseId: "ex1" }],
+      append: vi.fn(),
+      remove: vi.fn(),
+      move: vi.fn(),
+      update: vi.fn(),
+    });
+    mockExercisesQuery.mockReturnValue({
+      data: [{ id: "ex1", name: "Swing", type: "EXERCISE", subExercises: null }],
+      isPending: false,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [],
+      isPending: false,
+      error: undefined,
+    });
+    mockTemplateQuery.mockReturnValue({
+      data: {
+        id: "tpl1",
+        name: "Template",
+        description: "Desc",
+        createdAt: "2024-10-01T12:00:00.000Z",
+        updatedAt: "2024-10-01T12:00:00.000Z",
+        exercises: [],
+        tags: [],
+      },
+      isPending: false,
+      error: undefined,
+    });
+
+    render(<EditTemplatePage params={Promise.resolve({ id: "tpl1" })} />);
+
+    expect(screen.getByRole("button", { name: /replace exercise/i })).toBeInTheDocument();
   });
 });

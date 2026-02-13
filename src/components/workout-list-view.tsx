@@ -75,7 +75,9 @@ export function WorkoutListView({
                       {workout.exercises.length} exercise
                       {workout.exercises.length !== 1 ? "s" : ""}
                     </SessionCard.Subtitle>
-                    {workout.notes && <p className="text-sm mt-2">{workout.notes}</p>}
+                    {workout.notes && (
+                      <SessionCard.Description>{workout.notes}</SessionCard.Description>
+                    )}
                   </div>
                   <SessionCard.Actions>
                     <Button

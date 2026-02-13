@@ -1,3 +1,4 @@
+import Linkify from "linkify-react";
 import type { ReactNode } from "react";
 import { SectionedExerciseList } from "@/components/sectioned-exercise-list";
 import { getTagPalette } from "@/lib/tag-colors";
@@ -43,6 +44,33 @@ function Subtitle({ children, className }: { children: ReactNode; className?: st
 
 function Actions({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn("flex gap-2", className)}>{children}</div>;
+}
+
+function Description({ children, className }: { children: ReactNode; className?: string }) {
+  if (children === null || children === undefined || children === "") {
+    return null;
+  }
+
+  if (typeof children !== "string") {
+    return (
+      <p className={cn("mt-2 whitespace-pre-wrap break-words text-sm", className)}>{children}</p>
+    );
+  }
+
+  return (
+    <p className={cn("mt-2 whitespace-pre-wrap break-words text-sm", className)}>
+      <Linkify
+        options={{
+          defaultProtocol: "https",
+          target: "_blank",
+          rel: "noopener noreferrer",
+          className: "underline underline-offset-2 break-all",
+        }}
+      >
+        {children}
+      </Linkify>
+    </p>
+  );
 }
 
 function Tags({
@@ -113,6 +141,7 @@ export const SessionCard = {
   Header,
   Title,
   Subtitle,
+  Description,
   Actions,
   Tags,
   ExerciseList,

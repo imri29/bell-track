@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Replace, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useId, useMemo, useState } from "react";
@@ -19,9 +19,11 @@ import {
 } from "@/components/template-exercise-blocks";
 import type { TemplateFormData } from "@/components/template-form-types";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip } from "@/components/ui/tooltip";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import { getExerciseUnitLabel, getExerciseUnitPlaceholder } from "@/lib/exercise-units";
 import { preventEnterFromSelect } from "@/lib/form-handlers";
@@ -51,6 +53,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
     control,
     reset,
     setValue,
+    getValues,
     watch,
     formState: { errors },
   } = useForm<TemplateFormData>({
@@ -63,10 +66,11 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
   });
 
   // useFieldArray for managing exercises
-  const { fields, append, remove, move } = useFieldArray({
+  const { fields, append, remove, move, update } = useFieldArray({
     control,
     name: "exercises",
   });
+  const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
 
   // Reset form when template data loads
   useEffect(() => {
@@ -155,6 +159,47 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
     }
 
     move(index, index + 1);
+  };
+
+  const closeReplaceControls = () => {
+    setReplaceIndex(null);
+  };
+
+  const replaceExerciseAtIndex = (
+    index: number,
+    nextExerciseId: string,
+    nextExerciseType?: string,
+  ) => {
+    if (!nextExerciseId) {
+      return;
+    }
+
+    const current = getValues(`exercises.${index}`);
+    if (!current || current.exerciseId === nextExerciseId) {
+      closeReplaceControls();
+      return;
+    }
+
+    const nextExercise = exercises?.find((exercise) => exercise.id === nextExerciseId);
+    const nextType = nextExercise?.type ?? nextExerciseType;
+    if (!nextType) {
+      return;
+    }
+
+    const defaults = buildExerciseFormDefaults(
+      { id: nextExerciseId, type: nextType },
+      current.order ?? index,
+    );
+
+    const nextUnit = nextType === "COMPLEX" ? defaults.unit : (current.unit ?? defaults.unit);
+
+    update(index, {
+      ...current,
+      exerciseId: nextExerciseId,
+      unit: nextUnit,
+      reps: nextType === "COMPLEX" ? defaults.reps : current.reps,
+    });
+    closeReplaceControls();
   };
 
   if (templateLoading) {
@@ -354,6 +399,20 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
                         disableUp={index === 0}
                         disableDown={index === fields.length - 1}
                       >
+                        <Tooltip content="Replace">
+                          <IconButton
+                            type="button"
+                            variant="ghost"
+                            onClick={() =>
+                              setReplaceIndex((currentIndex) =>
+                                currentIndex === index ? null : index,
+                              )
+                            }
+                            aria-label="Replace exercise"
+                          >
+                            <Replace className="h-4 w-4" />
+                          </IconButton>
+                        </Tooltip>
                         <Button
                           type="button"
                           variant="ghost-destructive"
@@ -365,6 +424,48 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
                         </Button>
                       </ExerciseOrderControls>
                     </div>
+                    {replaceIndex === index && (
+                      <div className="grid grid-cols-1 gap-3 rounded-xl border border-border/60 bg-muted/20 p-3 md:grid-cols-[1fr_1fr_auto]">
+                        <ExerciseCombobox
+                          onValueChange={(value) => {
+                            if (value) {
+                              replaceExerciseAtIndex(index, value, "EXERCISE");
+                            }
+                          }}
+                          excludeIds={fields
+                            .map((field, fieldIndex) =>
+                              fieldIndex === index ? null : field.exerciseId,
+                            )
+                            .filter((exerciseId): exerciseId is string => Boolean(exerciseId))}
+                          className="bg-background"
+                          placeholder="Change to individual exercise"
+                          onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
+                        />
+                        <ComplexCombobox
+                          onValueChange={(value) => {
+                            if (value) {
+                              replaceExerciseAtIndex(index, value, "COMPLEX");
+                            }
+                          }}
+                          excludeIds={fields
+                            .map((field, fieldIndex) =>
+                              fieldIndex === index ? null : field.exerciseId,
+                            )
+                            .filter((exerciseId): exerciseId is string => Boolean(exerciseId))}
+                          className="bg-background"
+                          placeholder="Change to complex exercise"
+                          onCreateNewComplex={() => setIsAddComplexModalOpen(true)}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={closeReplaceControls}
+                          className="md:justify-self-end"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    )}
 
                     <div className="grid items-end grid-cols-2 gap-4 md:grid-cols-4">
                       <div className="space-y-2">

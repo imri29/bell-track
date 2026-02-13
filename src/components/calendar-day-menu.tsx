@@ -181,7 +181,9 @@ export function CalendarDayMenu({
                 )}
               </div>
               {workout.notes && (
-                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{workout.notes}</p>
+                <SessionCard.Description className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                  {workout.notes}
+                </SessionCard.Description>
               )}
             </div>
             <div className="ml-2 flex items-center gap-1">

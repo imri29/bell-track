@@ -240,3 +240,15 @@ This project uses two separate server-side layers:
 - **TypeScript checking**: Use `pnpm run ts` (NOT `pnpm run typecheck`)
 - use shadcn components unless instructed otherwise
 - do not allow "any" or ts erros
+
+## Review Findings Log
+
+### 2026-02-13: Tailwind v4.1 text wrapping utility verification
+
+- ✅ `wrap-break-word` is a valid Tailwind CSS v4.1 utility.
+- It maps to `overflow-wrap: break-word`.
+- Alternative related utilities:
+    - `wrap-anywhere` (`overflow-wrap: anywhere`)
+    - `break-all` (`word-break: break-all`)
+    - `whitespace-pre-wrap` for preserving line breaks in text content.
+- Source used for verification: Context7 Tailwind docs (`/tailwindlabs/tailwindcss.com`, including `overflow-wrap` docs and Tailwind v4.1 release notes).

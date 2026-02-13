@@ -36,7 +36,7 @@ function TemplateExerciseSummaryList({
       className="mt-3"
       exercises={exercises}
       renderItem={({ exercise, displayLabel }) => (
-        <div className="text-sm text-muted-foreground">
+        <div className="min-w-0 break-words text-sm text-muted-foreground">
           {displayLabel && (
             <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>
           )}
@@ -45,7 +45,7 @@ function TemplateExerciseSummaryList({
             subExercises={exercise.exercise.subExercises}
             className="inline font-medium text-foreground"
           >
-            <span className="inline font-medium text-foreground">
+            <span className="inline break-words font-medium text-foreground">
               {exercise.exercise.type !== "COMPLEX" && exercise.reps
                 ? `${formatExerciseUnitValue(exercise.reps, exercise.unit)} ${exercise.exercise.name}`
                 : exercise.exercise.name}
@@ -249,52 +249,59 @@ export default function TemplatesPage() {
               <div className="space-y-3">
                 {templates.map((template) => (
                   <TemplateExerciseCard key={template.id} className="group">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <SessionCard.Title>{template.name}</SessionCard.Title>
-                        <SessionCard.Subtitle>
-                          {template.exercises.length} exercise
-                          {template.exercises.length !== 1 ? "s" : ""}
-                        </SessionCard.Subtitle>
+                    <div className="grid gap-3">
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                        <div className="flex flex-col">
+                          <SessionCard.Title className="min-w-0 wrap-break-word">
+                            {template.name}
+                          </SessionCard.Title>
+                          <SessionCard.Subtitle>
+                            {template.exercises.length} exercise
+                            {template.exercises.length !== 1 ? "s" : ""}
+                          </SessionCard.Subtitle>
+                        </div>
+                        <SessionCard.Actions className="shrink-0 opacity-100 transition-opacity duration-500 md:opacity-0 md:group-hover:opacity-100">
+                          <Tooltip content="Log workout">
+                            <IconButton
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleUseTemplate(template)}
+                              className="gap-1.5"
+                              aria-label={`Log ${template.name}`}
+                            >
+                              <ClipboardCheck className="h-4 w-4" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip content="Edit template">
+                            <IconButton
+                              asChild
+                              size="sm"
+                              variant="outline"
+                              aria-label={`Edit ${template.name}`}
+                            >
+                              <Link href={`/templates/${template.id}/edit`}>
+                                <Pencil className="h-4 w-4" />
+                              </Link>
+                            </IconButton>
+                          </Tooltip>
+                          <IconButton
+                            className="h-8 w-8 p-0"
+                            variant="destructive"
+                            onClick={() => handleDelete(template)}
+                            disabled={isDeleting}
+                            aria-label={`Delete ${template.name}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </IconButton>
+                        </SessionCard.Actions>
+                      </div>
+
+                      <div className="min-w-0">
                         {template.description && (
-                          <p className="mt-2 text-sm">{template.description}</p>
+                          <SessionCard.Description>{template.description}</SessionCard.Description>
                         )}
                         <SessionCard.Tags tags={template.tags} />
                       </div>
-                      <SessionCard.Actions className="opacity-100 transition-opacity duration-500 md:opacity-0 md:group-hover:opacity-100">
-                        <Tooltip content="Log workout">
-                          <IconButton
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUseTemplate(template)}
-                            className="gap-1.5"
-                            aria-label={`Log ${template.name}`}
-                          >
-                            <ClipboardCheck className="h-4 w-4" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip content="Edit template">
-                          <IconButton
-                            asChild
-                            size="sm"
-                            variant="outline"
-                            aria-label={`Edit ${template.name}`}
-                          >
-                            <Link href={`/templates/${template.id}/edit`}>
-                              <Pencil className="h-4 w-4" />
-                            </Link>
-                          </IconButton>
-                        </Tooltip>
-                        <IconButton
-                          className="h-8 w-8 p-0"
-                          variant="destructive"
-                          onClick={() => handleDelete(template)}
-                          disabled={isDeleting}
-                          aria-label={`Delete ${template.name}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </IconButton>
-                      </SessionCard.Actions>
                     </div>
                     <TemplateExerciseSummaryList exercises={template.exercises} />
                   </TemplateExerciseCard>
