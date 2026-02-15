@@ -24,6 +24,23 @@ enum ExerciseUnit {
   TIME
 }
 
+enum MovementGroup {
+  PUSH
+  PULL
+  CORE
+  LEGS
+}
+
+enum MovementPlane {
+  VERTICAL
+  HORIZONTAL
+}
+
+enum LegBias {
+  QUAD_DOMINANT
+  HAMSTRING_DOMINANT
+}
+
 model Exercise {
   id               String            @id @default(cuid())
   name             String            @unique
@@ -33,6 +50,9 @@ model Exercise {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   workoutExercises WorkoutExercise[]
+  movementGroup    MovementGroup?
+  movementPlane    MovementPlane?
+  legBias          LegBias?
 }
 
 model User {

@@ -41,6 +41,9 @@ const exerciseFixture = {
     { exerciseName: "Clean", reps: 5 },
     { exerciseName: "Press", reps: 5 },
   ]),
+  movementGroup: null,
+  movementPlane: null,
+  legBias: null,
 } satisfies Exercise;
 
 beforeEach(() => {
