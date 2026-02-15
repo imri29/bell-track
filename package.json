@@ -14,6 +14,7 @@
     "db:seed:prod": "tsx prisma/seed-prod.ts",
     "db:studio": "prisma studio",
     "db:backfill:user": "tsx scripts/backfill-user-ownership.ts",
+    "db:backfill:movement": "tsx scripts/backfill-movement-metadata.ts",
     "ts": "tsc --noEmit",
     "test": "vitest",
     "test:watch": "vitest watch",
