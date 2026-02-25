@@ -1,12 +1,17 @@
 "use client";
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { RouterOutputs } from "@/server/api/root";
 import { confirmMock, resetConfirmMock } from "@/tests/mocks/confirm";
-import { getRouterMock, resetNextMocks } from "@/tests/mocks/next";
+import {
+  getRouterMock,
+  resetNextMocks,
+  setPathnameMock,
+  setSearchParamsMock,
+} from "@/tests/mocks/next";
 import TemplatesPage from "./page";
 
 type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
@@ -242,6 +247,80 @@ describe("TemplatesPage", () => {
     const editLink = screen.getByLabelText(/edit strength builder/i);
     expect(editLink).toHaveAttribute("href", "/templates/t1/edit");
     await userEvent.click(editLink);
+  });
+
+  it("initializes filters from the URL and includes them in edit links", () => {
+    setPathnameMock("/templates");
+    setSearchParamsMock("search=strength&tag=strength");
+    mockTemplateQuery.mockReturnValue({
+      data: [templateOne],
+      isPending: false,
+      error: undefined,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [
+        {
+          id: "tag1",
+          name: "Strength",
+          slug: "strength",
+          description: null,
+          createdAt: sharedDates.createdAt,
+          updatedAt: sharedDates.updatedAt,
+          assignedAt: sharedDates.assignedAt,
+        },
+      ],
+      isPending: false,
+      error: undefined,
+    });
+
+    renderTemplates();
+
+    expect(screen.getByLabelText(/search templates/i)).toHaveValue("strength");
+    expect(mockTemplateQuery).toHaveBeenCalledWith({ search: "strength", tagSlugs: ["strength"] });
+    expect(screen.getByLabelText(/edit strength builder/i)).toHaveAttribute(
+      "href",
+      "/templates/t1/edit?search=strength&tag=strength",
+    );
+  });
+
+  it("writes filter changes to the URL", async () => {
+    setPathnameMock("/templates");
+    mockTemplateQuery.mockReturnValue({
+      data: [templateOne],
+      isPending: false,
+      error: undefined,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [
+        {
+          id: "tag1",
+          name: "Strength",
+          slug: "strength",
+          description: null,
+          createdAt: sharedDates.createdAt,
+          updatedAt: sharedDates.updatedAt,
+          assignedAt: sharedDates.assignedAt,
+        },
+      ],
+      isPending: false,
+      error: undefined,
+    });
+
+    renderTemplates();
+
+    fireEvent.change(screen.getByLabelText(/search templates/i), {
+      target: { value: "builder" },
+    });
+    await waitFor(() => {
+      expect(getRouterMock().replace).toHaveBeenLastCalledWith("/templates?search=builder");
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: "Strength" }));
+    await waitFor(() => {
+      expect(getRouterMock().replace).toHaveBeenLastCalledWith(
+        "/templates?search=builder&tag=strength",
+      );
+    });
   });
 
   it("renders section title headers in template summaries", () => {

@@ -2,7 +2,7 @@
 
 import { Replace, X } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { use, useEffect, useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { AddComplexExerciseModal, AddExerciseModal } from "@/components/add-exercise-modal";
@@ -33,6 +33,7 @@ import { api } from "@/trpc/react";
 
 export default function EditTemplatePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const utils = api.useUtils();
   const { id } = use(params);
   const { data: exercises } = api.exercise.getAll.useQuery();
@@ -103,11 +104,31 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
     return [...tags].sort((a, b) => a.name.localeCompare(b.name));
   }, [tags]);
 
+  const templatesHref = useMemo(() => {
+    const params = new URLSearchParams();
+    const search = searchParams.get("search")?.trim();
+    const tagSlugs = searchParams
+      .getAll("tag")
+      .map((slug) => slug.trim())
+      .filter(Boolean);
+
+    if (search) {
+      params.set("search", search);
+    }
+
+    for (const tagSlug of tagSlugs) {
+      params.append("tag", tagSlug);
+    }
+
+    const queryString = params.toString();
+    return queryString ? `/templates?${queryString}` : "/templates";
+  }, [searchParams]);
+
   const updateTemplate = api.template.update.useMutation({
     onSuccess: () => {
       utils.template.getAll.invalidate();
       utils.template.getById.invalidate({ id });
-      router.push("/templates");
+      router.push(templatesHref);
     },
   });
 
@@ -215,7 +236,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
       <PageShell withGlow={false} mainClassName="max-w-4xl">
         <p>Template not found.</p>
         <Button asChild className="mt-4" variant="outline">
-          <Link href="/templates">Back to templates</Link>
+          <Link href={templatesHref}>Back to templates</Link>
         </Button>
       </PageShell>
     );
@@ -240,7 +261,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
           <p className="text-sm text-muted-foreground">Update your workout template.</p>
         </div>
         <Button asChild variant="outline">
-          <Link href="/templates">Cancel</Link>
+          <Link href={templatesHref}>Cancel</Link>
         </Button>
       </div>
 
@@ -591,7 +612,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
 
         <div className="flex justify-end gap-4 border-t border-border/60 pt-6">
           <Button asChild type="button" variant="outline">
-            <Link href="/templates">Cancel</Link>
+            <Link href={templatesHref}>Cancel</Link>
           </Button>
           <Button type="submit" disabled={updateTemplate.isPending}>
             {updateTemplate.isPending ? "Saving..." : "Save changes"}

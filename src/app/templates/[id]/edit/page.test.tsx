@@ -4,7 +4,12 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getRouterMock, resetNextMocks, setParamsMock } from "@/tests/mocks/next";
+import {
+  getRouterMock,
+  resetNextMocks,
+  setParamsMock,
+  setSearchParamsMock,
+} from "@/tests/mocks/next";
 
 import EditTemplatePage from "./page";
 
@@ -128,6 +133,7 @@ vi.mock("@/trpc/react", () => ({
 
 beforeEach(() => {
   setParamsMock({ id: "tpl1" });
+  setSearchParamsMock("");
   mockFieldArray.mockReturnValue({
     fields: [],
     append: vi.fn(),
@@ -144,6 +150,7 @@ afterEach(() => {
 
 describe("EditTemplatePage", () => {
   it("renders template data and updates on submit", async () => {
+    setSearchParamsMock("search=strength&tag=strength");
     mockExercisesQuery.mockReturnValue({ data: [], isPending: false });
     mockTagsQuery.mockReturnValue({
       data: [{ id: "tag1", name: "Strength", slug: "strength" }],
@@ -223,7 +230,7 @@ describe("EditTemplatePage", () => {
       });
       expect(mockInvalidateTemplates).toHaveBeenCalled();
       expect(mockInvalidateTemplate).toHaveBeenCalledWith({ id: "tpl1" });
-      expect(getRouterMock().push).toHaveBeenCalledWith("/templates");
+      expect(getRouterMock().push).toHaveBeenCalledWith("/templates?search=strength&tag=strength");
     });
   });
 

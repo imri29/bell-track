@@ -2,7 +2,7 @@
 
 import { ClipboardCheck, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { PageHero } from "@/components/page-hero";
@@ -25,6 +25,44 @@ import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 
 type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
+
+const TEMPLATE_SEARCH_PARAM = "search";
+const TEMPLATE_TAG_PARAM = "tag";
+
+type SearchParamsLike = {
+  get: (name: string) => string | null;
+  getAll: (name: string) => string[];
+};
+
+function parseTemplateFilters(searchParams: SearchParamsLike) {
+  const search = searchParams.get(TEMPLATE_SEARCH_PARAM)?.trim() ?? "";
+  const rawTagSlugs = searchParams
+    .getAll(TEMPLATE_TAG_PARAM)
+    .map((slug: string) => slug.trim())
+    .filter((slug): slug is string => Boolean(slug));
+  const tagSlugs = Array.from<string>(new Set(rawTagSlugs));
+
+  return { search, tagSlugs };
+}
+
+function buildTemplateFiltersQueryString(search: string, tagSlugs: string[]) {
+  const params = new URLSearchParams();
+  const trimmedSearch = search.trim();
+
+  if (trimmedSearch) {
+    params.set(TEMPLATE_SEARCH_PARAM, trimmedSearch);
+  }
+
+  for (const tagSlug of tagSlugs) {
+    params.append(TEMPLATE_TAG_PARAM, tagSlug);
+  }
+
+  return params.toString();
+}
+
+function areStringArraysEqual(left: string[], right: string[]) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
 
 function TemplateExerciseSummaryList({
   exercises,
@@ -63,10 +101,14 @@ export default function TemplatesPage() {
   const utils = api.useUtils();
   const { confirm } = useConfirm();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [selectedTagSlugs, setSelectedTagSlugs] = useState<string[]>([]);
+  const initialFilters = parseTemplateFilters(searchParams);
+
+  const [searchQuery, setSearchQuery] = useState(initialFilters.search);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialFilters.search);
+  const [selectedTagSlugs, setSelectedTagSlugs] = useState<string[]>(initialFilters.tagSlugs);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -77,6 +119,31 @@ export default function TemplatesPage() {
       window.clearTimeout(timeoutId);
     };
   }, [searchQuery]);
+
+  useEffect(() => {
+    const nextFilters = parseTemplateFilters(searchParams);
+
+    setSearchQuery((current) => (current === nextFilters.search ? current : nextFilters.search));
+    setDebouncedQuery((current) => (current === nextFilters.search ? current : nextFilters.search));
+    setSelectedTagSlugs((current) =>
+      areStringArraysEqual(current, nextFilters.tagSlugs) ? current : nextFilters.tagSlugs,
+    );
+  }, [searchParams]);
+
+  useEffect(() => {
+    const nextQueryString = buildTemplateFiltersQueryString(searchQuery, selectedTagSlugs);
+    const currentFilters = parseTemplateFilters(searchParams);
+    const currentQueryString = buildTemplateFiltersQueryString(
+      currentFilters.search,
+      currentFilters.tagSlugs,
+    );
+
+    if (nextQueryString === currentQueryString) {
+      return;
+    }
+
+    router.replace(nextQueryString ? `${pathname}?${nextQueryString}` : pathname);
+  }, [pathname, router, searchParams, searchQuery, selectedTagSlugs]);
 
   const trimmedQuery = debouncedQuery.trim();
   const hasTagFilters = selectedTagSlugs.length > 0;
@@ -123,6 +190,7 @@ export default function TemplatesPage() {
   const hasTemplates = (templates?.length ?? 0) > 0;
   const hasQuery = trimmedQuery.length > 0;
   const hasActiveFilters = hasQuery || hasTagFilters;
+  const activeFilterQueryString = buildTemplateFiltersQueryString(searchQuery, selectedTagSlugs);
 
   const totalTemplates = templates?.length ?? 0;
   const totalTemplatesDisplay = templatesPending ? "—" : totalTemplates;
@@ -279,7 +347,13 @@ export default function TemplatesPage() {
                               variant="outline"
                               aria-label={`Edit ${template.name}`}
                             >
-                              <Link href={`/templates/${template.id}/edit`}>
+                              <Link
+                                href={
+                                  activeFilterQueryString
+                                    ? `/templates/${template.id}/edit?${activeFilterQueryString}`
+                                    : `/templates/${template.id}/edit`
+                                }
+                              >
                                 <Pencil className="h-4 w-4" />
                               </Link>
                             </IconButton>
