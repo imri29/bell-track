@@ -122,12 +122,18 @@ const templateFixture: TemplateWithRelations = {
   ],
 };
 
+const sisyphusTemplateFixture: TemplateWithRelations = {
+  ...templateFixture,
+  id: "t2",
+  name: "Sisyphus Session",
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
 describe("templateRouter", () => {
-  it("applies search and tag filters when listing templates", async () => {
+  it("applies tag filters when listing templates", async () => {
     templateFindMany.mockResolvedValue([templateFixture]);
 
     const caller = createCaller(createContext());
@@ -137,7 +143,6 @@ describe("templateRouter", () => {
     expect(templateFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
-          OR: expect.any(Array),
           tags: {
             some: {
               tag: {
@@ -148,6 +153,15 @@ describe("templateRouter", () => {
         }),
       }),
     );
+  });
+
+  it("matches typoed search queries with fuzzy search", async () => {
+    templateFindMany.mockResolvedValue([templateFixture, sisyphusTemplateFixture]);
+
+    const caller = createCaller(createContext());
+    const result = await caller.template.getAll({ search: "sysifus" });
+
+    expect(result.map((template) => template.name)).toContain("Sisyphus Session");
   });
 
   it("serializes tags in sorted order", async () => {

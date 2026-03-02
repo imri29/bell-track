@@ -131,7 +131,7 @@ export default function TemplatesPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const nextQueryString = buildTemplateFiltersQueryString(searchQuery, selectedTagSlugs);
+    const nextQueryString = buildTemplateFiltersQueryString(debouncedQuery, selectedTagSlugs);
     const currentFilters = parseTemplateFilters(searchParams);
     const currentQueryString = buildTemplateFiltersQueryString(
       currentFilters.search,
@@ -143,7 +143,7 @@ export default function TemplatesPage() {
     }
 
     router.replace(nextQueryString ? `${pathname}?${nextQueryString}` : pathname);
-  }, [pathname, router, searchParams, searchQuery, selectedTagSlugs]);
+  }, [debouncedQuery, pathname, router, searchParams, selectedTagSlugs]);
 
   const trimmedQuery = debouncedQuery.trim();
   const hasTagFilters = selectedTagSlugs.length > 0;
@@ -190,7 +190,7 @@ export default function TemplatesPage() {
   const hasTemplates = (templates?.length ?? 0) > 0;
   const hasQuery = trimmedQuery.length > 0;
   const hasActiveFilters = hasQuery || hasTagFilters;
-  const activeFilterQueryString = buildTemplateFiltersQueryString(searchQuery, selectedTagSlugs);
+  const activeFilterQueryString = buildTemplateFiltersQueryString(debouncedQuery, selectedTagSlugs);
 
   const totalTemplates = templates?.length ?? 0;
   const totalTemplatesDisplay = templatesPending ? "—" : totalTemplates;

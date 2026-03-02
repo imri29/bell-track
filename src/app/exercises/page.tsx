@@ -1,5 +1,6 @@
 "use client";
 
+import Fuse from "fuse.js";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
@@ -58,25 +59,18 @@ export default function ExercisesPage() {
         ? exercises
         : exercises.filter((exercise) => exercise.type === typeFilter);
 
-    const query = trimmedQuery.toLowerCase();
-
-    if (!query) {
+    if (!trimmedQuery) {
       return byType;
     }
 
-    return byType.filter((exercise) => {
-      const nameMatch = exercise.name.toLowerCase().includes(query);
-      const descriptionMatch = exercise.description
-        ? exercise.description.toLowerCase().includes(query)
-        : false;
-      const typeMatch = exercise.type.toLowerCase().includes(query);
-      const breakdownMatch =
-        exercise.subExercises?.some((movement) =>
-          movement.exerciseName.toLowerCase().includes(query),
-        ) ?? false;
-
-      return nameMatch || descriptionMatch || typeMatch || breakdownMatch;
+    const fuse = new Fuse(byType, {
+      keys: ["name", "description", "type", "subExercises.exerciseName"],
+      threshold: 0.5,
+      ignoreLocation: true,
+      minMatchCharLength: 2,
     });
+
+    return fuse.search(trimmedQuery).map((result) => result.item);
   }, [exercises, trimmedQuery, typeFilter]);
 
   const hasExercises = totalExercises > 0;

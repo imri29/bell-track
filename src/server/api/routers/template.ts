@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import Fuse from "fuse.js";
 import { z } from "zod";
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/trpc";
@@ -163,23 +164,6 @@ export const templateRouter = createTRPCRouter({
     const templates = await prisma.workoutTemplate.findMany({
       where: {
         userId: ctx.userId,
-        ...(search
-          ? {
-              OR: [
-                { name: { contains: search, mode: "insensitive" } },
-                { description: { contains: search, mode: "insensitive" } },
-                {
-                  exercises: {
-                    some: {
-                      exercise: {
-                        name: { contains: search, mode: "insensitive" },
-                      },
-                    },
-                  },
-                },
-              ],
-            }
-          : {}),
         ...(tagSlugs && tagSlugs.length > 0
           ? {
               tags: {
@@ -206,7 +190,20 @@ export const templateRouter = createTRPCRouter({
       },
     });
 
-    return templates.map(serializeTemplate);
+    const serializedTemplates = templates.map(serializeTemplate);
+
+    if (!search) {
+      return serializedTemplates;
+    }
+
+    const fuse = new Fuse(serializedTemplates, {
+      keys: ["name", "description", "exercises.exercise.name"],
+      threshold: 0.5,
+      ignoreLocation: true,
+      minMatchCharLength: 2,
+    });
+
+    return fuse.search(search).map((result) => result.item);
   }),
 
   getById: protectedProcedure

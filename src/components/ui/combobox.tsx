@@ -1,6 +1,7 @@
 "use client";
 
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox";
+import Fuse from "fuse.js";
 import { Check, ChevronsUpDown, Plus, X } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ type ComboboxProps<T> = {
 };
 
 type ComboboxOption<T> = { kind: "item"; item: T } | { kind: "create"; label: string };
+type SearchItem<T> = { item: T; label: string };
 
 export function Combobox<T>({
   items,
@@ -40,12 +42,26 @@ export function Combobox<T>({
   const [inputValue, setInputValue] = React.useState("");
   const portalProps = portalContainer ? { container: portalContainer } : {};
   const normalizedQuery = inputValue.trim().toLocaleLowerCase();
+  const searchItems = React.useMemo<SearchItem<T>[]>(
+    () => items.map((item) => ({ item, label: getItemLabel(item) })),
+    [getItemLabel, items],
+  );
+  const fuse = React.useMemo(
+    () =>
+      new Fuse(searchItems, {
+        keys: ["label"],
+        threshold: 0.5,
+        ignoreLocation: true,
+        minMatchCharLength: 2,
+      }),
+    [searchItems],
+  );
   const filteredItems = React.useMemo(
     () =>
       normalizedQuery.length === 0
         ? items
-        : items.filter((item) => getItemLabel(item).toLocaleLowerCase().includes(normalizedQuery)),
-    [getItemLabel, items, normalizedQuery],
+        : fuse.search(normalizedQuery).map((result) => result.item.item),
+    [fuse, items, normalizedQuery],
   );
   const canCreateNew = Boolean(
     emptyActionLabel && onEmptyAction && normalizedQuery.length > 0 && filteredItems.length === 0,

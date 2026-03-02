@@ -29,4 +29,28 @@ describe("Combobox", () => {
     await user.keyboard("{ArrowUp}{Enter}");
     expect(handleCreate).toHaveBeenCalledTimes(1);
   });
+
+  it("finds typoed queries with fuzzy matching", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <Combobox
+        items={[
+          { id: "1", name: "Sisyphus" },
+          { id: "2", name: "Swing" },
+        ]}
+        value={null}
+        onValueChange={() => {}}
+        getItemKey={(item) => item.id}
+        getItemLabel={(item) => item.name}
+        placeholder="Search exercise"
+      />,
+    );
+
+    const input = screen.getByPlaceholderText("Search exercise");
+    await user.click(input);
+    await user.type(input, "sysifus");
+
+    expect(screen.getByRole("option", { name: "Sisyphus" })).toBeInTheDocument();
+  });
 });

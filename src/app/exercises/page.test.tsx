@@ -68,6 +68,16 @@ const complexFixture: ExerciseCardData = {
   ],
 };
 
+const sisyphusFixture: ExerciseCardData = {
+  id: "e3",
+  name: "Sisyphus Carry",
+  type: EXERCISE_TYPES.EXERCISE,
+  description: "Long carry endurance",
+  createdAt: "2024-10-07T12:00:00.000Z",
+  updatedAt: "2024-10-08T12:00:00.000Z",
+  subExercises: null,
+};
+
 const renderExercisesPage = () => {
   render(<ExercisesPage />);
 };
@@ -132,5 +142,21 @@ describe("ExercisesPage", () => {
 
     await userEvent.click(screen.getByRole("button", { name: /retry/i }));
     expect(refetchMock).toHaveBeenCalled();
+  });
+
+  it("matches typoed search queries with fuzzy search", async () => {
+    mockExercisesQuery.mockReturnValue({
+      data: [sisyphusFixture, complexFixture],
+      isPending: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
+
+    renderExercisesPage();
+
+    await userEvent.type(screen.getByLabelText(/search exercises/i), "sysifus");
+
+    expect(screen.getByText("Sisyphus Carry")).toBeInTheDocument();
+    expect(screen.queryByText("Complex A")).not.toBeInTheDocument();
   });
 });
