@@ -20,6 +20,8 @@ type ComboboxProps<T> = {
   onEmptyAction?: () => void;
 };
 
+type ComboboxOption<T> = { kind: "item"; item: T } | { kind: "create"; label: string };
+
 export function Combobox<T>({
   items,
   value,
@@ -35,7 +37,30 @@ export function Combobox<T>({
   onEmptyAction,
 }: ComboboxProps<T>) {
   const [portalContainer, setPortalContainer] = React.useState<HTMLElement | null>(null);
+  const [inputValue, setInputValue] = React.useState("");
   const portalProps = portalContainer ? { container: portalContainer } : {};
+  const normalizedQuery = inputValue.trim().toLocaleLowerCase();
+  const filteredItems = React.useMemo(
+    () =>
+      normalizedQuery.length === 0
+        ? items
+        : items.filter((item) => getItemLabel(item).toLocaleLowerCase().includes(normalizedQuery)),
+    [getItemLabel, items, normalizedQuery],
+  );
+  const canCreateNew = Boolean(
+    emptyActionLabel && onEmptyAction && normalizedQuery.length > 0 && filteredItems.length === 0,
+  );
+  const options = React.useMemo<ComboboxOption<T>[]>(
+    () => [
+      ...filteredItems.map((item) => ({ kind: "item" as const, item })),
+      ...(canCreateNew && emptyActionLabel
+        ? [{ kind: "create" as const, label: emptyActionLabel }]
+        : []),
+    ],
+    [canCreateNew, emptyActionLabel, filteredItems],
+  );
+  const selectedOption: ComboboxOption<T> | null =
+    value === null ? null : { kind: "item", item: value };
 
   // Base UI renders the popup in a Portal (defaults to <body>), but when this field
   // lives inside a Dialog/Drawer, the overlay can sit above the portal and swallow
@@ -53,12 +78,39 @@ export function Combobox<T>({
   };
 
   return (
-    <ComboboxPrimitive.Root
-      items={items}
-      value={value}
-      onValueChange={onValueChange}
-      itemToStringLabel={getItemLabel}
-      isItemEqualToValue={(item, selected) => getItemKey(item) === getItemKey(selected)}
+    <ComboboxPrimitive.Root<ComboboxOption<T>>
+      items={options}
+      filteredItems={options}
+      filter={null}
+      value={selectedOption}
+      onValueChange={(nextOption) => {
+        if (nextOption === null) {
+          onValueChange(null);
+          return;
+        }
+
+        if (nextOption.kind === "create") {
+          onEmptyAction?.();
+          return;
+        }
+
+        onValueChange(nextOption.item);
+      }}
+      onInputValueChange={setInputValue}
+      itemToStringLabel={(option) =>
+        option.kind === "item" ? getItemLabel(option.item) : option.label
+      }
+      isItemEqualToValue={(option, selected) => {
+        if (option.kind === "create" && selected.kind === "create") {
+          return option.label === selected.label;
+        }
+
+        if (option.kind === "item" && selected.kind === "item") {
+          return getItemKey(option.item) === getItemKey(selected.item);
+        }
+
+        return false;
+      }}
       disabled={disabled}
     >
       <div className="flex items-center gap-1">
@@ -94,31 +146,34 @@ export function Combobox<T>({
         <ComboboxPrimitive.Positioner className="z-[1200] outline-none" sideOffset={4}>
           <ComboboxPrimitive.Popup className="w-(--anchor-width) max-h-[min(18rem,var(--available-height))] overflow-y-auto rounded-md border border-border bg-popover text-popover-foreground shadow-md outline-none">
             <ComboboxPrimitive.Empty className="p-1.5 text-sm text-muted-foreground empty:hidden">
-              {emptyActionLabel && onEmptyAction ? (
-                <ComboboxPrimitive.Item
-                  onClick={onEmptyAction}
-                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-medium text-foreground hover:bg-accent"
-                >
-                  <Plus className="h-4 w-4" />
-                  {emptyActionLabel}
-                </ComboboxPrimitive.Item>
-              ) : null}
+              No results found
             </ComboboxPrimitive.Empty>
             <ComboboxPrimitive.List className="p-1 empty:hidden">
-              {(item) => (
-                <ComboboxPrimitive.Item
-                  key={getItemKey(item)}
-                  value={item}
-                  className="flex cursor-default select-none items-center gap-2 rounded-sm py-1.5 pl-2 pr-2 text-sm outline-none data-highlighted:bg-accent data-[highlighted]:text-accent-foreground"
-                >
-                  <span className="flex h-4 w-4 items-center justify-center text-primary">
-                    <ComboboxPrimitive.ItemIndicator>
-                      <Check className="h-4 w-4" />
-                    </ComboboxPrimitive.ItemIndicator>
-                  </span>
-                  <span>{getItemLabel(item)}</span>
-                </ComboboxPrimitive.Item>
-              )}
+              {(option) =>
+                option.kind === "create" ? (
+                  <ComboboxPrimitive.Item
+                    key={`create-${option.label}`}
+                    value={option}
+                    className="flex cursor-default select-none items-center gap-2 rounded-sm py-1.5 pl-2 pr-2 text-sm font-medium outline-none data-highlighted:bg-accent data-[highlighted]:text-accent-foreground"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>{option.label}</span>
+                  </ComboboxPrimitive.Item>
+                ) : (
+                  <ComboboxPrimitive.Item
+                    key={getItemKey(option.item)}
+                    value={option}
+                    className="flex cursor-default select-none items-center gap-2 rounded-sm py-1.5 pl-2 pr-2 text-sm outline-none data-highlighted:bg-accent data-[highlighted]:text-accent-foreground"
+                  >
+                    <span className="flex h-4 w-4 items-center justify-center text-primary">
+                      <ComboboxPrimitive.ItemIndicator>
+                        <Check className="h-4 w-4" />
+                      </ComboboxPrimitive.ItemIndicator>
+                    </span>
+                    <span>{getItemLabel(option.item)}</span>
+                  </ComboboxPrimitive.Item>
+                )
+              }
             </ComboboxPrimitive.List>
           </ComboboxPrimitive.Popup>
         </ComboboxPrimitive.Positioner>
