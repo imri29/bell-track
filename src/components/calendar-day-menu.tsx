@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { ChevronDown, Edit, File, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { IconButton } from "@/components/common/icon-button";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { SessionCard } from "@/components/session-card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { IconButton } from "@/components/ui/icon-button";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { formatExerciseUnitValue } from "@/lib/exercise-units";
 import { cn } from "@/lib/utils";

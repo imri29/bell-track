@@ -1,6 +1,6 @@
 "use client";
 
-import { Combobox } from "@/components/ui/combobox";
+import { SearchableCombobox } from "@/components/patterns/searchable-combobox";
 import { api } from "@/trpc/react";
 
 interface TemplateComboboxProps {
@@ -27,7 +27,7 @@ export function TemplateCombobox({
     value === "" ? null : (availableTemplates.find((template) => template.id === value) ?? null);
 
   return (
-    <Combobox
+    <SearchableCombobox
       items={availableTemplates}
       value={selectedTemplate}
       onValueChange={(nextValue) => {

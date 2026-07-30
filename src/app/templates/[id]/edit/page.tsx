@@ -6,12 +6,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { use, useEffect, useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { AddComplexExerciseModal, AddExerciseModal } from "@/components/add-exercise-modal";
+import { IconButton } from "@/components/common/icon-button";
+import { Spinner } from "@/components/common/spinner";
 import { ComplexCombobox } from "@/components/complex-combobox";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ExerciseCombobox } from "@/components/exercise-combobox";
 import { ExerciseOrderControls } from "@/components/exercise-order-controls";
 import { ExerciseUnitField } from "@/components/exercise-unit-field";
 import { PageShell } from "@/components/page-shell";
+import { SimpleTooltip } from "@/components/patterns/simple-tooltip";
 import {
   TemplateExerciseCard,
   TemplateExercisesList,
@@ -19,11 +22,8 @@ import {
 } from "@/components/template-exercise-blocks";
 import type { TemplateFormData } from "@/components/template-form-types";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip } from "@/components/ui/tooltip";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
 import { getExerciseUnitLabel, getExerciseUnitPlaceholder } from "@/lib/exercise-units";
 import { preventEnterFromSelect } from "@/lib/form-handlers";
@@ -420,7 +420,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
                         disableUp={index === 0}
                         disableDown={index === fields.length - 1}
                       >
-                        <Tooltip content="Replace">
+                        <SimpleTooltip content="Replace">
                           <IconButton
                             type="button"
                             variant="ghost"
@@ -433,16 +433,17 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
                           >
                             <Replace className="h-4 w-4" />
                           </IconButton>
-                        </Tooltip>
-                        <Button
+                        </SimpleTooltip>
+                        <IconButton
                           type="button"
-                          variant="ghost-destructive"
+                          variant="ghost"
+                          tone="destructive"
                           size="sm"
                           onClick={() => remove(index)}
                           aria-label="Remove"
                         >
                           <X />
-                        </Button>
+                        </IconButton>
                       </ExerciseOrderControls>
                     </div>
                     {replaceIndex === index && (

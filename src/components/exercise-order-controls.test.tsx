@@ -6,8 +6,8 @@ import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { ExerciseOrderControls } from "@/components/exercise-order-controls";
 
-vi.mock("@/components/ui/tooltip", () => ({
-  Tooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
+vi.mock("@/components/patterns/simple-tooltip", () => ({
+  SimpleTooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
 describe("ExerciseOrderControls", () => {

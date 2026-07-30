@@ -1,15 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { Combobox } from "./combobox";
+import { SearchableCombobox } from "./searchable-combobox";
 
-describe("Combobox", () => {
+describe("SearchableCombobox", () => {
   it("selects the create action with keyboard when there are no matches", async () => {
     const user = userEvent.setup();
     const handleCreate = vi.fn();
 
     render(
-      <Combobox
+      <SearchableCombobox
         items={[{ id: "1", name: "Swing" }]}
         value={null}
         onValueChange={() => {}}
@@ -34,7 +34,7 @@ describe("Combobox", () => {
     const user = userEvent.setup();
 
     render(
-      <Combobox
+      <SearchableCombobox
         items={[
           { id: "1", name: "Sisyphus" },
           { id: "2", name: "Swing" },

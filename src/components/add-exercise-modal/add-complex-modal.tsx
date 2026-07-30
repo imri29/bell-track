@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { FullHeightDrawerContent } from "@/components/patterns/full-height-drawer-content";
 import {
   Dialog,
   DialogContent,
@@ -9,13 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { api } from "@/trpc/react";
@@ -106,7 +101,7 @@ export function AddComplexExerciseModal({
       />
       {isMobile ? (
         <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
-          <DrawerContent className="max-h-[80vh]" fullHeight>
+          <FullHeightDrawerContent className="max-h-[80vh]">
             <form
               onSubmit={handleSubmit(onSubmit)}
               onKeyDown={preventEnterFromSelect}
@@ -125,7 +120,7 @@ export function AddComplexExerciseModal({
                 />
               </DrawerFooter>
             </form>
-          </DrawerContent>
+          </FullHeightDrawerContent>
         </Drawer>
       ) : (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>

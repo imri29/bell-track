@@ -11,12 +11,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import {
-  TooltipContent,
-  TooltipProvider,
-  TooltipRoot,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { cn } from "@/lib/utils";
 
@@ -106,7 +101,7 @@ export function ComplexNameTooltip({
 
   return (
     <TooltipProvider delayDuration={150} skipDelayDuration={0}>
-      <TooltipRoot>
+      <Tooltip>
         <TooltipTrigger asChild>
           <span className={cn("cursor-help", className)}>{children ?? name}</span>
         </TooltipTrigger>
@@ -114,7 +109,7 @@ export function ComplexNameTooltip({
           <p className="text-sm font-medium leading-none">{name}</p>
           {exerciseList}
         </TooltipContent>
-      </TooltipRoot>
+      </Tooltip>
     </TooltipProvider>
   );
 }

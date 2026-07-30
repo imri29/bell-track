@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { FullHeightDrawerContent } from "@/components/patterns/full-height-drawer-content";
 import {
   Dialog,
   DialogContent,
@@ -273,7 +274,7 @@ function EditComplexExerciseModalContent({
       />
       {isMobile ? (
         <Drawer open={isOpen} onOpenChange={onOpenChange} repositionInputs={false}>
-          <DrawerContent className="max-h-[80vh]" fullHeight>
+          <FullHeightDrawerContent className="max-h-[80vh]">
             <form
               onSubmit={onSubmit}
               onKeyDown={preventEnterFromSelect}
@@ -292,7 +293,7 @@ function EditComplexExerciseModalContent({
                 />
               </DrawerFooter>
             </form>
-          </DrawerContent>
+          </FullHeightDrawerContent>
         </Drawer>
       ) : (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>

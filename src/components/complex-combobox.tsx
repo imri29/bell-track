@@ -1,6 +1,6 @@
 "use client";
 
-import { Combobox } from "@/components/ui/combobox";
+import { SearchableCombobox } from "@/components/patterns/searchable-combobox";
 import { api } from "@/trpc/react";
 
 interface ComplexComboboxProps {
@@ -34,7 +34,7 @@ export function ComplexCombobox({
     value === "" ? null : (availableComplexes.find((exercise) => exercise.id === value) ?? null);
 
   return (
-    <Combobox
+    <SearchableCombobox
       items={availableComplexes}
       value={selectedComplex}
       onValueChange={(nextValue) => {

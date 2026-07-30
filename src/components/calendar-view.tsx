@@ -17,8 +17,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CalendarDayMenu } from "@/components/calendar-day-menu";
+import { IconButton } from "@/components/common/icon-button";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 

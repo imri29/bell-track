@@ -1,5 +1,5 @@
+import { Spinner } from "@/components/common/spinner";
 import { PageShell } from "@/components/page-shell";
-import { Spinner } from "@/components/ui/spinner";
 
 export default function Loading() {
   return (

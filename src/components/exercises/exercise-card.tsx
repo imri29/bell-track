@@ -3,8 +3,8 @@
 import { format, formatDistanceToNow } from "date-fns";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { type ComponentPropsWithoutRef, useState } from "react";
+import { IconButton } from "@/components/common/icon-button";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/server/api/root";
 import { EXERCISE_TYPE_LABELS, EXERCISE_TYPES } from "@/types";

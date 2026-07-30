@@ -6,7 +6,7 @@ import { Check, ChevronsUpDown, Plus, X } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-type ComboboxProps<T> = {
+type SearchableComboboxProps<T> = {
   items: T[];
   value: T | null;
   onValueChange: (value: T | null) => void;
@@ -24,7 +24,7 @@ type ComboboxProps<T> = {
 type ComboboxOption<T> = { kind: "item"; item: T } | { kind: "create"; label: string };
 type SearchItem<T> = { item: T; label: string };
 
-export function Combobox<T>({
+export function SearchableCombobox<T>({
   items,
   value,
   onValueChange,
@@ -37,7 +37,7 @@ export function Combobox<T>({
   action,
   emptyActionLabel,
   onEmptyAction,
-}: ComboboxProps<T>) {
+}: SearchableComboboxProps<T>) {
   const [portalContainer, setPortalContainer] = React.useState<HTMLElement | null>(null);
   const [inputValue, setInputValue] = React.useState("");
   const portalProps = portalContainer ? { container: portalContainer } : {};

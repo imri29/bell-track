@@ -2,11 +2,11 @@
 
 import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
+import { IconButton } from "@/components/common/icon-button";
+import { Spinner } from "@/components/common/spinner";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { SessionCard } from "@/components/session-card";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
-import { Spinner } from "@/components/ui/spinner";
 import type { RouterOutputs } from "@/server/api/root";
 
 type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];

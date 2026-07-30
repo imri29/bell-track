@@ -4,19 +4,19 @@ import { Replace, X } from "lucide-react";
 import { useEffect, useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { AddComplexExerciseModal, AddExerciseModal } from "@/components/add-exercise-modal";
+import { IconButton } from "@/components/common/icon-button";
+import { Spinner } from "@/components/common/spinner";
 import { ComplexCombobox } from "@/components/complex-combobox";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { ExerciseCombobox } from "@/components/exercise-combobox";
 import { ExerciseOrderControls } from "@/components/exercise-order-controls";
 import { ExerciseUnitField } from "@/components/exercise-unit-field";
+import { SimpleTooltip } from "@/components/patterns/simple-tooltip";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip } from "@/components/ui/tooltip";
 import type { WorkoutFormSubmitData, WorkoutFormValues } from "@/components/workout-form-types";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { buildExerciseFormDefaults } from "@/lib/exercise-form-defaults";
@@ -450,7 +450,7 @@ export function WorkoutForm({
                           disableDown={isSubmitting || index === fields.length - 1}
                         >
                           {enableReplaceExercise && (
-                            <Tooltip content="Replace">
+                            <SimpleTooltip content="Replace">
                               <IconButton
                                 type="button"
                                 variant="ghost"
@@ -460,11 +460,12 @@ export function WorkoutForm({
                               >
                                 <Replace className="h-4 w-4" />
                               </IconButton>
-                            </Tooltip>
+                            </SimpleTooltip>
                           )}
                           <IconButton
                             type="button"
-                            variant="ghost-destructive"
+                            variant="ghost"
+                            tone="destructive"
                             onClick={() => remove(index)}
                             disabled={isSubmitting}
                             aria-label="Remove exercise"

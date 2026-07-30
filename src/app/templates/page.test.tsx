@@ -16,8 +16,8 @@ import TemplatesPage from "./page";
 
 type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
 
-vi.mock("@/components/ui/tooltip", () => ({
-  Tooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
+vi.mock("@/components/patterns/simple-tooltip", () => ({
+  SimpleTooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("@/components/complex-name-tooltip", () => ({

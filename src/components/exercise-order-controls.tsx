@@ -2,8 +2,8 @@
 
 import { ArrowDown, ArrowUp } from "lucide-react";
 import type { ReactNode } from "react";
-import { IconButton } from "@/components/ui/icon-button";
-import { Tooltip } from "@/components/ui/tooltip";
+import { IconButton } from "@/components/common/icon-button";
+import { SimpleTooltip } from "@/components/patterns/simple-tooltip";
 
 interface ExerciseOrderControlsProps {
   onMoveUp: () => void;
@@ -22,7 +22,7 @@ export function ExerciseOrderControls({
 }: ExerciseOrderControlsProps) {
   return (
     <div className="flex items-center gap-1.5">
-      <Tooltip content="Move up">
+      <SimpleTooltip content="Move up">
         <IconButton
           type="button"
           variant="ghost"
@@ -32,8 +32,8 @@ export function ExerciseOrderControls({
         >
           <ArrowUp className="h-4 w-4" />
         </IconButton>
-      </Tooltip>
-      <Tooltip content="Move down">
+      </SimpleTooltip>
+      <SimpleTooltip content="Move down">
         <IconButton
           type="button"
           variant="ghost"
@@ -43,7 +43,7 @@ export function ExerciseOrderControls({
         >
           <ArrowDown className="h-4 w-4" />
         </IconButton>
-      </Tooltip>
+      </SimpleTooltip>
       {children}
     </div>
   );

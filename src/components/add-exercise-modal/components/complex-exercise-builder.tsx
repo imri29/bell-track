@@ -42,30 +42,15 @@ export function ComplexExerciseBuilder({
     name: "subExercises",
   });
 
-  const selectedExerciseIds = fields
-    .map((field) => field.exerciseId)
-    .filter((id): id is string => Boolean(id));
-
   const addExerciseToSequence = useCallback(
     (exercise: { id: string; name: string }) => {
-      const isDuplicate = fields.some((field) => {
-        if (field.exerciseId) {
-          return field.exerciseId === exercise.id;
-        }
-        return field.exerciseName.toLowerCase() === exercise.name.toLowerCase();
-      });
-
-      if (isDuplicate) {
-        return;
-      }
-
       append({
         exerciseId: exercise.id,
         exerciseName: exercise.name,
         reps: 1,
       });
     },
-    [append, fields],
+    [append],
   );
 
   useEffect(() => {
@@ -95,7 +80,6 @@ export function ComplexExerciseBuilder({
           id={exerciseSelectId}
           className="bg-background"
           placeholder="Add exercises to complex"
-          excludeIds={selectedExerciseIds}
           onCreateNewExercise={onCreateNewExercise}
           onValueChange={(value) => {
             if (!value) {

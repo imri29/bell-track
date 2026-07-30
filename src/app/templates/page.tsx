@@ -4,19 +4,19 @@ import { ClipboardCheck, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { IconButton } from "@/components/common/icon-button";
+import { Spinner } from "@/components/common/spinner";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
+import { SimpleTooltip } from "@/components/patterns/simple-tooltip";
 import { SessionCard } from "@/components/session-card";
 import {
   TemplateExerciseCard,
   TemplateExercisesPanel,
 } from "@/components/template-exercise-blocks";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
-import { Tooltip } from "@/components/ui/tooltip";
 import { useConfirm } from "@/contexts/confirm-context";
 import { formatExerciseUnitValue } from "@/lib/exercise-units";
 import { getTagPalette } from "@/lib/tag-colors";
@@ -329,7 +329,7 @@ export default function TemplatesPage() {
                           </SessionCard.Subtitle>
                         </div>
                         <SessionCard.Actions className="shrink-0 opacity-100 transition-opacity duration-500 md:opacity-0 md:group-hover:opacity-100">
-                          <Tooltip content="Log workout">
+                          <SimpleTooltip content="Log workout">
                             <IconButton
                               size="sm"
                               variant="outline"
@@ -339,8 +339,8 @@ export default function TemplatesPage() {
                             >
                               <ClipboardCheck className="h-4 w-4" />
                             </IconButton>
-                          </Tooltip>
-                          <Tooltip content="Edit template">
+                          </SimpleTooltip>
+                          <SimpleTooltip content="Edit template">
                             <IconButton
                               asChild
                               size="sm"
@@ -357,7 +357,7 @@ export default function TemplatesPage() {
                                 <Pencil className="h-4 w-4" />
                               </Link>
                             </IconButton>
-                          </Tooltip>
+                          </SimpleTooltip>
                           <IconButton
                             className="h-8 w-8 p-0"
                             variant="destructive"
