@@ -274,7 +274,7 @@ export function WorkoutForm({
       <form
         onSubmit={handleSubmit(handleFormSubmit)}
         onKeyDown={preventEnterFromSelect}
-        className="space-y-4"
+        className="space-y-4 pb-24"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -606,7 +606,7 @@ export function WorkoutForm({
           )}
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t">
+        <div className="sticky bottom-0 z-10 -mx-6 flex justify-end gap-2 border-t bg-card/95 px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur supports-[backdrop-filter]:bg-card/85">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
               {cancelLabel}
