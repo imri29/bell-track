@@ -109,7 +109,7 @@ function Tags({
   );
 }
 
-function ExerciseList({
+function ExerciseList<TExercise extends SessionExercise>({
   exercises,
   renderItem,
   maxItems,
@@ -117,8 +117,8 @@ function ExerciseList({
   dividerClassName,
   sectionTitleClassName,
 }: {
-  exercises: SessionExercise[];
-  renderItem: (context: { exercise: SessionExercise; displayLabel: string }) => ReactNode;
+  exercises: TExercise[];
+  renderItem: (context: { exercise: TExercise; displayLabel: string }) => ReactNode;
   maxItems?: number;
   className?: string;
   dividerClassName?: string;

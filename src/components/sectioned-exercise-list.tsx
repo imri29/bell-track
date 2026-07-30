@@ -18,14 +18,14 @@ type SummaryExercise = {
   };
 };
 
-type RenderContext = {
-  exercise: SummaryExercise;
+type RenderContext<TExercise extends SummaryExercise> = {
+  exercise: TExercise;
   displayLabel: string;
 };
 
-type SectionedExerciseListProps = {
-  exercises: SummaryExercise[];
-  renderItem: (context: RenderContext) => ReactNode;
+type SectionedExerciseListProps<TExercise extends SummaryExercise> = {
+  exercises: TExercise[];
+  renderItem: (context: RenderContext<TExercise>) => ReactNode;
   maxItems?: number;
   className?: string;
   dividerClassName?: string;
@@ -34,7 +34,7 @@ type SectionedExerciseListProps = {
   getRemainingText?: (remainingCount: number) => string;
 };
 
-export function SectionedExerciseList({
+export function SectionedExerciseList<TExercise extends SummaryExercise>({
   exercises,
   renderItem,
   maxItems,
@@ -43,7 +43,7 @@ export function SectionedExerciseList({
   sectionTitleClassName,
   remainingCountClassName,
   getRemainingText,
-}: SectionedExerciseListProps) {
+}: SectionedExerciseListProps<TExercise>) {
   const sortedExercises = [...exercises].sort((a, b) => {
     if (a.group && b.group && a.group !== b.group) {
       return a.group.localeCompare(b.group);

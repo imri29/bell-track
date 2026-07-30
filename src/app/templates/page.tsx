@@ -9,6 +9,10 @@ import { Spinner } from "@/components/common/spinner";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { PageHero } from "@/components/page-hero";
 import { PageShell } from "@/components/page-shell";
+import {
+  type ComplexSubstitutionOption,
+  ComplexSubstitutionPicker,
+} from "@/components/patterns/complex-substitution-picker";
 import { SimpleTooltip } from "@/components/patterns/simple-tooltip";
 import { SessionCard } from "@/components/session-card";
 import {
@@ -25,6 +29,7 @@ import type { RouterOutputs } from "@/server/api/root";
 import { api } from "@/trpc/react";
 
 type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
+type TemplateSubstitutions = Record<string, Record<string, string>>;
 
 const TEMPLATE_SEARCH_PARAM = "search";
 const TEMPLATE_TAG_PARAM = "tag";
@@ -66,34 +71,87 @@ function areStringArraysEqual(left: string[], right: string[]) {
 
 function TemplateExerciseSummaryList({
   exercises,
+  complexes,
+  substitutions,
+  onSubstitute,
+  onResetSubstitution,
+  onResetAll,
 }: {
   exercises: TemplateWithExercises["exercises"];
+  complexes: ComplexSubstitutionOption[];
+  substitutions: Record<string, string>;
+  onSubstitute: (templateExerciseId: string, complexId: string) => void;
+  onResetSubstitution: (templateExerciseId: string) => void;
+  onResetAll: () => void;
 }) {
+  const substitutionCount = Object.keys(substitutions).length;
+
   return (
-    <SessionCard.ExerciseList
-      className="mt-3"
-      exercises={exercises}
-      renderItem={({ exercise, displayLabel }) => (
-        <div className="min-w-0 break-words text-sm text-muted-foreground">
-          {displayLabel && (
-            <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>
-          )}
-          <ComplexNameTooltip
-            name={exercise.exercise.name}
-            subExercises={exercise.exercise.subExercises}
-            className="inline font-medium text-foreground"
+    <>
+      {substitutionCount > 0 && (
+        <div className="mt-3 flex items-center gap-2">
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            {substitutionCount} {substitutionCount === 1 ? "substitution" : "substitutions"}
+          </span>
+          <button
+            type="button"
+            onClick={onResetAll}
+            className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
-            <span className="inline break-words font-medium text-foreground">
-              {exercise.exercise.type !== "COMPLEX" && exercise.reps
-                ? `${formatExerciseUnitValue(exercise.reps, exercise.unit)} ${exercise.exercise.name}`
-                : exercise.exercise.name}
-              {!!exercise.sets && ` • ${exercise.sets} sets`}
-              {!!exercise.weight && ` • ${exercise.weight}kg`}
-            </span>
-          </ComplexNameTooltip>
+            Reset
+          </button>
         </div>
       )}
-    />
+      <SessionCard.ExerciseList
+        className={substitutionCount > 0 ? "mt-2" : "mt-3"}
+        exercises={exercises}
+        renderItem={({ exercise, displayLabel }) => {
+          const substitutionId = substitutions[exercise.id];
+          const substitutedComplex = substitutionId
+            ? complexes.find((complex) => complex.id === substitutionId)
+            : undefined;
+          const displayExercise = substitutedComplex ?? exercise.exercise;
+          const isComplex = exercise.exercise.type === "COMPLEX";
+
+          return (
+            <div className="min-w-0 break-words text-sm text-muted-foreground">
+              {displayLabel && (
+                <span className="mr-1 font-medium text-foreground">{displayLabel}:</span>
+              )}
+              <span className="inline-flex max-w-full items-center gap-1 align-middle">
+                <ComplexNameTooltip
+                  name={displayExercise.name}
+                  subExercises={displayExercise.subExercises}
+                  className="inline min-w-0 font-medium text-foreground"
+                >
+                  <span className="inline break-words font-medium text-foreground">
+                    {!isComplex && exercise.reps
+                      ? `${formatExerciseUnitValue(exercise.reps, exercise.unit)} ${displayExercise.name}`
+                      : displayExercise.name}
+                    {!!exercise.sets && ` • ${exercise.sets} sets`}
+                    {!!exercise.weight && ` • ${exercise.weight}kg`}
+                  </span>
+                </ComplexNameTooltip>
+                {isComplex && (
+                  <ComplexSubstitutionPicker
+                    currentComplex={{
+                      id: displayExercise.id,
+                      name: displayExercise.name,
+                      subExercises: displayExercise.subExercises,
+                    }}
+                    originalComplexId={exercise.exercise.id}
+                    complexes={complexes}
+                    onSelect={(complexId) => onSubstitute(exercise.id, complexId)}
+                    onReset={() => onResetSubstitution(exercise.id)}
+                    isModified={Boolean(substitutionId)}
+                  />
+                )}
+              </span>
+            </div>
+          );
+        }}
+      />
+    </>
   );
 }
 
@@ -109,6 +167,7 @@ export default function TemplatesPage() {
   const [searchQuery, setSearchQuery] = useState(initialFilters.search);
   const [debouncedQuery, setDebouncedQuery] = useState(initialFilters.search);
   const [selectedTagSlugs, setSelectedTagSlugs] = useState<string[]>(initialFilters.tagSlugs);
+  const [substitutions, setSubstitutions] = useState<TemplateSubstitutions>({});
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -162,6 +221,11 @@ export default function TemplatesPage() {
   } = api.template.getAll.useQuery(queryInput);
 
   const { data: tags, isPending: tagsPending, error: tagsError } = api.template.getTags.useQuery();
+  const { data: exercises } = api.exercise.getAll.useQuery();
+  const complexes = useMemo(
+    () => exercises?.filter((exercise) => exercise.type === "COMPLEX") ?? [],
+    [exercises],
+  );
 
   const { mutate: deleteTemplate, isPending: isDeleting } = api.template.delete.useMutation({
     onSuccess: () => {
@@ -184,7 +248,53 @@ export default function TemplatesPage() {
 
   const handleUseTemplate = (template: TemplateWithExercises) => {
     const params = new URLSearchParams({ templateId: template.id });
+    const templateSubstitutions = substitutions[template.id] ?? {};
+
+    for (const [templateExerciseId, complexId] of Object.entries(templateSubstitutions)) {
+      params.append("swap", `${templateExerciseId}:${complexId}`);
+    }
+
     router.push(`/history/new?${params.toString()}`);
+  };
+
+  const handleSubstituteComplex = (
+    templateId: string,
+    templateExerciseId: string,
+    complexId: string,
+  ) => {
+    setSubstitutions((current) => ({
+      ...current,
+      [templateId]: {
+        ...current[templateId],
+        [templateExerciseId]: complexId,
+      },
+    }));
+  };
+
+  const handleResetSubstitution = (templateId: string, templateExerciseId: string) => {
+    setSubstitutions((current) => {
+      const nextTemplateSubstitutions = { ...current[templateId] };
+      delete nextTemplateSubstitutions[templateExerciseId];
+
+      if (Object.keys(nextTemplateSubstitutions).length === 0) {
+        const next = { ...current };
+        delete next[templateId];
+        return next;
+      }
+
+      return {
+        ...current,
+        [templateId]: nextTemplateSubstitutions,
+      };
+    });
+  };
+
+  const handleResetTemplateSubstitutions = (templateId: string) => {
+    setSubstitutions((current) => {
+      const next = { ...current };
+      delete next[templateId];
+      return next;
+    });
   };
 
   const hasTemplates = (templates?.length ?? 0) > 0;
@@ -377,7 +487,18 @@ export default function TemplatesPage() {
                         <SessionCard.Tags tags={template.tags} />
                       </div>
                     </div>
-                    <TemplateExerciseSummaryList exercises={template.exercises} />
+                    <TemplateExerciseSummaryList
+                      exercises={template.exercises}
+                      complexes={complexes}
+                      substitutions={substitutions[template.id] ?? {}}
+                      onSubstitute={(templateExerciseId, complexId) =>
+                        handleSubstituteComplex(template.id, templateExerciseId, complexId)
+                      }
+                      onResetSubstitution={(templateExerciseId) =>
+                        handleResetSubstitution(template.id, templateExerciseId)
+                      }
+                      onResetAll={() => handleResetTemplateSubstitutions(template.id)}
+                    />
                   </TemplateExerciseCard>
                 ))}
               </div>

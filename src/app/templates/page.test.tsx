@@ -15,6 +15,7 @@ import {
 import TemplatesPage from "./page";
 
 type TemplateWithExercises = RouterOutputs["template"]["getAll"][number];
+const mockComplexSubstitutionPicker = vi.fn();
 
 vi.mock("@/components/patterns/simple-tooltip", () => ({
   SimpleTooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -30,8 +31,30 @@ vi.mock("@/components/complex-name-tooltip", () => ({
   }) => <>{children}</>,
 }));
 
+vi.mock("@/components/patterns/complex-substitution-picker", () => ({
+  ComplexSubstitutionPicker: ({
+    currentComplex,
+    onSelect,
+  }: {
+    currentComplex: { name: string };
+    onSelect: (complexId: string) => void;
+  }) => (
+    <>
+      {mockComplexSubstitutionPicker({ currentComplex })}
+      <button
+        type="button"
+        aria-label={`Find a substitute for ${currentComplex.name}`}
+        onClick={() => onSelect("complex-alt")}
+      >
+        Swap
+      </button>
+    </>
+  ),
+}));
+
 const mockTemplateQuery = vi.fn();
 const mockTagsQuery = vi.fn();
+const mockExercisesQuery = vi.fn();
 const mockDeleteTemplate = vi.fn();
 const mockInvalidateTemplates = vi.fn();
 
@@ -55,6 +78,12 @@ vi.mock("@/trpc/react", () => ({
           },
           isPending: false,
         }),
+      },
+    },
+    exercise: {
+      getAll: {
+        useQuery: (...args: unknown[]) =>
+          mockExercisesQuery(...args) ?? { data: [], isPending: false, error: undefined },
       },
     },
   },
@@ -150,6 +179,38 @@ const templateTwo: TemplateWithExercises = {
         name: "Swing",
         type: "EXERCISE",
         subExercises: "[]",
+        description: null,
+      },
+      sectionTitle: null,
+    },
+  ],
+  tags: [],
+};
+
+const templateWithComplex: TemplateWithExercises = {
+  ...templateOne,
+  id: "t-complex",
+  name: "Complex Day",
+  exercises: [
+    {
+      id: "te-complex",
+      exerciseId: "complex-current",
+      sets: 3,
+      unit: "REPS",
+      reps: "1",
+      weight: 20,
+      restTime: 60,
+      notes: "",
+      group: "",
+      order: 1,
+      exercise: {
+        id: "complex-current",
+        name: "Armor Building",
+        type: "COMPLEX",
+        subExercises: JSON.stringify([
+          { exerciseName: "Clean", reps: 2 },
+          { exerciseName: "Press", reps: 1 },
+        ]),
         description: null,
       },
       sectionTitle: null,
@@ -338,5 +399,68 @@ describe("TemplatesPage", () => {
     renderTemplates();
 
     expect(screen.getByText("Finisher")).toBeInTheDocument();
+  });
+
+  it("temporarily substitutes a complex and carries it into logging", async () => {
+    mockTemplateQuery.mockReturnValue({
+      data: [templateWithComplex],
+      isPending: false,
+      error: undefined,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [],
+      isPending: false,
+      error: undefined,
+    });
+    mockExercisesQuery.mockReturnValue({
+      data: [
+        {
+          id: "complex-current",
+          name: "Armor Building",
+          type: "COMPLEX",
+          subExercises: [{ exerciseName: "Clean", reps: 2 }],
+        },
+        {
+          id: "complex-alt",
+          name: "King Kong",
+          type: "COMPLEX",
+          subExercises: [{ exerciseName: "Gorilla Row", reps: 5 }],
+        },
+      ],
+      isPending: false,
+      error: undefined,
+    });
+
+    renderTemplates();
+
+    expect(mockComplexSubstitutionPicker).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        currentComplex: expect.objectContaining({ name: "Armor Building" }),
+      }),
+    );
+    await userEvent.click(screen.getByLabelText("Find a substitute for Armor Building"));
+
+    await waitFor(() => {
+      expect(screen.getByText("1 substitution")).toBeInTheDocument();
+      expect(mockComplexSubstitutionPicker).toHaveBeenLastCalledWith(
+        expect.objectContaining({ currentComplex: expect.objectContaining({ name: "King Kong" }) }),
+      );
+    });
+
+    await userEvent.click(screen.getByLabelText("Log Complex Day"));
+
+    expect(getRouterMock().push).toHaveBeenCalledWith(
+      "/history/new?templateId=t-complex&swap=te-complex%3Acomplex-alt",
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("1 substitution")).not.toBeInTheDocument();
+      expect(screen.getByLabelText("Find a substitute for Armor Building")).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByLabelText("Log Complex Day"));
+    expect(getRouterMock().push).toHaveBeenLastCalledWith("/history/new?templateId=t-complex");
   });
 });

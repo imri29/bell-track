@@ -13,8 +13,34 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/trpc/react";
 import type { TemplateData } from "@/types";
 
-export function NewWorkoutClient({ date, templateId }: { date?: string; templateId?: string }) {
+const EMPTY_SWAPS: string[] = [];
+
+function parseSwaps(swaps: string[]) {
+  const substitutions = new Map<string, string>();
+
+  for (const swap of swaps) {
+    const separatorIndex = swap.indexOf(":");
+    if (separatorIndex <= 0 || separatorIndex === swap.length - 1) {
+      continue;
+    }
+
+    substitutions.set(swap.slice(0, separatorIndex), swap.slice(separatorIndex + 1));
+  }
+
+  return substitutions;
+}
+
+export function NewWorkoutClient({
+  date,
+  templateId,
+  swaps = EMPTY_SWAPS,
+}: {
+  date?: string;
+  templateId?: string;
+  swaps?: string[];
+}) {
   const router = useRouter();
+  const substitutions = useMemo(() => parseSwaps(swaps), [swaps]);
 
   const initialDate = useMemo(() => {
     if (!date) {
@@ -49,7 +75,8 @@ export function NewWorkoutClient({ date, templateId }: { date?: string; template
       id: templateResponse.id,
       name: templateResponse.name,
       exercises: templateResponse.exercises.map((exercise) => ({
-        exerciseId: exercise.exerciseId,
+        exerciseId:
+          (exercise.id ? substitutions.get(exercise.id) : undefined) ?? exercise.exerciseId,
         sets: exercise.sets,
         unit: exercise.unit ?? "REPS",
         reps: exercise.reps,
@@ -62,7 +89,7 @@ export function NewWorkoutClient({ date, templateId }: { date?: string; template
       })),
       tagIds: templateResponse.tags.map((tag) => tag.id),
     };
-  }, [templateResponse]);
+  }, [substitutions, templateResponse]);
 
   const handleNavigateToHistory = () => {
     router.push("/history?view=list");

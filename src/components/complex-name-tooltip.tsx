@@ -13,12 +13,8 @@ import {
 } from "@/components/ui/drawer";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { type ComplexSubExercise, parseComplexSubExercises } from "@/lib/complex-sub-exercises";
 import { cn } from "@/lib/utils";
-
-type ComplexSubExercise = {
-  exerciseName: string;
-  reps: number;
-};
 
 interface ComplexNameTooltipProps {
   name: string;
@@ -33,20 +29,7 @@ export function ComplexNameTooltip({
   className,
   children,
 }: ComplexNameTooltipProps) {
-  let parsedSubExercises: ComplexSubExercise[] = [];
-
-  if (Array.isArray(subExercises)) {
-    parsedSubExercises = subExercises;
-  } else if (typeof subExercises === "string") {
-    try {
-      const maybeArray = JSON.parse(subExercises);
-      if (Array.isArray(maybeArray)) {
-        parsedSubExercises = maybeArray as ComplexSubExercise[];
-      }
-    } catch {
-      parsedSubExercises = [];
-    }
-  }
+  const parsedSubExercises = parseComplexSubExercises(subExercises);
 
   const isMobile = useIsMobile();
 

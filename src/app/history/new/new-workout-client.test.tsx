@@ -8,6 +8,7 @@ import { getRouterMock, resetNextMocks } from "@/tests/mocks/next";
 import { NewWorkoutClient } from "./new-workout-client";
 
 const mockTemplateQuery = vi.fn();
+const mockAddWorkoutForm = vi.fn();
 vi.mock("@/trpc/react", () => ({
   api: {
     template: {
@@ -19,16 +20,25 @@ vi.mock("@/trpc/react", () => ({
 }));
 
 vi.mock("@/components/add-workout-form", () => ({
-  AddWorkoutForm: ({ onCancel, onSuccess }: { onCancel?: () => void; onSuccess?: () => void }) => (
-    <div>
-      <button type="button" onClick={onCancel}>
-        Cancel
-      </button>
-      <button type="button" onClick={onSuccess}>
-        Submit
-      </button>
-    </div>
-  ),
+  AddWorkoutForm: (props: {
+    templateData?: {
+      exercises: Array<{ exerciseId: string }>;
+    };
+    onCancel?: () => void;
+    onSuccess?: () => void;
+  }) => {
+    mockAddWorkoutForm(props);
+    return (
+      <div>
+        <button type="button" onClick={props.onCancel}>
+          Cancel
+        </button>
+        <button type="button" onClick={props.onSuccess}>
+          Submit
+        </button>
+      </div>
+    );
+  },
 }));
 
 vi.mock("@/components/template-combobox", () => ({
@@ -92,6 +102,48 @@ describe("NewWorkoutClient", () => {
       expect.objectContaining({ enabled: true }),
     );
     expect(screen.getByText("Submit")).toBeInTheDocument();
+  });
+
+  it("applies template-card substitutions to the workout draft", () => {
+    mockTemplateQuery.mockReturnValue({
+      data: {
+        id: "tpl1",
+        name: "Template",
+        exercises: [
+          {
+            id: "template-exercise-1",
+            exerciseId: "original-complex",
+            sets: 3,
+            unit: "REPS",
+            reps: "1",
+            weight: 24,
+            restTime: 60,
+            notes: "",
+            group: "",
+            order: 1,
+          },
+        ],
+        tags: [],
+      },
+      isPending: false,
+      error: undefined,
+    });
+
+    render(
+      <NewWorkoutClient templateId="tpl1" swaps={["template-exercise-1:replacement-complex"]} />,
+    );
+
+    expect(mockAddWorkoutForm).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        templateData: expect.objectContaining({
+          exercises: [
+            expect.objectContaining({
+              exerciseId: "replacement-complex",
+            }),
+          ],
+        }),
+      }),
+    );
   });
 
   it("navigates back to history on cancel or success", async () => {

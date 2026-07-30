@@ -9,6 +9,8 @@ export default async function NewWorkoutPage({
   const resolvedSearchParams = await searchParams;
   const date = extractSearchParam(resolvedSearchParams.date);
   const templateId = extractSearchParam(resolvedSearchParams.templateId);
+  const rawSwaps = resolvedSearchParams.swap;
+  const swaps = Array.isArray(rawSwaps) ? rawSwaps : rawSwaps ? [rawSwaps] : [];
 
-  return <NewWorkoutClient date={date} templateId={templateId} />;
+  return <NewWorkoutClient date={date} templateId={templateId} swaps={swaps} />;
 }
