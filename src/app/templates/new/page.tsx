@@ -215,7 +215,7 @@ export default function NewTemplatePage() {
       <form
         onSubmit={handleSubmit(onSubmit)}
         onKeyDown={preventEnterFromSelect}
-        className="space-y-8"
+        className="space-y-8 pb-28"
       >
         <TemplateExercisesPanel title="Template Details">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -556,13 +556,15 @@ export default function NewTemplatePage() {
             </TemplateExercisesList>
           )}
         </TemplateExercisesPanel>
-        <div className="flex justify-end gap-4 border-t border-border/60 pt-6">
-          <Button asChild type="button" variant="outline">
-            <Link href="/templates">Cancel</Link>
-          </Button>
-          <Button type="submit" disabled={createTemplate.isPending}>
-            {createTemplate.isPending ? "Creating..." : "Create Template"}
-          </Button>
+        <div className="fixed inset-x-0 bottom-11 z-40 border-t border-border/60 bg-background/95 px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur md:bottom-0 md:px-10 md:py-4">
+          <div className="mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 sm:flex sm:justify-end sm:gap-4">
+            <Button asChild type="button" variant="outline" className="w-full sm:w-auto">
+              <Link href="/templates">Cancel</Link>
+            </Button>
+            <Button type="submit" disabled={createTemplate.isPending} className="w-full sm:w-auto">
+              {createTemplate.isPending ? "Creating..." : "Create Template"}
+            </Button>
+          </div>
         </div>
       </form>
     </PageShell>

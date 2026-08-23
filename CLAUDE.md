@@ -240,6 +240,7 @@ This project uses two separate server-side layers:
 - **TypeScript checking**: Use `pnpm run ts` (NOT `pnpm run typecheck`)
 - use shadcn components unless instructed otherwise
 - do not allow "any" or ts erros
+- Verify every UI fix at mobile width as well as desktop width, including fixed or sticky controls, spacing, wrapping, and whether content is obscured.
 
 ## Review Findings Log
 
