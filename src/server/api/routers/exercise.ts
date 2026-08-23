@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Exercise as PrismaExercise } from "@/generated/prisma";
+import type { Exercise as PrismaExercise } from "@prisma/client";
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/trpc";
 import { EXERCISE_TYPES } from "@/types";

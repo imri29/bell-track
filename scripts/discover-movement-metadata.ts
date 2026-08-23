@@ -1,4 +1,4 @@
-import { ExerciseType, PrismaClient } from "@/generated/prisma";
+import { ExerciseType, PrismaClient } from "@prisma/client";
 
 type SuggestedMetadata = {
   movementGroup: "PUSH" | "PULL" | "CORE" | "LEGS";

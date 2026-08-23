@@ -1,4 +1,4 @@
-import { ExerciseType, type Prisma, PrismaClient } from "@/generated/prisma";
+import { ExerciseType, type Prisma, PrismaClient } from "@prisma/client";
 import { workoutTags } from "./seed-data";
 
 const prisma = new PrismaClient();

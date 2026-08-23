@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import type { Prisma } from "@/generated/prisma";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { idSchema, workoutExerciseInputSchema, workoutExerciseOutputSchema } from "../schemas";

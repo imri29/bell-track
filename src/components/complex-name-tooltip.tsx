@@ -44,6 +44,7 @@ export function ComplexNameTooltip({
   const exerciseList = (
     <ul className="space-y-1 text-xs text-muted-foreground">
       {parsedSubExercises.map((item, index) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: the index preserves duplicate movements in order.
         <li key={`${item.exerciseName}-${index}`} className="flex items-center gap-2">
           <span className="whitespace-nowrap font-medium text-foreground">{item.reps}</span>
           <span className="truncate" title={item.exerciseName}>

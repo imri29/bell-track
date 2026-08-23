@@ -1,6 +1,6 @@
 import type { Session } from "next-auth";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Exercise } from "@/generated/prisma";
+import type { Exercise } from "@prisma/client";
 import { appRouter } from "@/server/api/root";
 import { createCallerFactory } from "@/server/trpc";
 import { EXERCISE_TYPES } from "@/types";

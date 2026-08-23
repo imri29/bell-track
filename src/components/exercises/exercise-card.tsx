@@ -110,6 +110,7 @@ export function ExerciseCard({
           </p>
           <ul className="space-y-1 text-sm text-muted-foreground">
             {breakdownItems.map((movement, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: the index preserves duplicate movements in order.
               <li key={`${movement.exerciseName}-${index}`} className="flex items-center gap-2">
                 <span className="font-semibold text-foreground">{movement.reps}</span>
                 <span className="truncate" title={movement.exerciseName}>

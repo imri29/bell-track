@@ -1,4 +1,4 @@
-import { ExerciseType, PrismaClient } from "@/generated/prisma";
+import { ExerciseType, PrismaClient } from "@prisma/client";
 
 type MovementGroup = "PUSH" | "PULL" | "CORE" | "LEGS";
 type MovementPlane = "VERTICAL" | "HORIZONTAL" | null;
