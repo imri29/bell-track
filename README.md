@@ -3,6 +3,8 @@
 Bell Track is a Next.js App Router project for planning and logging kettlebell training. See `docs/` for
 feature-specific notes.
 
+For the assistant-assisted template workflow, see [`docs/template-import-workflow.md`](docs/template-import-workflow.md).
+
 ## Getting Started
 
 Development tooling is wired for pnpm.
