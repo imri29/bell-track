@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardCheck, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ClipboardCheck, FileJson, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -340,6 +340,12 @@ export default function TemplatesPage() {
             <Link href="/templates/new">
               <Plus className="h-4 w-4" />
               Add Template
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="gap-1.5">
+            <Link href="/templates/import">
+              <FileJson className="h-4 w-4" />
+              Import template
             </Link>
           </Button>
         </div>
