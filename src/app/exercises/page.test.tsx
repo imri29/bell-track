@@ -53,6 +53,9 @@ const exerciseFixture: ExerciseCardData = {
   createdAt: "2024-10-01T12:00:00.000Z",
   updatedAt: "2024-10-02T12:00:00.000Z",
   subExercises: null,
+  movementGroup: null,
+  movementPlane: null,
+  legBias: null,
 };
 
 const complexFixture: ExerciseCardData = {
@@ -66,6 +69,9 @@ const complexFixture: ExerciseCardData = {
     { exerciseName: "Clean", reps: 5 },
     { exerciseName: "Press", reps: 5 },
   ],
+  movementGroup: null,
+  movementPlane: null,
+  legBias: null,
 };
 
 const sisyphusFixture: ExerciseCardData = {
@@ -76,6 +82,9 @@ const sisyphusFixture: ExerciseCardData = {
   createdAt: "2024-10-07T12:00:00.000Z",
   updatedAt: "2024-10-08T12:00:00.000Z",
   subExercises: null,
+  movementGroup: null,
+  movementPlane: null,
+  legBias: null,
 };
 
 const renderExercisesPage = () => {

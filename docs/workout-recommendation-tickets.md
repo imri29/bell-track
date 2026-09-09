@@ -11,7 +11,7 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
 ## Ticket Backlog
 
 ### WR-001 - Add movement metadata to Exercise (starter)
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Add the minimum schema foundation so every non-complex exercise can be classified.
 - Scope:
@@ -29,6 +29,8 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
   - `pnpm run ts` passes.
 - Why this matters:
   - All validation and warning logic depends on structured movement data.
+
+Implementation note: the schema migration and exercise API plumbing are complete. The existing backfill script is tracked separately in WR-002 and requires a configured `DATABASE_URL` to audit or apply against a database.
 
 ### WR-002 - Backfill seed data for movement fields
 - Status: `todo`
