@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { Edit, Trash2 } from "lucide-react";
+import { BookmarkPlus, Edit, Trash2 } from "lucide-react";
 import { IconButton } from "@/components/common/icon-button";
 import { Spinner } from "@/components/common/spinner";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
@@ -18,6 +18,8 @@ type WorkoutListViewProps = {
   onEdit: (workout: WorkoutWithExercises) => void;
   onDelete: (workout: { id: string; date: string }) => void;
   isDeleting: boolean;
+  onSaveAsTemplate: (workout: WorkoutWithExercises) => void;
+  isCreatingTemplate: boolean;
 };
 
 function WorkoutExercisesList({ exercises }: { exercises: WorkoutWithExercises["exercises"] }) {
@@ -49,6 +51,8 @@ export function WorkoutListView({
   onEdit,
   onDelete,
   isDeleting,
+  onSaveAsTemplate,
+  isCreatingTemplate,
 }: WorkoutListViewProps) {
   return (
     <div className="space-y-4">
@@ -79,7 +83,7 @@ export function WorkoutListView({
                       <SessionCard.Description>{workout.notes}</SessionCard.Description>
                     )}
                   </div>
-                  <SessionCard.Actions>
+                  <SessionCard.Actions className="flex-wrap justify-end">
                     <Button
                       variant="outline"
                       size="sm"
@@ -88,6 +92,16 @@ export function WorkoutListView({
                     >
                       <Edit className="h-4 w-4" />
                       Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSaveAsTemplate(workout)}
+                      disabled={isCreatingTemplate}
+                      className="gap-1.5"
+                    >
+                      <BookmarkPlus className="h-4 w-4" />
+                      {isCreatingTemplate ? "Saving…" : "Save as template"}
                     </Button>
                     <IconButton
                       variant="destructive"

@@ -10,6 +10,7 @@ import { HistoryPageClient, type WorkoutWithExercises } from "./history-page-cli
 
 const mockInvalidateWorkouts = vi.fn();
 const mockDelete = vi.fn();
+const mockCreateTemplate = vi.fn();
 const mockWorkoutQuery = vi.fn();
 const mockTemplateQuery = vi.fn();
 
@@ -36,6 +37,15 @@ vi.mock("@/trpc/react", () => ({
     template: {
       getAll: {
         useQuery: (...args: unknown[]) => mockTemplateQuery(...args),
+      },
+      create: {
+        useMutation: (opts?: { onSuccess?: () => void }) => ({
+          mutate: (input: unknown) => {
+            mockCreateTemplate(input);
+            opts?.onSuccess?.();
+          },
+          isPending: false,
+        }),
       },
     },
   },
@@ -143,6 +153,41 @@ describe("HistoryPageClient", () => {
     await waitFor(() => {
       expect(confirmMock).toHaveBeenCalled();
       expect(mockDelete).not.toHaveBeenCalled();
+    });
+  });
+
+  it("saves a workout as a template with its structure and metadata", async () => {
+    mockWorkoutQuery.mockReturnValue({
+      data: [workoutFixture],
+      isPending: false,
+      error: undefined,
+    });
+    mockTemplateQuery.mockReturnValue({ data: [], isPending: false, error: undefined });
+
+    renderHistory();
+
+    await userEvent.click(screen.getByRole("button", { name: /save as template/i }));
+
+    await waitFor(() => {
+      expect(mockCreateTemplate).toHaveBeenCalledWith({
+        name: "Workout — 01/11/2024",
+        description: "Duration: 45 min.\nFelt strong",
+        tagIds: ["t1"],
+        exercises: [
+          {
+            exerciseId: "ex1",
+            sets: 3,
+            unit: "REPS",
+            reps: "12",
+            weight: 24,
+            restTime: 60,
+            notes: undefined,
+            group: "A",
+            sectionTitle: undefined,
+            order: 0,
+          },
+        ],
+      });
     });
   });
 });

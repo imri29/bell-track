@@ -41,6 +41,14 @@ export function HistoryPageClient({ initialView }: { initialView: View }) {
     },
   });
 
+  const { mutate: createTemplate, isPending: isCreatingTemplate } = api.template.create.useMutation(
+    {
+      onSuccess: () => {
+        utils.template.getAll.invalidate();
+      },
+    },
+  );
+
   const { data: templates } = api.template.getAll.useQuery();
 
   const handleEdit = (workout: WorkoutWithExercises) => {
@@ -54,6 +62,32 @@ export function HistoryPageClient({ initialView }: { initialView: View }) {
 
     const params = new URLSearchParams({ templateId });
     router.push(`/history/new?${params.toString()}`);
+  };
+
+  const handleSaveAsTemplate = (workout: WorkoutWithExercises) => {
+    const dateLabel = format(new Date(workout.date), "dd/MM/yyyy");
+    const durationNote = workout.duration ? `Duration: ${workout.duration} min.` : undefined;
+    const description = [durationNote, workout.notes].filter(Boolean).join("\n") || undefined;
+
+    createTemplate({
+      name: `Workout — ${dateLabel}`,
+      description,
+      tagIds: workout.tags.map((tag) => tag.id),
+      exercises: [...workout.exercises]
+        .sort((a, b) => a.order - b.order)
+        .map((exercise, index) => ({
+          exerciseId: exercise.exerciseId,
+          sets: exercise.sets,
+          unit: exercise.unit,
+          reps: exercise.reps,
+          weight: exercise.weight,
+          restTime: exercise.restTime ?? undefined,
+          notes: exercise.notes || undefined,
+          group: exercise.group || undefined,
+          sectionTitle: exercise.sectionTitle || undefined,
+          order: index,
+        })),
+    });
   };
 
   const handleDelete = async (workout: { id: string; date: string }) => {
@@ -124,6 +158,8 @@ export function HistoryPageClient({ initialView }: { initialView: View }) {
               onEdit={handleEdit}
               onDelete={handleDelete}
               isDeleting={isDeleting}
+              onSaveAsTemplate={handleSaveAsTemplate}
+              isCreatingTemplate={isCreatingTemplate}
             />
           </div>
         </TabsContent>
