@@ -1,89 +1,148 @@
-# Workout Recommendation Roadmap (V1 → V3)
+# Workout Balance & Recommendation Roadmap
 
 ## Feature Goal
 
-Build a progression of recommendation features so the app can guide what to train next while balancing body-part/movement coverage.
+Help the user build balanced, varied workouts using recent training history. The app should offer short, explainable hints while a workout is being created:
 
-Example:
-- If the last workout already included a horizontal push pattern (e.g., push-ups), v1 should warn about overlap.
-- In v2, the app should suggest an alternative pattern (e.g., vertical press).
-- In v3, the app should generate a full workout using explicit rules plus this week's training history.
+- “You trained horizontal push yesterday; vertical push may balance today’s session.”
+- “You have done push-ups 5 times in the last 14 days; consider changing the variation.”
+- “Cossack squats have not appeared in your workouts for 21 days.”
+- “This draft has push and hinge work, but no pull or squat pattern.”
 
-## Recommended Delivery Sequence
+This is a coaching aid, not a rigid program generator. Recommendations should be deterministic, transparent, and easy to dismiss.
 
-## V1: Warning Only (Ship First)
+## Product Principles
 
-### Goal
-Detect recent movement-pattern overlap and show warnings before workout submission.
+- Start with non-blocking hints. Do not prevent a workout because it is not perfectly balanced.
+- Explain every warning or suggestion in plain language.
+- Use recent history, not just the immediately previous workout.
+- Separate movement coverage from exercise variety. Repeating a movement pattern can be useful while repeating the exact same exercise may still be worth changing.
+- Prefer the user’s existing exercise library for suggestions.
+- Keep complex exercises nullable or explicitly assignable until their movement contributions are defined.
+- Do not make medical or injury-safety claims. Shoulder-related preferences can influence suggestions, but the user remains in control.
 
-### Data/Schema Direction
-- Add `primaryPattern` to `Exercise` (enum).
-- Add optional `secondaryPatterns` to `Exercise` (array).
+## Delivery Plan
 
-### Backend Logic
-- Create backend analysis function (service/helper), for example:
-  - `analyzeLastWorkoutPatterns(userId)`
-- Return pattern overlap data to the workout form flow.
+### Part 1: Movement Taxonomy and Metadata
 
-### UI Behavior
-- Show warning text like:
-  - "You hit horizontal push in your last workout."
+**Goal:** Give exercises enough structured metadata for reliable analysis.
 
-### Why It Matters
-- Establishes the movement-classification foundation.
-- Creates reusable history analysis for v2 and v3.
+Add fields for:
 
-## V2: Suggest Alternatives
+- Primary movement pattern: `horizontal-push`, `vertical-push`, `horizontal-pull`, `vertical-pull`, `squat`, `hinge`, `lunge`, `core`, `carry`, or `rotation`.
+- Optional body regions: chest, shoulders, back, quads, hamstrings, glutes, or full body.
+- Optional leg bias: quad-dominant or hamstring-dominant.
+- Optional equipment and difficulty metadata for later filtering.
 
-### Goal
-Recommend exercises from undertrained patterns rather than only warning.
+Deliverable: schema, migration, seed/backfill, and exercise-library editing support where needed.
 
-### Scoring Strategy (Deterministic)
-- Penalize patterns trained in last 1-2 workouts.
-- Boost patterns not trained this week.
-- Rank candidate exercises by score.
+Acceptance criteria:
 
-### API Direction
-- Add a tRPC procedure such as:
-  - `workout.getSuggestions`
-- Return suggestions with reason strings.
+- Existing standard exercises have usable movement metadata.
+- Complexes may remain nullable or use an explicit assignment.
+- No recommendation behavior changes yet.
 
-### Explainability Requirement
-- Every suggestion should include a plain-language reason, e.g.:
-  - "Suggested because vertical push has not been trained in 6 days."
+### Part 2: History Analysis Service
 
-### Why It Matters
-- Moves from passive warning to actionable recommendation.
-- Keeps behavior predictable and easy to test.
+**Goal:** Turn logged workouts into a reusable, deterministic training summary.
 
-## V3: Rule-Based Workout Builder
+Create a pure analysis layer that can calculate:
 
-### Goal
-Generate a complete workout from user-defined rules + this week's workout history.
+- Patterns used in the last workout.
+- Pattern frequency over the last 7 and 14 days.
+- Days since each pattern was trained.
+- Body-region coverage over the selected window.
+- Exact exercise frequency and last-used date.
+- Missing or underrepresented patterns.
 
-### Rules Model Direction
-Store a `WorkoutRuleSet` (JSON or normalized tables) with constraints such as:
-- Required patterns per week.
-- Maximum repeat frequency windows.
-- Target session duration.
-- Equipment constraints.
+Deliverable: typed server-side summary with unit tests and no UI dependency.
 
-### Builder Pipeline
-1. Fetch weekly movement-pattern counts.
-2. Apply hard constraints.
-3. Rank candidate exercises.
-4. Assemble a workout draft.
-5. Validate final movement coverage against rules.
+Acceptance criteria:
 
-### Why It Matters
-- Turns recommendation logic into a repeatable planning system.
-- Reuses the same taxonomy and scoring primitives from v1/v2.
+- Empty history is handled safely.
+- Results are deterministic for the same workout set.
+- Each result retains enough detail to produce an explanation.
 
-## Critical Early Decision: Movement Taxonomy
+### Part 3: Draft Balance Hints
 
-Define a movement taxonomy now, because all versions depend on it.
+**Goal:** Show useful feedback while composing a workout.
 
-Suggested starting taxonomy:
+Add a `workout.validateDraft` or similarly named tRPC procedure that receives the current draft and returns:
+
+- `errors`: only genuine input problems, such as an empty workout.
+- `warnings`: useful but non-blocking overlap or coverage concerns.
+- `hints`: positive recommendations, such as an undertrained pattern or neglected exercise.
+
+Initial rules:
+
+- Warn when a draft repeats the same push/pull plane as the previous workout.
+- Hint when a major pattern is absent from the recent 7-day window.
+- Hint when an exact exercise appears unusually often in the last 14 days.
+- Remind when an exercise has not been used for a configurable period, initially 21 days.
+
+Deliverable: backend contract, router procedure, and form-level feedback.
+
+Acceptance criteria:
+
+- Warnings never block saving.
+- Every warning and hint includes a reason string.
+- The form updates feedback as the draft changes without making excessive requests.
+- Mobile layout remains readable and does not obscure submit controls.
+
+### Part 4: Explainable Exercise Suggestions
+
+**Goal:** Turn hints into actionable alternatives from the existing library.
+
+Add deterministic candidate scoring:
+
+- Boost undertrained movement patterns.
+- Penalize patterns and exact exercises used very recently.
+- Prefer exercises matching available equipment and the draft’s intent.
+- Respect optional user preferences such as shoulder-friendly movements.
+
+Expose a procedure such as `workout.getSuggestions` returning exercise IDs, scores or rank, and a human-readable reason.
+
+Acceptance criteria:
+
+- Suggestions are drawn from the user’s exercise library.
+- A suggestion can be inserted into the draft with one action.
+- The reason explains the recommendation without exposing opaque scoring details.
+
+### Part 5: Progress and Variety View
+
+**Goal:** Make longer-term patterns visible without turning the app into a spreadsheet.
+
+Add a compact dashboard or history summary showing:
+
+- Pattern coverage this week.
+- Most-repeated exercises over 14 or 30 days.
+- Neglected exercises and patterns.
+- Simple progress indicators for selected exercises, such as best weight or total reps.
+
+Acceptance criteria:
+
+- The view is useful with sparse history.
+- Metrics use clearly labeled time windows.
+- Progress is shown alongside balance and variety, not as a replacement for them.
+
+### Part 6: Personalization and Rule Settings
+
+**Goal:** Let the user tune the coaching behavior after the defaults prove useful.
+
+Possible settings:
+
+- Analysis window: 7, 14, or 30 days.
+- Variety reminder threshold.
+- Preferred equipment.
+- Movements to avoid or prioritize.
+- Whether hints should be quiet, standard, or more proactive.
+
+Do this only after the default rules have been tested in real use.
+
+## Initial Movement Taxonomy
+
+Use these as the first-class movement patterns:
+
 - `horizontal-push`
 - `vertical-push`
 - `horizontal-pull`
@@ -95,18 +154,22 @@ Suggested starting taxonomy:
 - `carry`
 - `rotation`
 
-## Backend Learning Value (Why This Sequence Is Strong)
+Body region and movement pattern are related but should not be collapsed into one field. For example, a push-up is a horizontal push that primarily involves chest, shoulders, and triceps.
 
-- V1 teaches schema + history analysis.
-- V2 teaches recommendation/scoring APIs.
-- V3 teaches constraint-based backend architecture.
-- Nothing is throwaway: each step is a strict superset of the previous one.
+## Recommended Implementation Slices
 
-## Suggested Next Implementation Slice
+Work part by part, keeping each change reviewable:
 
-Start with v1 end-to-end:
-1. Add exercise pattern fields in Prisma schema.
-2. Create migration and update seed/test data.
-3. Add tRPC procedure for overlap analysis.
-4. Surface warnings in the workout creation UI.
-5. Add tests for pattern overlap behavior.
+1. Part 1 only: schema and metadata foundation.
+2. Part 2 only: pure history summary and tests.
+3. Part 3: tRPC contract, then form feedback.
+4. Part 4: suggestions and one-click insertion.
+5. Part 5: progress/variety summary.
+6. Part 6: personalization after real-world feedback.
+
+Start with Part 1 and review the taxonomy and backfill before implementing recommendation logic.
+
+## Related Planning Documents
+
+- `docs/workout-recommendation-tickets.md` contains the implementation backlog.
+- `docs/section-title-feature-plan.md` covers section labels and is complementary to this feature.

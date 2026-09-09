@@ -1,4 +1,4 @@
-# Workout Recommendation Tickets (V1 First)
+# Workout Balance & Recommendation Tickets
 
 Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadmap.md`
 
@@ -128,6 +128,72 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
   - No TypeScript errors.
   - Core V1 scenarios covered by tests.
 
+### WR-010 - Add training-history summary service
+- Status: `todo`
+- Assignee: `you`
+- Goal: Produce a reusable summary of movement coverage, recency, and exercise repetition.
+- Scope:
+  - Analyze the last 7 and 14 days of workouts.
+  - Return last-workout patterns, pattern counts, days since trained, and exact exercise frequency.
+  - Keep the service pure and independent of React or tRPC.
+- Acceptance Criteria:
+  - Empty history and sparse history are handled safely.
+  - Results are deterministic and fully typed.
+  - Unit tests cover recency, frequency, and neglected exercises.
+
+### WR-011 - Expand draft feedback contract
+- Status: `todo`
+- Assignee: `you`
+- Goal: Distinguish blocking input errors from non-blocking coaching feedback.
+- Scope:
+  - Return `{ errors, warnings, hints }` with reason strings.
+  - Keep warnings and hints non-blocking.
+  - Include stable codes so the UI can render them consistently.
+- Acceptance Criteria:
+  - Repeated patterns produce warnings.
+  - Missing recent coverage and repeated exact exercises produce hints.
+  - Every message is explainable to the user.
+
+### WR-012 - Add draft balance panel
+- Status: `todo`
+- Assignee: `you`
+- Goal: Surface balance feedback while composing a workout.
+- Scope:
+  - Call the draft feedback procedure as the draft changes.
+  - Debounce or otherwise avoid a request for every keystroke.
+  - Show compact feedback near the form actions.
+- Acceptance Criteria:
+  - Feedback updates when exercises are added, removed, or changed.
+  - Warnings do not prevent saving.
+  - Mobile layout does not obscure the submit controls.
+
+### WR-013 - Add explainable exercise suggestions
+- Status: `todo`
+- Assignee: `you`
+- Goal: Offer existing-library alternatives for undertrained patterns and overused exercises.
+- Scope:
+  - Add deterministic candidate ranking.
+  - Respect equipment and optional shoulder-friendly preferences.
+  - Return a reason with every suggestion.
+- Acceptance Criteria:
+  - Suggestions use existing exercises only.
+  - A suggestion can be inserted into the current draft.
+  - Ranking behavior has unit tests.
+
+### WR-014 - Add balance and variety summary
+- Status: `todo`
+- Assignee: `you`
+- Goal: Provide a lightweight history view for coverage, repetition, and neglected movements.
+- Scope:
+  - Show weekly pattern coverage.
+  - Show most-repeated exercises over 14 or 30 days.
+  - Show patterns and exercises not used recently.
+  - Add simple progress indicators where data is available.
+- Acceptance Criteria:
+  - Time windows are visible.
+  - Sparse history produces a useful empty state.
+  - Summary complements, rather than replaces, workout history.
+
 ## Minimal First Ticket (Start Here)
 
 ### Start with WR-001 only
@@ -135,3 +201,6 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
 - Do not touch UI or router behavior yet.
 - Share the migration diff and schema after completion, then we will review before WR-002.
 
+## Revised Product Direction
+
+WR-004 and WR-008 should not initially enforce an exact one-of-each workout composition. The first release should provide non-blocking balance hints based on recent history. Strict validation can be reconsidered later if real usage shows that the user wants it.
