@@ -33,7 +33,7 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
 Implementation note: the schema migration and exercise API plumbing are complete. The existing backfill script is tracked separately in WR-002 and requires a configured `DATABASE_URL` to audit or apply against a database.
 
 ### WR-002 - Backfill seed data for movement fields
-- Status: `todo`
+- Status: `in-progress`
 - Assignee: `you`
 - Goal: Ensure existing exercises have movement metadata where applicable.
 - Scope:
@@ -42,6 +42,8 @@ Implementation note: the schema migration and exercise API plumbing are complete
 - Acceptance Criteria:
   - Seeding runs without errors.
   - Spot check shows movement fields populated for standard exercises.
+
+Implementation note: canonical seed exercises now include explicit movement metadata. Live database discovery/backfill remains pending until a configured `DATABASE_URL` is available; use `pnpm run db:discover:movement` before applying `pnpm run db:backfill:movement`.
 
 ### WR-003 - Add draft validation contract in shared schemas
 - Status: `todo`
