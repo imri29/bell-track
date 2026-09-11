@@ -133,7 +133,7 @@ Implementation note: canonical seed exercises now include explicit movement meta
   - Core V1 scenarios covered by tests.
 
 ### WR-010 - Add training-history summary service
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Produce a reusable summary of movement coverage, recency, and exercise repetition.
 - Scope:
@@ -144,6 +144,8 @@ Implementation note: canonical seed exercises now include explicit movement meta
   - Empty history and sparse history are handled safely.
   - Results are deterministic and fully typed.
   - Unit tests cover recency, frequency, and neglected exercises.
+
+Implementation note: `src/server/services/workout-history-analysis.ts` provides a pure summary over the last 7 and 14 rolling days, including last-workout patterns, pattern frequency, body-region counts when metadata is available, exact exercise frequency, and days-since metrics. It accepts an explicit `asOf` date so callers and tests remain deterministic. Exercises without movement metadata are ignored for pattern calculations rather than classified by guesswork.
 
 ### WR-011 - Expand draft feedback contract
 - Status: `todo`
