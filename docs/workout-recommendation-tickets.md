@@ -208,3 +208,19 @@ Implementation note: canonical seed exercises now include explicit movement meta
 ## Revised Product Direction
 
 WR-004 and WR-008 should not initially enforce an exact one-of-each workout composition. The first release should provide non-blocking balance hints based on recent history. Strict validation can be reconsidered later if real usage shows that the user wants it.
+
+## Deferred Project Tasks
+
+### OPS-001 - Mark production DATABASE_URL as sensitive in Vercel
+- Status: `todo`
+- Assignee: `you`
+- Goal: Protect the production database credential in Vercel’s environment-variable dashboard.
+- Scope:
+  - Confirm the exact `DATABASE_URL` value points to the intended production Neon database.
+  - Remove and re-add the Production variable with Vercel’s Sensitive option enabled.
+  - Redeploy after saving the variable.
+- Acceptance Criteria:
+  - Production has exactly one active `DATABASE_URL` value.
+  - The variable is marked Sensitive and is not readable in the dashboard.
+  - The deployed app can still connect to PostgreSQL after redeployment.
+- Note: Do not modify the unrelated `POSTGRES_*` integration variables unless the deployment itself requires it.

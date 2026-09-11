@@ -16,6 +16,63 @@ function hasAny(text: string, needles: readonly string[]) {
 function suggestFromName(name: string): SuggestedMetadata | null {
   const lower = name.toLowerCase();
 
+  // Exact-name corrections take priority over broad keyword rules. Several
+  // kettlebell movements combine multiple patterns, so keyword order alone
+  // would classify them incorrectly.
+  if (lower === "clean & press" || lower === "single bell press" || lower === "strict press") {
+    return {
+      movementGroup: "PUSH",
+      movementPlane: "VERTICAL",
+      legBias: null,
+      reason: "exact pressing movement override",
+    };
+  }
+
+  if (lower.includes("chest press")) {
+    return {
+      movementGroup: "PUSH",
+      movementPlane: "HORIZONTAL",
+      legBias: null,
+      reason: "exact chest press override",
+    };
+  }
+
+  if (["push ups", "ring push ups"].includes(lower)) {
+    return {
+      movementGroup: "PUSH",
+      movementPlane: "HORIZONTAL",
+      legBias: null,
+      reason: "exact push-up override",
+    };
+  }
+
+  if (["chin ups", "pull-ups"].includes(lower)) {
+    return {
+      movementGroup: "PULL",
+      movementPlane: "VERTICAL",
+      legBias: null,
+      reason: "exact vertical-pull override",
+    };
+  }
+
+  if (lower.includes("face pull")) {
+    return {
+      movementGroup: "PULL",
+      movementPlane: "HORIZONTAL",
+      legBias: null,
+      reason: "exact face-pull override",
+    };
+  }
+
+  if (lower.includes("deadlift high pull")) {
+    return {
+      movementGroup: "PULL",
+      movementPlane: "VERTICAL",
+      legBias: null,
+      reason: "exact deadlift high-pull override",
+    };
+  }
+
   // Legs - quad dominant
   if (hasAny(lower, ["squat", "thruster", "lunge"])) {
     return {
