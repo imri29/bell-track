@@ -4,6 +4,9 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { idSchema, workoutExerciseInputSchema, workoutExerciseOutputSchema } from "../schemas";
+import { draftFeedbackOutputSchema } from "../schemas";
+import { analyzeWorkoutHistory } from "../../services/workout-history-analysis";
+import { getWorkoutDraftFeedback } from "../../services/workout-draft-feedback";
 
 // Full workout output schema used by both getAll and getById
 const workoutTagOutputSchema = z.object({
@@ -42,6 +45,11 @@ const createWorkoutSchema = baseWorkoutSchema.extend({
 const updateWorkoutSchema = baseWorkoutSchema.partial().extend({
   id: z.string(),
   tagIds: z.array(z.string()).optional(),
+});
+
+const validateDraftSchema = z.object({
+  exerciseIds: z.array(z.string()),
+  asOf: z.string().datetime().optional(),
 });
 
 type WorkoutWithRelations = Prisma.WorkoutGetPayload<{
@@ -89,6 +97,59 @@ function serializeWorkout(workout: WorkoutWithRelations) {
 }
 
 export const workoutRouter = createTRPCRouter({
+  validateDraft: protectedProcedure
+    .input(validateDraftSchema)
+    .output(draftFeedbackOutputSchema)
+    .query(async ({ input, ctx }) => {
+      const asOf = input.asOf ? new Date(input.asOf) : new Date();
+      const [draftExercises, workouts] = await Promise.all([
+        prisma.exercise.findMany({
+          where: { id: { in: input.exerciseIds } },
+          select: {
+            id: true,
+            name: true,
+            movementGroup: true,
+            movementPlane: true,
+            legBias: true,
+          },
+        }),
+        prisma.workout.findMany({
+          where: { userId: ctx.userId, date: { lte: asOf } },
+          orderBy: { date: "desc" },
+          include: {
+            exercises: {
+              include: {
+                exercise: {
+                  select: {
+                    id: true,
+                    name: true,
+                    movementGroup: true,
+                    movementPlane: true,
+                    legBias: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+      ]);
+
+      const draftById = new Map(draftExercises.map((exercise) => [exercise.id, exercise]));
+      const draft = input.exerciseIds.flatMap((id) => {
+        const exercise = draftById.get(id);
+        return exercise ? [exercise] : [];
+      });
+      const history = analyzeWorkoutHistory(
+        workouts.map((workout) => ({
+          id: workout.id,
+          date: workout.date,
+          exercises: workout.exercises.map(({ exercise }) => exercise),
+        })),
+        asOf,
+      );
+
+      return getWorkoutDraftFeedback(draft, history);
+    }),
   getAll: protectedProcedure.output(z.array(workoutOutputSchema)).query(async ({ ctx }) => {
     const workouts = await prisma.workout.findMany({
       where: {

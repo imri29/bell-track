@@ -148,7 +148,7 @@ Implementation note: canonical seed exercises now include explicit movement meta
 Implementation note: `src/server/services/workout-history-analysis.ts` provides a pure summary over the last 7 and 14 rolling days, including last-workout patterns, pattern frequency, body-region counts when metadata is available, exact exercise frequency, and days-since metrics. It accepts an explicit `asOf` date so callers and tests remain deterministic. Exercises without movement metadata are ignored for pattern calculations rather than classified by guesswork.
 
 ### WR-011 - Expand draft feedback contract
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Distinguish blocking input errors from non-blocking coaching feedback.
 - Scope:
@@ -160,8 +160,10 @@ Implementation note: `src/server/services/workout-history-analysis.ts` provides 
   - Missing recent coverage and repeated exact exercises produce hints.
   - Every message is explainable to the user.
 
+Implementation note: `workout.validateDraft` now returns typed `{ errors, warnings, hints }` items with stable codes and plain-language messages. The first rules cover empty drafts, repeated push/pull planes from the last workout, missing major groups in the last 7 days, repeated exercises in the last 14 days, and neglected draft exercises.
+
 ### WR-012 - Add draft balance panel
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Surface balance feedback while composing a workout.
 - Scope:
@@ -172,6 +174,8 @@ Implementation note: `src/server/services/workout-history-analysis.ts` provides 
   - Feedback updates when exercises are added, removed, or changed.
   - Warnings do not prevent saving.
   - Mobile layout does not obscure the submit controls.
+
+Implementation note: `WorkoutForm` now renders the typed feedback near the bottom of the form. It updates when exercises are added, removed, or replaced, leaves warnings and hints non-blocking, and preserves bottom padding for the fixed mobile action bar.
 
 ### WR-013 - Add explainable exercise suggestions
 - Status: `todo`

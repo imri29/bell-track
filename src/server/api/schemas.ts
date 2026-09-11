@@ -68,3 +68,14 @@ export const workoutExerciseOutputSchema = z.object({
   sectionTitle: nullableStringToOptional,
   exercise: exerciseSchema,
 });
+
+export const draftFeedbackItemSchema = z.object({
+  code: z.string(),
+  message: z.string(),
+});
+
+export const draftFeedbackOutputSchema = z.object({
+  errors: z.array(draftFeedbackItemSchema),
+  warnings: z.array(draftFeedbackItemSchema),
+  hints: z.array(draftFeedbackItemSchema),
+});
