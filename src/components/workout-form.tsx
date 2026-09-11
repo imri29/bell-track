@@ -274,7 +274,7 @@ export function WorkoutForm({
       <form
         onSubmit={handleSubmit(handleFormSubmit)}
         onKeyDown={preventEnterFromSelect}
-        className="space-y-4 pb-24"
+        className="space-y-4 pb-32"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -606,15 +606,23 @@ export function WorkoutForm({
           )}
         </div>
 
-        <div className="sticky bottom-0 z-10 -mx-6 flex justify-end gap-2 border-t bg-card/95 px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur supports-[backdrop-filter]:bg-card/85">
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-              {cancelLabel}
+        <div className="fixed inset-x-0 bottom-11 z-40 border-t border-border/60 bg-background/95 px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur supports-[backdrop-filter]:bg-background/85 md:bottom-0 md:px-10 md:py-4">
+          <div className="mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 sm:flex sm:justify-end sm:gap-4">
+            {onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isSubmitting}
+                className="w-full sm:w-auto"
+              >
+                {cancelLabel}
+              </Button>
+            )}
+            <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
+              {submitLabel}
             </Button>
-          )}
-          <Button type="submit" disabled={isSubmitting}>
-            {submitLabel}
-          </Button>
+          </div>
         </div>
       </form>
 
