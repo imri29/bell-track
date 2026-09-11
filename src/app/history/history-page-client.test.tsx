@@ -166,7 +166,7 @@ describe("HistoryPageClient", () => {
 
     renderHistory();
 
-    await userEvent.click(screen.getByRole("button", { name: /save as template/i }));
+    await userEvent.click(screen.getByRole("button", { name: /as template/i }));
 
     await waitFor(() => {
       expect(mockCreateTemplate).toHaveBeenCalledWith({

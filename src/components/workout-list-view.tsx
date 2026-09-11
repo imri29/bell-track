@@ -6,7 +6,7 @@ import { IconButton } from "@/components/common/icon-button";
 import { Spinner } from "@/components/common/spinner";
 import { ComplexNameTooltip } from "@/components/complex-name-tooltip";
 import { SessionCard } from "@/components/session-card";
-import { Button } from "@/components/ui/button";
+import { SimpleTooltip } from "@/components/patterns/simple-tooltip";
 import type { RouterOutputs } from "@/server/api/root";
 
 type WorkoutWithExercises = RouterOutputs["workout"]["getAll"][number];
@@ -69,8 +69,8 @@ export function WorkoutListView({
 
             return (
               <SessionCard.Root key={workout.id} className="group">
-                <SessionCard.Header>
-                  <div>
+                <SessionCard.Header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                  <div className="min-w-0">
                     <SessionCard.Title>
                       {workoutDateLabel}
                       {workout.duration && ` • ${workout.duration} min`}
@@ -83,26 +83,30 @@ export function WorkoutListView({
                       <SessionCard.Description>{workout.notes}</SessionCard.Description>
                     )}
                   </div>
-                  <SessionCard.Actions className="flex-wrap justify-end">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(workout)}
-                      className="gap-1.5"
+                  <SessionCard.Actions className="shrink-0">
+                    <SimpleTooltip content="Edit workout">
+                      <IconButton
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEdit(workout)}
+                        aria-label={`Edit workout from ${workoutDateLabel}`}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </IconButton>
+                    </SimpleTooltip>
+                    <SimpleTooltip
+                      content={isCreatingTemplate ? "Saving template" : "Save as template"}
                     >
-                      <Edit className="h-4 w-4" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onSaveAsTemplate(workout)}
-                      disabled={isCreatingTemplate}
-                      className="gap-1.5"
-                    >
-                      <BookmarkPlus className="h-4 w-4" />
-                      {isCreatingTemplate ? "Saving…" : "Save as template"}
-                    </Button>
+                      <IconButton
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onSaveAsTemplate(workout)}
+                        disabled={isCreatingTemplate}
+                        aria-label={`Save workout from ${workoutDateLabel} as template`}
+                      >
+                        <BookmarkPlus className="h-4 w-4" />
+                      </IconButton>
+                    </SimpleTooltip>
                     <IconButton
                       variant="destructive"
                       size="sm"
