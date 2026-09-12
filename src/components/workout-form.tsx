@@ -84,10 +84,6 @@ export function WorkoutForm({
   const isMobile = useIsMobile();
 
   const selectedTagIds = watch("tagIds");
-  const draftExerciseIds = useMemo(() => fields.map((field) => field.exerciseId), [fields]);
-  const { data: draftFeedback } = api.workout.validateDraft.useQuery({
-    exerciseIds: draftExerciseIds,
-  });
   const sortedTags = useMemo(() => {
     if (!tags) {
       return [];
@@ -609,34 +605,6 @@ export function WorkoutForm({
             </div>
           )}
         </div>
-
-        {draftFeedback &&
-          (draftFeedback.errors.length > 0 ||
-            draftFeedback.warnings.length > 0 ||
-            draftFeedback.hints.length > 0) && (
-            <section
-              aria-label="Workout balance feedback"
-              aria-live="polite"
-              className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-3"
-            >
-              <h4 className="text-sm font-medium">Balance check</h4>
-              {draftFeedback.errors.map((item) => (
-                <p key={item.code} className="text-sm text-destructive">
-                  {item.message}
-                </p>
-              ))}
-              {draftFeedback.warnings.map((item) => (
-                <p key={item.code} className="text-sm text-amber-700 dark:text-amber-300">
-                  {item.message}
-                </p>
-              ))}
-              {draftFeedback.hints.map((item) => (
-                <p key={item.code} className="text-sm text-muted-foreground">
-                  {item.message}
-                </p>
-              ))}
-            </section>
-          )}
 
         <div className="fixed inset-x-0 bottom-11 z-40 border-t border-border/60 bg-background/95 px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur supports-[backdrop-filter]:bg-background/85 md:bottom-0 md:px-10 md:py-4">
           <div className="mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 sm:flex sm:justify-end sm:gap-4">

@@ -165,7 +165,7 @@ Implementation note: `src/server/services/workout-history-analysis.ts` provides 
 Implementation note: `workout.validateDraft` now returns typed `{ errors, warnings, hints }` items with stable codes and plain-language messages. The first rules cover empty drafts, repeated push/pull planes from the last workout, missing major groups in the last 7 days, repeated exercises in the last 14 days, and neglected draft exercises.
 
 ### WR-012 - Add draft balance panel
-- Status: `done`
+- Status: `in-progress`
 - Assignee: `you`
 - Goal: Surface balance feedback while composing a workout.
 - Scope:
@@ -177,7 +177,7 @@ Implementation note: `workout.validateDraft` now returns typed `{ errors, warnin
   - Warnings do not prevent saving.
   - Mobile layout does not obscure the submit controls.
 
-Implementation note: `WorkoutForm` now renders the typed feedback near the bottom of the form. It updates when exercises are added, removed, or replaced, leaves warnings and hints non-blocking, and preserves bottom padding for the fixed mobile action bar.
+Implementation note: pre-workout template feedback is now shown in `NewWorkoutClient`; the completed-workout logging form remains focused on recording what was done. A future draft-editing panel can be added if the flow expands to designing workouts before training.
 
 ### WR-013 - Add explainable exercise suggestions
 - Status: `todo`

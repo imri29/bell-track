@@ -91,6 +91,15 @@ export function NewWorkoutClient({
     };
   }, [substitutions, templateResponse]);
 
+  const templateExerciseIds = useMemo(
+    () => templateData?.exercises.map((exercise) => exercise.exerciseId) ?? [],
+    [templateData],
+  );
+  const { data: templateFeedback } = api.workout.validateDraft.useQuery(
+    { exerciseIds: templateExerciseIds },
+    { enabled: templateExerciseIds.length > 0 },
+  );
+
   const handleNavigateToHistory = () => {
     router.push("/history?view=list");
     router.refresh();
@@ -140,12 +149,35 @@ export function NewWorkoutClient({
             Template not found. You can still log a workout from scratch.
           </p>
         ) : (
-          <AddWorkoutForm
-            templateData={templateData}
-            initialDate={initialDate}
-            onCancel={handleNavigateToHistory}
-            onSuccess={handleNavigateToHistory}
-          />
+          <>
+            {templateData &&
+              templateFeedback &&
+              (templateFeedback.warnings.length > 0 || templateFeedback.hints.length > 0) && (
+                <section
+                  aria-label="Template balance preview"
+                  aria-live="polite"
+                  className="mb-6 space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4"
+                >
+                  <h2 className="text-sm font-medium">Before you train</h2>
+                  {templateFeedback.warnings.map((item) => (
+                    <p key={item.code} className="text-sm text-amber-700 dark:text-amber-300">
+                      {item.message}
+                    </p>
+                  ))}
+                  {templateFeedback.hints.map((item) => (
+                    <p key={item.code} className="text-sm text-muted-foreground">
+                      {item.message}
+                    </p>
+                  ))}
+                </section>
+              )}
+            <AddWorkoutForm
+              templateData={templateData}
+              initialDate={initialDate}
+              onCancel={handleNavigateToHistory}
+              onSuccess={handleNavigateToHistory}
+            />
+          </>
         )}
       </div>
     </PageShell>
