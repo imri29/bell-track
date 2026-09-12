@@ -58,6 +58,7 @@ const suggestionsOutputSchema = z.array(
     exerciseId: z.string(),
     name: z.string(),
     reason: z.string(),
+    replaceExerciseId: z.string().optional(),
   }),
 );
 

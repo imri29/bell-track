@@ -9,6 +9,7 @@ export type ExerciseSuggestion = {
   exerciseId: string;
   name: string;
   reason: string;
+  replaceExerciseId?: string;
 };
 
 const groupLabels: Record<MovementGroup, string> = {
@@ -65,11 +66,22 @@ export function getExerciseSuggestions(
           ? "Keeps your exercise selection varied."
           : `Adds a ${group ? groupLabels[group] : "classified"} option you have not used recently.`;
 
-      return { candidate, score, reason };
+      const replaceExercise = group
+        ? draft.find((exercise) => {
+            const draftPattern = getMovementPattern(exercise);
+            return draftPattern ? patternGroup(draftPattern) === group : false;
+          })
+        : undefined;
+      return { candidate, score, reason, replaceExerciseId: replaceExercise?.id };
     })
     .sort((a, b) => b.score - a.score || a.candidate.name.localeCompare(b.candidate.name))
     .slice(0, limit)
-    .map(({ candidate, reason }) => ({ exerciseId: candidate.id, name: candidate.name, reason }));
+    .map(({ candidate, reason, replaceExerciseId }) => ({
+      exerciseId: candidate.id,
+      name: candidate.name,
+      reason,
+      ...(replaceExerciseId ? { replaceExerciseId } : {}),
+    }));
 }
 
 export type SuggestionMetadata = {

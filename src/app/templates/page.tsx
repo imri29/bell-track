@@ -290,6 +290,11 @@ export default function TemplatesPage() {
     router.push(`/history/new?${params.toString()}`);
   };
 
+  const applySuggestion = (exerciseId: string, replaceExerciseId?: string) => {
+    if (!previewTemplate || !replaceExerciseId) return;
+    handleSubstituteComplex(previewTemplate.id, replaceExerciseId, exerciseId);
+  };
+
   const handleSubstituteComplex = (
     templateId: string,
     templateExerciseId: string,
@@ -558,20 +563,6 @@ export default function TemplatesPage() {
                 No templates yet. Click "Add Template" to create your first workout template.
               </p>
             )}
-            {previewSuggestions && previewSuggestions.length > 0 && (
-              <div className="space-y-2 border-t border-border/60 pt-3">
-                <p className="text-sm font-medium">Consider changing it up</p>
-                {previewSuggestions.map((suggestion) => (
-                  <div
-                    key={suggestion.exerciseId}
-                    className="rounded-md border border-border/50 p-2"
-                  >
-                    <p className="text-sm font-medium">{suggestion.name}</p>
-                    <p className="text-xs text-muted-foreground">{suggestion.reason}</p>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </TemplateExercisesPanel>
       </div>
@@ -609,6 +600,34 @@ export default function TemplatesPage() {
               <p className="text-sm text-muted-foreground">
                 No balance reminders for this template.
               </p>
+            )}
+            {previewSuggestions && previewSuggestions.length > 0 && (
+              <div className="space-y-2 border-t border-border/60 pt-3">
+                <p className="text-sm font-medium">Consider changing it up</p>
+                {previewSuggestions.map((suggestion) => (
+                  <div
+                    key={suggestion.exerciseId}
+                    className="rounded-md border border-border/50 p-2"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium">{suggestion.name}</p>
+                      {suggestion.replaceExerciseId && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            applySuggestion(suggestion.exerciseId, suggestion.replaceExerciseId)
+                          }
+                        >
+                          Use instead
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{suggestion.reason}</p>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
           <DialogFooter>

@@ -40,4 +40,15 @@ describe("exercise suggestions", () => {
       reason: "Adds pull work missing from your last 7 days.",
     });
   });
+
+  it("marks same-role suggestions as safe replacements", () => {
+    const history = analyzeWorkoutHistory([], asOf);
+    const suggestions = getExerciseSuggestions(
+      [push],
+      [push, { ...push, id: "strict-press", name: "Strict Press", movementPlane: "VERTICAL" }],
+      history,
+    );
+
+    expect(suggestions[0]?.replaceExerciseId).toBe("push-ups");
+  });
 });
