@@ -180,7 +180,7 @@ Implementation note: `workout.validateDraft` now returns typed `{ errors, warnin
 Implementation note: pre-workout template feedback is now shown in `NewWorkoutClient`; the completed-workout logging form remains focused on recording what was done. A future draft-editing panel can be added if the flow expands to designing workouts before training.
 
 ### WR-013 - Add explainable exercise suggestions
-- Status: `in-progress`
+- Status: `done`
 - Assignee: `you`
 - Goal: Offer existing-library alternatives for undertrained patterns and overused exercises.
 - Scope:
@@ -192,7 +192,7 @@ Implementation note: pre-workout template feedback is now shown in `NewWorkoutCl
   - A suggestion can be inserted into the current draft.
   - Ranking behavior has unit tests.
 
-Implementation note: the pure `getExerciseSuggestions` service and `workout.getSuggestions` procedure now rank existing individual exercises by missing recent movement groups, complementarity with the selected template, and recent repetition. The template preview displays the ranked exercise names and reasons; one-tap replacement remains for the next slice.
+Implementation note: the pure `getExerciseSuggestions` service and `workout.getSuggestions` procedure rank existing individual exercises by missing recent movement groups, complementarity with the selected template, and recent repetition. The template preview displays ranked exercise names and reasons, and offers `Use instead` only when the candidate preserves the draft exercise's broad movement role.
 
 ### WR-014 - Add balance and variety summary
 - Status: `todo`
