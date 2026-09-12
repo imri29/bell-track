@@ -250,3 +250,9 @@ WR-004 and WR-008 should not initially enforce an exact one-of-each workout comp
   - The variable is marked Sensitive and is not readable in the dashboard.
   - The deployed app can still connect to PostgreSQL after redeployment.
 - Note: Do not modify the unrelated `POSTGRES_*` integration variables unless the deployment itself requires it.
+
+### OPS-002 - Prevent preview migration lock contention
+- Status: `done`
+- Assignee: `you`
+- Goal: Keep concurrent Preview deployments from competing for the production database migration lock.
+- Implementation: `vercel-build` runs Prisma migrations and production seeding only when `VERCEL_ENV=production`; Preview deployments run the application build without mutating the shared database.

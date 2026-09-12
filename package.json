@@ -21,7 +21,7 @@
     "test:watch": "vitest watch",
     "test:coverage": "vitest --coverage",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma migrate deploy && pnpm run db:seed:prod && next build"
+    "vercel-build": "if [ \"$VERCEL_ENV\" = \"production\" ]; then prisma migrate deploy && pnpm run db:seed:prod; fi && next build"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
