@@ -20,6 +20,14 @@ import {
   TemplateExercisesPanel,
 } from "@/components/template-exercise-blocks";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useConfirm } from "@/contexts/confirm-context";
 import { formatExerciseUnitValue } from "@/lib/exercise-units";
@@ -168,6 +176,7 @@ export default function TemplatesPage() {
   const [debouncedQuery, setDebouncedQuery] = useState(initialFilters.search);
   const [selectedTagSlugs, setSelectedTagSlugs] = useState<string[]>(initialFilters.tagSlugs);
   const [substitutions, setSubstitutions] = useState<TemplateSubstitutions>({});
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -246,14 +255,34 @@ export default function TemplatesPage() {
     }
   };
 
+  const previewTemplate = templates?.find((template) => template.id === previewTemplateId);
+  const previewExerciseIds = useMemo(
+    () =>
+      previewTemplate?.exercises.map(
+        (exercise) => substitutions[previewTemplate.id]?.[exercise.id] ?? exercise.exerciseId,
+      ) ?? [],
+    [previewTemplate, substitutions],
+  );
+  const { data: previewFeedback, isPending: previewFeedbackPending } =
+    api.workout.validateDraft.useQuery(
+      { exerciseIds: previewExerciseIds },
+      { enabled: Boolean(previewTemplateId) && previewExerciseIds.length > 0 },
+    );
+
   const handleUseTemplate = (template: TemplateWithExercises) => {
-    const params = new URLSearchParams({ templateId: template.id });
-    const templateSubstitutions = substitutions[template.id] ?? {};
+    setPreviewTemplateId(template.id);
+  };
+
+  const continueWithTemplate = () => {
+    if (!previewTemplate) return;
+    const params = new URLSearchParams({ templateId: previewTemplate.id });
+    const templateSubstitutions = substitutions[previewTemplate.id] ?? {};
 
     for (const [templateExerciseId, complexId] of Object.entries(templateSubstitutions)) {
       params.append("swap", `${templateExerciseId}:${complexId}`);
     }
 
+    setPreviewTemplateId(null);
     router.push(`/history/new?${params.toString()}`);
   };
 
@@ -528,6 +557,52 @@ export default function TemplatesPage() {
           </div>
         </TemplateExercisesPanel>
       </div>
+
+      <Dialog
+        open={Boolean(previewTemplateId)}
+        onOpenChange={(open) => {
+          if (!open) setPreviewTemplateId(null);
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Before you train</DialogTitle>
+            <DialogDescription>
+              {previewTemplate?.name ?? "This template"} will be compared with your recent training.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2" aria-live="polite">
+            {previewFeedbackPending ? (
+              <p className="text-sm text-muted-foreground">Checking your recent training...</p>
+            ) : previewFeedback?.warnings.length || previewFeedback?.hints.length ? (
+              <>
+                {previewFeedback.warnings.map((item) => (
+                  <p key={item.code} className="text-sm text-amber-700 dark:text-amber-300">
+                    {item.message}
+                  </p>
+                ))}
+                {previewFeedback.hints.map((item) => (
+                  <p key={item.code} className="text-sm text-muted-foreground">
+                    {item.message}
+                  </p>
+                ))}
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No balance reminders for this template.
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setPreviewTemplateId(null)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={continueWithTemplate} disabled={previewFeedbackPending}>
+              Start workout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
 }
