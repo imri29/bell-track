@@ -13,6 +13,7 @@ const mockDelete = vi.fn();
 const mockCreateTemplate = vi.fn();
 const mockWorkoutQuery = vi.fn();
 const mockTemplateQuery = vi.fn();
+const mockBalanceSummaryQuery = vi.fn();
 
 vi.mock("@/trpc/react", () => ({
   api: {
@@ -23,6 +24,9 @@ vi.mock("@/trpc/react", () => ({
     workout: {
       getAll: {
         useQuery: (...args: unknown[]) => mockWorkoutQuery(...args),
+      },
+      getBalanceSummary: {
+        useQuery: (...args: unknown[]) => mockBalanceSummaryQuery(...args) ?? { data: undefined },
       },
       delete: {
         useMutation: (opts?: { onSuccess?: () => void }) => ({

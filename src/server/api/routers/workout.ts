@@ -62,6 +62,13 @@ const suggestionsOutputSchema = z.array(
   }),
 );
 
+const balanceSummaryOutputSchema = z.object({
+  workoutCount: z.number(),
+  patternCoverage: z.array(z.object({ pattern: z.string(), count: z.number() })),
+  repeatedExercises: z.array(z.object({ name: z.string(), count: z.number() })),
+  neglectedPatterns: z.array(z.object({ pattern: z.string(), daysSince: z.number() })),
+});
+
 type WorkoutWithRelations = Prisma.WorkoutGetPayload<{
   include: {
     exercises: {
@@ -107,6 +114,58 @@ function serializeWorkout(workout: WorkoutWithRelations) {
 }
 
 export const workoutRouter = createTRPCRouter({
+  getBalanceSummary: protectedProcedure
+    .output(balanceSummaryOutputSchema)
+    .query(async ({ ctx }) => {
+      const asOf = new Date();
+      const workouts = await prisma.workout.findMany({
+        where: { userId: ctx.userId, date: { lte: asOf } },
+        orderBy: { date: "desc" },
+        include: {
+          exercises: {
+            include: {
+              exercise: {
+                select: {
+                  id: true,
+                  name: true,
+                  type: true,
+                  movementGroup: true,
+                  movementPlane: true,
+                  legBias: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      const history = analyzeWorkoutHistory(
+        workouts.map((workout) => ({
+          id: workout.id,
+          date: workout.date,
+          exercises: workout.exercises.map(({ exercise }) => exercise),
+        })),
+        asOf,
+      );
+
+      return {
+        workoutCount: history.windows.last7Days.workoutCount,
+        patternCoverage: Object.entries(history.windows.last7Days.counts).map(
+          ([pattern, count]) => ({
+            pattern,
+            count,
+          }),
+        ),
+        repeatedExercises: history.windows.last14Days.exercises
+          .filter((exercise) => exercise.count > 1)
+          .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+          .slice(0, 5)
+          .map((exercise) => ({ name: exercise.name, count: exercise.count })),
+        neglectedPatterns: Object.entries(history.daysSincePattern)
+          .filter(([, daysSince]) => daysSince !== null && daysSince >= 21)
+          .map(([pattern, daysSince]) => ({ pattern, daysSince: daysSince as number }))
+          .sort((a, b) => b.daysSince - a.daysSince),
+      };
+    }),
   getSuggestions: protectedProcedure
     .input(validateDraftSchema.extend({ limit: z.number().int().min(1).max(10).default(3) }))
     .output(suggestionsOutputSchema)

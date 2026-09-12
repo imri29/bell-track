@@ -195,7 +195,7 @@ Implementation note: pre-workout template feedback is now shown in `NewWorkoutCl
 Implementation note: the pure `getExerciseSuggestions` service and `workout.getSuggestions` procedure rank existing individual exercises by missing recent movement groups, complementarity with the selected template, and recent repetition. The template preview displays ranked exercise names and reasons, and offers `Use instead` only when the candidate preserves the draft exercise's broad movement role.
 
 ### WR-014 - Add balance and variety summary
-- Status: `todo`
+- Status: `in-progress`
 - Assignee: `you`
 - Goal: Provide a lightweight history view for coverage, repetition, and neglected movements.
 - Scope:
@@ -207,6 +207,8 @@ Implementation note: the pure `getExerciseSuggestions` service and `workout.getS
   - Time windows are visible.
   - Sparse history produces a useful empty state.
   - Summary complements, rather than replaces, workout history.
+
+Implementation note: History now includes a compact Training balance card with 7-day pattern coverage, repeated exercises from the 14-day window, and patterns absent for at least 21 days. A later polish pass can add richer progress indicators.
 
 ## Minimal First Ticket (Start Here)
 
