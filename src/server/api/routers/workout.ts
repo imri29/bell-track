@@ -167,7 +167,12 @@ export const workoutRouter = createTRPCRouter({
       };
     }),
   getSuggestions: protectedProcedure
-    .input(validateDraftSchema.extend({ limit: z.number().int().min(1).max(10).default(3) }))
+    .input(
+      validateDraftSchema.extend({
+        limit: z.number().int().min(1).max(10).default(3),
+        avoidVerticalPush: z.boolean().default(false),
+      }),
+    )
     .output(suggestionsOutputSchema)
     .query(async ({ input, ctx }) => {
       const asOf = input.asOf ? new Date(input.asOf) : new Date();
@@ -215,7 +220,9 @@ export const workoutRouter = createTRPCRouter({
         asOf,
       );
 
-      return getExerciseSuggestions(draft, candidates, history, input.limit);
+      return getExerciseSuggestions(draft, candidates, history, input.limit, {
+        avoidVerticalPush: input.avoidVerticalPush,
+      });
     }),
   validateDraft: protectedProcedure
     .input(validateDraftSchema)

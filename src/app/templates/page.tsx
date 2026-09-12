@@ -177,6 +177,7 @@ export default function TemplatesPage() {
   const [selectedTagSlugs, setSelectedTagSlugs] = useState<string[]>(initialFilters.tagSlugs);
   const [substitutions, setSubstitutions] = useState<TemplateSubstitutions>({});
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+  const [avoidVerticalPush, setAvoidVerticalPush] = useState(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -269,7 +270,7 @@ export default function TemplatesPage() {
       { enabled: Boolean(previewTemplateId) && previewExerciseIds.length > 0 },
     );
   const { data: previewSuggestions } = api.workout.getSuggestions.useQuery(
-    { exerciseIds: previewExerciseIds, limit: 3 },
+    { exerciseIds: previewExerciseIds, limit: 3, avoidVerticalPush },
     { enabled: Boolean(previewTemplateId) && previewExerciseIds.length > 0 },
   );
 
@@ -581,6 +582,20 @@ export default function TemplatesPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2" aria-live="polite">
+            <label className="flex items-start gap-2 rounded-md border border-border/50 p-2 text-sm">
+              <input
+                type="checkbox"
+                checked={avoidVerticalPush}
+                onChange={(event) => setAvoidVerticalPush(event.currentTarget.checked)}
+                className="mt-0.5"
+              />
+              <span>
+                <span className="font-medium">Avoid overhead pressing</span>
+                <span className="block text-xs text-muted-foreground">
+                  Keep suggestions away from vertical push movements.
+                </span>
+              </span>
+            </label>
             {previewFeedbackPending ? (
               <p className="text-sm text-muted-foreground">Checking your recent training...</p>
             ) : previewFeedback?.warnings.length || previewFeedback?.hints.length ? (

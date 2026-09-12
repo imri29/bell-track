@@ -195,7 +195,7 @@ Implementation note: pre-workout template feedback is now shown in `NewWorkoutCl
 Implementation note: the pure `getExerciseSuggestions` service and `workout.getSuggestions` procedure rank existing individual exercises by missing recent movement groups, complementarity with the selected template, and recent repetition. The template preview displays ranked exercise names and reasons, and offers `Use instead` only when the candidate preserves the draft exercise's broad movement role.
 
 ### WR-014 - Add balance and variety summary
-- Status: `in-progress`
+- Status: `done`
 - Assignee: `you`
 - Goal: Provide a lightweight history view for coverage, repetition, and neglected movements.
 - Scope:
@@ -208,7 +208,21 @@ Implementation note: the pure `getExerciseSuggestions` service and `workout.getS
   - Sparse history produces a useful empty state.
   - Summary complements, rather than replaces, workout history.
 
-Implementation note: History now includes a compact Training balance card with 7-day pattern coverage, repeated exercises from the 14-day window, and patterns absent for at least 21 days. A later polish pass can add richer progress indicators.
+Implementation note: History includes a compact Training balance card with 7-day pattern coverage, repeated exercises from the 14-day window, and patterns absent for at least 21 days. Progress indicators remain intentionally outside this first balance release.
+
+### WR-015 - Add recommendation preferences
+- Status: `in-progress`
+- Assignee: `you`
+- Goal: Let the user constrain suggestions without changing the underlying workout.
+- Scope:
+  - Add a temporary template-preview preference to avoid overhead pressing.
+  - Keep the preference optional and non-blocking.
+  - Expand to saved equipment and movement preferences after real-world use.
+- Acceptance Criteria:
+  - Vertical push candidates are excluded when selected.
+  - The preference does not mutate the template or completed workout.
+
+Implementation note: The template preview now provides an optional `Avoid overhead pressing` control that filters vertical push candidates. It is deliberately phrased as a preference, not a medical safety claim.
 
 ## Minimal First Ticket (Start Here)
 

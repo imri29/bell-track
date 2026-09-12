@@ -12,6 +12,10 @@ export type ExerciseSuggestion = {
   replaceExerciseId?: string;
 };
 
+export type SuggestionOptions = {
+  avoidVerticalPush?: boolean;
+};
+
 const groupLabels: Record<MovementGroup, string> = {
   PUSH: "push",
   PULL: "pull",
@@ -31,6 +35,7 @@ export function getExerciseSuggestions(
   candidates: readonly SuggestionExercise[],
   history: WorkoutHistorySummary,
   limit = 3,
+  options: SuggestionOptions = {},
 ): ExerciseSuggestion[] {
   const draftIds = new Set(draft.map((exercise) => exercise.id));
   const draftGroups = new Set(
@@ -46,7 +51,14 @@ export function getExerciseSuggestions(
   );
 
   return candidates
-    .filter((candidate) => candidate.type === "EXERCISE" && !draftIds.has(candidate.id))
+    .filter((candidate) => {
+      if (candidate.type !== "EXERCISE" || draftIds.has(candidate.id)) return false;
+      return !(
+        options.avoidVerticalPush &&
+        candidate.movementGroup === "PUSH" &&
+        candidate.movementPlane === "VERTICAL"
+      );
+    })
     .map((candidate) => {
       const pattern = getMovementPattern(candidate);
       const group = pattern ? patternGroup(pattern) : null;

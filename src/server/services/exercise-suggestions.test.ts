@@ -51,4 +51,17 @@ describe("exercise suggestions", () => {
 
     expect(suggestions[0]?.replaceExerciseId).toBe("push-ups");
   });
+
+  it("can avoid vertical push candidates", () => {
+    const history = analyzeWorkoutHistory([], asOf);
+    const suggestions = getExerciseSuggestions(
+      [],
+      [{ ...push, id: "strict-press", name: "Strict Press", movementPlane: "VERTICAL" }],
+      history,
+      3,
+      { avoidVerticalPush: true },
+    );
+
+    expect(suggestions).toEqual([]);
+  });
 });
