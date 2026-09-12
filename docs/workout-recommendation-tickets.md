@@ -33,7 +33,7 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
 Implementation note: the schema migration and exercise API plumbing are complete. The existing backfill script is tracked separately in WR-002 and requires a configured `DATABASE_URL` to audit or apply against a database.
 
 ### WR-002 - Backfill seed data for movement fields
-- Status: `in-progress`
+- Status: `done`
 - Assignee: `you`
 - Goal: Ensure existing exercises have movement metadata where applicable.
 - Scope:
@@ -43,10 +43,10 @@ Implementation note: the schema migration and exercise API plumbing are complete
   - Seeding runs without errors.
   - Spot check shows movement fields populated for standard exercises.
 
-Implementation note: canonical seed exercises now include explicit movement metadata. Live database discovery/backfill remains pending until a configured `DATABASE_URL` is available; use `pnpm run db:discover:movement` before applying `pnpm run db:backfill:movement`.
+Implementation note: canonical seed exercises include explicit movement metadata, and the reviewed live database backfill has been applied. Six ambiguous exercises remain intentionally unclassified.
 
 ### WR-003 - Add draft validation contract in shared schemas
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Define API input/output types for workout composition checks.
 - Scope:
@@ -85,7 +85,7 @@ Implementation note: canonical seed exercises now include explicit movement meta
   - Router create/update accepts and persists these fields.
 
 ### WR-006 - Add last-workout pattern warning engine
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Warn when selected pattern repeats last workout pattern.
 - Scope:
@@ -99,7 +99,7 @@ Implementation note: canonical seed exercises now include explicit movement meta
   - Tests verify repeated vertical pull warning case.
 
 ### WR-007 - Expose `workout.validateDraft` tRPC procedure
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Surface validator + warning logic to frontend via tRPC.
 - Scope:
@@ -108,6 +108,8 @@ Implementation note: canonical seed exercises now include explicit movement meta
 - Acceptance Criteria:
   - Procedure returns `errors` and `warnings`.
   - Router tests cover auth + basic happy path.
+
+Implementation note: the procedure is auth-scoped, accepts an explicit optional `asOf` timestamp, loads only the current user's history, and returns the full typed feedback contract.
 
 ### WR-008 - Show validation errors and warnings in workout form
 - Status: `todo`
