@@ -268,6 +268,10 @@ export default function TemplatesPage() {
       { exerciseIds: previewExerciseIds },
       { enabled: Boolean(previewTemplateId) && previewExerciseIds.length > 0 },
     );
+  const { data: previewSuggestions } = api.workout.getSuggestions.useQuery(
+    { exerciseIds: previewExerciseIds, limit: 3 },
+    { enabled: Boolean(previewTemplateId) && previewExerciseIds.length > 0 },
+  );
 
   const handleUseTemplate = (template: TemplateWithExercises) => {
     setPreviewTemplateId(template.id);
@@ -553,6 +557,20 @@ export default function TemplatesPage() {
               <p className="text-muted-foreground">
                 No templates yet. Click "Add Template" to create your first workout template.
               </p>
+            )}
+            {previewSuggestions && previewSuggestions.length > 0 && (
+              <div className="space-y-2 border-t border-border/60 pt-3">
+                <p className="text-sm font-medium">Consider changing it up</p>
+                {previewSuggestions.map((suggestion) => (
+                  <div
+                    key={suggestion.exerciseId}
+                    className="rounded-md border border-border/50 p-2"
+                  >
+                    <p className="text-sm font-medium">{suggestion.name}</p>
+                    <p className="text-xs text-muted-foreground">{suggestion.reason}</p>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </TemplateExercisesPanel>

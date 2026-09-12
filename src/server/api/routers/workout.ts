@@ -7,6 +7,7 @@ import { idSchema, workoutExerciseInputSchema, workoutExerciseOutputSchema } fro
 import { draftFeedbackOutputSchema } from "../schemas";
 import { analyzeWorkoutHistory } from "../../services/workout-history-analysis";
 import { getWorkoutDraftFeedback } from "../../services/workout-draft-feedback";
+import { getExerciseSuggestions } from "../../services/exercise-suggestions";
 
 // Full workout output schema used by both getAll and getById
 const workoutTagOutputSchema = z.object({
@@ -51,6 +52,14 @@ const validateDraftSchema = z.object({
   exerciseIds: z.array(z.string()),
   asOf: z.string().datetime().optional(),
 });
+
+const suggestionsOutputSchema = z.array(
+  z.object({
+    exerciseId: z.string(),
+    name: z.string(),
+    reason: z.string(),
+  }),
+);
 
 type WorkoutWithRelations = Prisma.WorkoutGetPayload<{
   include: {
@@ -97,6 +106,57 @@ function serializeWorkout(workout: WorkoutWithRelations) {
 }
 
 export const workoutRouter = createTRPCRouter({
+  getSuggestions: protectedProcedure
+    .input(validateDraftSchema.extend({ limit: z.number().int().min(1).max(10).default(3) }))
+    .output(suggestionsOutputSchema)
+    .query(async ({ input, ctx }) => {
+      const asOf = input.asOf ? new Date(input.asOf) : new Date();
+      const [candidates, workouts] = await Promise.all([
+        prisma.exercise.findMany({
+          where: { type: "EXERCISE" },
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            movementGroup: true,
+            movementPlane: true,
+            legBias: true,
+          },
+        }),
+        prisma.workout.findMany({
+          where: { userId: ctx.userId, date: { lte: asOf } },
+          orderBy: { date: "desc" },
+          include: {
+            exercises: {
+              include: {
+                exercise: {
+                  select: {
+                    id: true,
+                    name: true,
+                    type: true,
+                    movementGroup: true,
+                    movementPlane: true,
+                    legBias: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+      ]);
+      const draftIds = new Set(input.exerciseIds);
+      const draft = candidates.filter((candidate) => draftIds.has(candidate.id));
+      const history = analyzeWorkoutHistory(
+        workouts.map((workout) => ({
+          id: workout.id,
+          date: workout.date,
+          exercises: workout.exercises.map(({ exercise }) => exercise),
+        })),
+        asOf,
+      );
+
+      return getExerciseSuggestions(draft, candidates, history, input.limit);
+    }),
   validateDraft: protectedProcedure
     .input(validateDraftSchema)
     .output(draftFeedbackOutputSchema)

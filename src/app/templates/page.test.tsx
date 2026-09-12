@@ -58,6 +58,7 @@ const mockExercisesQuery = vi.fn();
 const mockDeleteTemplate = vi.fn();
 const mockInvalidateTemplates = vi.fn();
 const mockValidateDraft = vi.fn();
+const mockGetSuggestions = vi.fn();
 
 vi.mock("@/trpc/react", () => ({
   api: {
@@ -91,6 +92,10 @@ vi.mock("@/trpc/react", () => ({
       validateDraft: {
         useQuery: (...args: unknown[]) =>
           mockValidateDraft(...args) ?? { data: undefined, isPending: false },
+      },
+      getSuggestions: {
+        useQuery: (...args: unknown[]) =>
+          mockGetSuggestions(...args) ?? { data: [], isPending: false },
       },
     },
   },
