@@ -281,6 +281,44 @@ describe("TemplatesPage", () => {
     });
   });
 
+  it("applies a suggestion using the template exercise row id", async () => {
+    mockTemplateQuery.mockReturnValue({
+      data: [templateOne],
+      isPending: false,
+      error: undefined,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [],
+      isPending: false,
+      error: undefined,
+    });
+    mockValidateDraft.mockReturnValue({
+      data: { errors: [], warnings: [], hints: [] },
+      isPending: false,
+    });
+    mockGetSuggestions.mockReturnValue({
+      data: [
+        {
+          exerciseId: "replacement-exercise",
+          name: "Strict Press",
+          reason: "Keeps your exercise selection varied.",
+          replaceExerciseId: "ex1",
+        },
+      ],
+      isPending: false,
+    });
+
+    renderTemplates();
+
+    await userEvent.click(screen.getByLabelText(/log strength builder/i));
+    await userEvent.click(screen.getByRole("button", { name: "Use instead" }));
+    await userEvent.click(screen.getByRole("button", { name: "Start workout" }));
+
+    expect(getRouterMock().push).toHaveBeenCalledWith(
+      "/history/new?templateId=t1&swap=te1%3Areplacement-exercise",
+    );
+  });
+
   it("confirms delete before removing a template", async () => {
     confirmMock.mockResolvedValue(true);
     mockTemplateQuery.mockReturnValue({

@@ -293,7 +293,12 @@ export default function TemplatesPage() {
 
   const applySuggestion = (exerciseId: string, replaceExerciseId?: string) => {
     if (!previewTemplate || !replaceExerciseId) return;
-    handleSubstituteComplex(previewTemplate.id, replaceExerciseId, exerciseId);
+    const templateExercise = previewTemplate.exercises.find(
+      (exercise) => exercise.exerciseId === replaceExerciseId,
+    );
+    if (!templateExercise) return;
+
+    handleSubstituteComplex(previewTemplate.id, templateExercise.id, exerciseId);
   };
 
   const handleSubstituteComplex = (
