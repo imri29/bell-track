@@ -235,6 +235,58 @@ Implementation note: The template preview now provides an optional `Avoid overhe
 
 WR-004 and WR-008 should not initially enforce an exact one-of-each workout composition. The first release should provide non-blocking balance hints based on recent history. Strict validation can be reconsidered later if real usage shows that the user wants it.
 
+## Post-release Enhancements
+
+These are intentionally deferred from the first balance release and should be revisited after real-world use.
+
+### WR-016 - Add progress metrics alongside balance
+- Status: `todo`
+- Goal: Show simple progress without turning the app into a spreadsheet.
+- Scope:
+  - Track best weight, total reps, and/or estimated volume for selected exercises.
+  - Show small progress indicators beside the existing balance summary.
+  - Keep balance and variety visible alongside progress.
+- Acceptance Criteria:
+  - Sparse history has a useful empty state.
+  - Metrics use clearly labeled time windows.
+  - Progress calculations are deterministic and tested.
+
+### WR-017 - Expand movement taxonomy
+- Status: `todo`
+- Goal: Distinguish squat, hinge, lunge, carry, rotation, body region, and other useful patterns more precisely.
+- Scope:
+  - Evolve beyond the current PUSH/PULL/CORE/LEGS grouping and leg bias.
+  - Add optional body-region metadata where it improves recommendations.
+  - Review and migrate existing classifications safely.
+- Acceptance Criteria:
+  - Existing feedback remains understandable during the taxonomy transition.
+  - Ambiguous exercises remain explicitly unclassified rather than guessed.
+  - Classification changes have discovery, review, and apply steps.
+
+### WR-018 - Attribute complex exercises to movement patterns
+- Status: `todo`
+- Goal: Include complexes in balance analysis without pretending they have only one movement.
+- Scope:
+  - Define whether a complex contributes its sub-exercises, an explicit primary pattern, or both.
+  - Add optional per-workout assignment overrides when the context changes.
+  - Update history summaries and suggestions to account for complexes.
+- Acceptance Criteria:
+  - Existing complex templates continue to log correctly.
+  - The chosen attribution is explainable in feedback.
+  - Tests cover mixed-pattern complexes and explicit overrides.
+
+### WR-019 - Save recommendation preferences
+- Status: `todo`
+- Goal: Make temporary coaching preferences persistent and user-controlled.
+- Scope:
+  - Save preferences such as avoiding overhead pressing, preferred equipment, or movements to prioritize.
+  - Keep preferences optional and non-blocking.
+  - Add a clear way to review and reset them.
+- Acceptance Criteria:
+  - Preferences affect suggestions but never mutate logged workouts or templates.
+  - Defaults preserve current behavior.
+  - Preference changes are covered by API and UI tests.
+
 ## Deferred Project Tasks
 
 ### OPS-001 - Mark production DATABASE_URL as sensitive in Vercel
