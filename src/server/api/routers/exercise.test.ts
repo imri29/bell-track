@@ -1,6 +1,6 @@
+import { LegBias, MovementGroup, MovementPlane, type Exercise } from "@prisma/client";
 import type { Session } from "next-auth";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Exercise } from "@prisma/client";
 import { appRouter } from "@/server/api/root";
 import { createCallerFactory } from "@/server/trpc";
 import { EXERCISE_TYPES } from "@/types";
@@ -120,6 +120,59 @@ describe("exerciseRouter", () => {
       expect.objectContaining({
         data: expect.objectContaining({
           subExercises: null,
+        }),
+      }),
+    );
+  });
+
+  it("stores movement metadata on create", async () => {
+    exerciseCreate.mockResolvedValue({
+      ...exerciseFixture,
+      movementGroup: MovementGroup.PUSH,
+      movementPlane: MovementPlane.VERTICAL,
+    });
+
+    const caller = createCaller(createContext());
+
+    await caller.exercise.create({
+      name: "Strict Press",
+      type: EXERCISE_TYPES.EXERCISE,
+      movementGroup: MovementGroup.PUSH,
+      movementPlane: MovementPlane.VERTICAL,
+    });
+
+    expect(exerciseCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          movementGroup: MovementGroup.PUSH,
+          movementPlane: MovementPlane.VERTICAL,
+        }),
+      }),
+    );
+  });
+
+  it("stores movement metadata on update", async () => {
+    exerciseUpdate.mockResolvedValue({
+      ...exerciseFixture,
+      movementGroup: MovementGroup.LEGS,
+      legBias: LegBias.QUAD_DOMINANT,
+    });
+
+    const caller = createCaller(createContext());
+
+    await caller.exercise.update({
+      id: "ex1",
+      name: "Goblet Squat",
+      type: EXERCISE_TYPES.EXERCISE,
+      movementGroup: MovementGroup.LEGS,
+      legBias: LegBias.QUAD_DOMINANT,
+    });
+
+    expect(exerciseUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          movementGroup: MovementGroup.LEGS,
+          legBias: LegBias.QUAD_DOMINANT,
         }),
       }),
     );

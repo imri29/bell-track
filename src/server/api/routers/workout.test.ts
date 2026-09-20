@@ -5,6 +5,7 @@ import { appRouter } from "@/server/api/root";
 import { createCallerFactory } from "@/server/trpc";
 
 const workoutFindMany = vi.fn();
+const exerciseFindMany = vi.fn();
 const workoutFindFirst = vi.fn();
 const workoutCreate = vi.fn();
 const workoutUpdate = vi.fn();
@@ -14,6 +15,9 @@ const workoutTagAssignmentDeleteMany = vi.fn();
 
 vi.mock("@/server/db", () => ({
   prisma: {
+    exercise: {
+      findMany: (...args: unknown[]) => exerciseFindMany(...args),
+    },
     workout: {
       findMany: (...args: unknown[]) => workoutFindMany(...args),
       findFirst: (...args: unknown[]) => workoutFindFirst(...args),
@@ -123,6 +127,43 @@ beforeEach(() => {
 });
 
 describe("workoutRouter", () => {
+  it("returns draft feedback using the authenticated user's history", async () => {
+    const pushExercise = {
+      id: "push-1",
+      name: "Push ups",
+      movementGroup: "PUSH" as const,
+      movementPlane: "HORIZONTAL" as const,
+      legBias: null,
+    };
+    exerciseFindMany.mockResolvedValue([pushExercise]);
+    workoutFindMany.mockResolvedValue([
+      {
+        id: "previous",
+        date: new Date("2026-09-10T12:00:00.000Z"),
+        exercises: [{ exercise: pushExercise }],
+      },
+    ]);
+
+    const caller = createCaller(createContext());
+    const result = await caller.workout.validateDraft({
+      exerciseIds: ["push-1"],
+      asOf: "2026-09-11T12:00:00.000Z",
+    });
+
+    expect(result.errors).toEqual([]);
+    expect(result.warnings).toEqual([
+      {
+        code: "REPEATED_PUSH_PLANE",
+        message: "This draft repeats horizontal push work from your last workout.",
+      },
+    ]);
+    expect(workoutFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { userId: "user-1", date: { lte: new Date("2026-09-11T12:00:00.000Z") } },
+      }),
+    );
+  });
+
   it("serializes workouts with defaults and sorted tags", async () => {
     workoutFindMany.mockResolvedValue([workoutFixture]);
 

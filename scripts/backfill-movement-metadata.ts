@@ -59,6 +59,11 @@ function fromExactOverride(name: string): MetadataSuggestion | null {
       movementPlane: "HORIZONTAL",
       legBias: null,
     },
+    "Deadlift High Pulls": {
+      movementGroup: "PULL",
+      movementPlane: "VERTICAL",
+      legBias: null,
+    },
     Gunslingers: {
       movementGroup: "LEGS",
       movementPlane: null,
@@ -261,13 +266,19 @@ async function main() {
       exercise.movementGroup !== null ||
       exercise.movementPlane !== null ||
       exercise.legBias !== null;
+    const suggestion = suggest(exercise.name);
 
-    if (hasAnyExistingField) {
+    const matchesExistingMetadata =
+      suggestion !== null &&
+      exercise.movementGroup === suggestion.movementGroup &&
+      exercise.movementPlane === suggestion.movementPlane &&
+      exercise.legBias === suggestion.legBias;
+
+    if (hasAnyExistingField && matchesExistingMetadata) {
       skippedExisting.push(exercise.name);
       continue;
     }
 
-    const suggestion = suggest(exercise.name);
     if (!suggestion) {
       unresolved.push(exercise.name);
       continue;

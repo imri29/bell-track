@@ -50,6 +50,7 @@ export function HistoryPageClient({ initialView }: { initialView: View }) {
   );
 
   const { data: templates } = api.template.getAll.useQuery();
+  const { data: balanceSummary } = api.workout.getBalanceSummary.useQuery();
 
   const handleEdit = (workout: WorkoutWithExercises) => {
     router.push(`/history/${workout.id}/edit`);
@@ -110,6 +111,50 @@ export function HistoryPageClient({ initialView }: { initialView: View }) {
         title="Workout history"
         description="View and manage your workout history"
       />
+
+      {balanceSummary && (
+        <section className="rounded-3xl border border-border/60 bg-card/80 p-5 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold">Training balance</h2>
+            <p className="text-sm text-muted-foreground">Based on your last 7 and 14 days.</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Recent coverage
+              </p>
+              <p className="mt-1 text-sm text-foreground">
+                {balanceSummary.patternCoverage.filter((item) => item.count > 0).length} movement
+                patterns
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Repeated exercises
+              </p>
+              <p className="mt-1 text-sm text-foreground">
+                {balanceSummary.repeatedExercises.length > 0
+                  ? balanceSummary.repeatedExercises
+                      .map((item) => `${item.name} (${item.count}×)`)
+                      .join(", ")
+                  : "None repeated yet"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Neglected patterns
+              </p>
+              <p className="mt-1 text-sm text-foreground">
+                {balanceSummary.neglectedPatterns.length > 0
+                  ? balanceSummary.neglectedPatterns
+                      .map((item) => item.pattern.toLowerCase().replaceAll("_", " "))
+                      .join(", ")
+                  : "Nothing neglected"}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       <Tabs defaultValue="list" value={initialView ?? "list"} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">

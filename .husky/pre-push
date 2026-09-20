@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
 
-pnpm run build
+# Turbopack's build workers require local port binding, which is unavailable in
+# some restricted environments. Webpack provides the same production checks here.
+pnpm exec next build --webpack
 pnpm run test

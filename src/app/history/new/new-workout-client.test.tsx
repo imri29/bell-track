@@ -16,6 +16,11 @@ vi.mock("@/trpc/react", () => ({
         useQuery: (...args: unknown[]) => mockTemplateQuery(...args),
       },
     },
+    workout: {
+      validateDraft: {
+        useQuery: () => ({ data: undefined }),
+      },
+    },
   },
 }));
 

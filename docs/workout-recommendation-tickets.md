@@ -1,4 +1,4 @@
-# Workout Recommendation Tickets (V1 First)
+# Workout Balance & Recommendation Tickets
 
 Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadmap.md`
 
@@ -11,7 +11,7 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
 ## Ticket Backlog
 
 ### WR-001 - Add movement metadata to Exercise (starter)
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Add the minimum schema foundation so every non-complex exercise can be classified.
 - Scope:
@@ -30,8 +30,10 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
 - Why this matters:
   - All validation and warning logic depends on structured movement data.
 
+Implementation note: the schema migration and exercise API plumbing are complete. The existing backfill script is tracked separately in WR-002 and requires a configured `DATABASE_URL` to audit or apply against a database.
+
 ### WR-002 - Backfill seed data for movement fields
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Ensure existing exercises have movement metadata where applicable.
 - Scope:
@@ -41,8 +43,10 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
   - Seeding runs without errors.
   - Spot check shows movement fields populated for standard exercises.
 
+Implementation note: canonical seed exercises include explicit movement metadata, and the reviewed live database backfill has been applied. Six ambiguous exercises remain intentionally unclassified.
+
 ### WR-003 - Add draft validation contract in shared schemas
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Define API input/output types for workout composition checks.
 - Scope:
@@ -81,7 +85,7 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
   - Router create/update accepts and persists these fields.
 
 ### WR-006 - Add last-workout pattern warning engine
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Warn when selected pattern repeats last workout pattern.
 - Scope:
@@ -95,7 +99,7 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
   - Tests verify repeated vertical pull warning case.
 
 ### WR-007 - Expose `workout.validateDraft` tRPC procedure
-- Status: `todo`
+- Status: `done`
 - Assignee: `you`
 - Goal: Surface validator + warning logic to frontend via tRPC.
 - Scope:
@@ -104,6 +108,8 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
 - Acceptance Criteria:
   - Procedure returns `errors` and `warnings`.
   - Router tests cover auth + basic happy path.
+
+Implementation note: the procedure is auth-scoped, accepts an explicit optional `asOf` timestamp, loads only the current user's history, and returns the full typed feedback contract.
 
 ### WR-008 - Show validation errors and warnings in workout form
 - Status: `todo`
@@ -128,6 +134,96 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
   - No TypeScript errors.
   - Core V1 scenarios covered by tests.
 
+### WR-010 - Add training-history summary service
+- Status: `done`
+- Assignee: `you`
+- Goal: Produce a reusable summary of movement coverage, recency, and exercise repetition.
+- Scope:
+  - Analyze the last 7 and 14 days of workouts.
+  - Return last-workout patterns, pattern counts, days since trained, and exact exercise frequency.
+  - Keep the service pure and independent of React or tRPC.
+- Acceptance Criteria:
+  - Empty history and sparse history are handled safely.
+  - Results are deterministic and fully typed.
+  - Unit tests cover recency, frequency, and neglected exercises.
+
+Implementation note: `src/server/services/workout-history-analysis.ts` provides a pure summary over the last 7 and 14 rolling days, including last-workout patterns, pattern frequency, body-region counts when metadata is available, exact exercise frequency, and days-since metrics. It accepts an explicit `asOf` date so callers and tests remain deterministic. Exercises without movement metadata are ignored for pattern calculations rather than classified by guesswork.
+
+### WR-011 - Expand draft feedback contract
+- Status: `done`
+- Assignee: `you`
+- Goal: Distinguish blocking input errors from non-blocking coaching feedback.
+- Scope:
+  - Return `{ errors, warnings, hints }` with reason strings.
+  - Keep warnings and hints non-blocking.
+  - Include stable codes so the UI can render them consistently.
+- Acceptance Criteria:
+  - Repeated patterns produce warnings.
+  - Missing recent coverage and repeated exact exercises produce hints.
+  - Every message is explainable to the user.
+
+Implementation note: `workout.validateDraft` now returns typed `{ errors, warnings, hints }` items with stable codes and plain-language messages. The first rules cover empty drafts, repeated push/pull planes from the last workout, missing major groups in the last 7 days, repeated exercises in the last 14 days, and neglected draft exercises.
+
+### WR-012 - Add draft balance panel
+- Status: `in-progress`
+- Assignee: `you`
+- Goal: Surface balance feedback while composing a workout.
+- Scope:
+  - Call the draft feedback procedure as the draft changes.
+  - Debounce or otherwise avoid a request for every keystroke.
+  - Show compact feedback near the form actions.
+- Acceptance Criteria:
+  - Feedback updates when exercises are added, removed, or changed.
+  - Warnings do not prevent saving.
+  - Mobile layout does not obscure the submit controls.
+
+Implementation note: pre-workout template feedback is now shown in `NewWorkoutClient`; the completed-workout logging form remains focused on recording what was done. A future draft-editing panel can be added if the flow expands to designing workouts before training.
+
+### WR-013 - Add explainable exercise suggestions
+- Status: `done`
+- Assignee: `you`
+- Goal: Offer existing-library alternatives for undertrained patterns and overused exercises.
+- Scope:
+  - Add deterministic candidate ranking.
+  - Respect equipment and optional shoulder-friendly preferences.
+  - Return a reason with every suggestion.
+- Acceptance Criteria:
+  - Suggestions use existing exercises only.
+  - A suggestion can be inserted into the current draft.
+  - Ranking behavior has unit tests.
+
+Implementation note: the pure `getExerciseSuggestions` service and `workout.getSuggestions` procedure rank existing individual exercises by missing recent movement groups, complementarity with the selected template, and recent repetition. The template preview displays ranked exercise names and reasons, and offers `Use instead` only when the candidate preserves the draft exercise's broad movement role.
+
+### WR-014 - Add balance and variety summary
+- Status: `done`
+- Assignee: `you`
+- Goal: Provide a lightweight history view for coverage, repetition, and neglected movements.
+- Scope:
+  - Show weekly pattern coverage.
+  - Show most-repeated exercises over 14 or 30 days.
+  - Show patterns and exercises not used recently.
+  - Add simple progress indicators where data is available.
+- Acceptance Criteria:
+  - Time windows are visible.
+  - Sparse history produces a useful empty state.
+  - Summary complements, rather than replaces, workout history.
+
+Implementation note: History includes a compact Training balance card with 7-day pattern coverage, repeated exercises from the 14-day window, and patterns absent for at least 21 days. Progress indicators remain intentionally outside this first balance release.
+
+### WR-015 - Add recommendation preferences
+- Status: `in-progress`
+- Assignee: `you`
+- Goal: Let the user constrain suggestions without changing the underlying workout.
+- Scope:
+  - Add a temporary template-preview preference to avoid overhead pressing.
+  - Keep the preference optional and non-blocking.
+  - Expand to saved equipment and movement preferences after real-world use.
+- Acceptance Criteria:
+  - Vertical push candidates are excluded when selected.
+  - The preference does not mutate the template or completed workout.
+
+Implementation note: The template preview now provides an optional `Avoid overhead pressing` control that filters vertical push candidates. It is deliberately phrased as a preference, not a medical safety claim.
+
 ## Minimal First Ticket (Start Here)
 
 ### Start with WR-001 only
@@ -135,3 +231,80 @@ Related roadmap: `/Users/imri.n/dev/bell-track/docs/workout-recommendation-roadm
 - Do not touch UI or router behavior yet.
 - Share the migration diff and schema after completion, then we will review before WR-002.
 
+## Revised Product Direction
+
+WR-004 and WR-008 should not initially enforce an exact one-of-each workout composition. The first release should provide non-blocking balance hints based on recent history. Strict validation can be reconsidered later if real usage shows that the user wants it.
+
+## Post-release Enhancements
+
+These are intentionally deferred from the first balance release and should be revisited after real-world use.
+
+### WR-016 - Add progress metrics alongside balance
+- Status: `todo`
+- Goal: Show simple progress without turning the app into a spreadsheet.
+- Scope:
+  - Track best weight, total reps, and/or estimated volume for selected exercises.
+  - Show small progress indicators beside the existing balance summary.
+  - Keep balance and variety visible alongside progress.
+- Acceptance Criteria:
+  - Sparse history has a useful empty state.
+  - Metrics use clearly labeled time windows.
+  - Progress calculations are deterministic and tested.
+
+### WR-017 - Expand movement taxonomy
+- Status: `todo`
+- Goal: Distinguish squat, hinge, lunge, carry, rotation, body region, and other useful patterns more precisely.
+- Scope:
+  - Evolve beyond the current PUSH/PULL/CORE/LEGS grouping and leg bias.
+  - Add optional body-region metadata where it improves recommendations.
+  - Review and migrate existing classifications safely.
+- Acceptance Criteria:
+  - Existing feedback remains understandable during the taxonomy transition.
+  - Ambiguous exercises remain explicitly unclassified rather than guessed.
+  - Classification changes have discovery, review, and apply steps.
+
+### WR-018 - Attribute complex exercises to movement patterns
+- Status: `todo`
+- Goal: Include complexes in balance analysis without pretending they have only one movement.
+- Scope:
+  - Define whether a complex contributes its sub-exercises, an explicit primary pattern, or both.
+  - Add optional per-workout assignment overrides when the context changes.
+  - Update history summaries and suggestions to account for complexes.
+- Acceptance Criteria:
+  - Existing complex templates continue to log correctly.
+  - The chosen attribution is explainable in feedback.
+  - Tests cover mixed-pattern complexes and explicit overrides.
+
+### WR-019 - Save recommendation preferences
+- Status: `todo`
+- Goal: Make temporary coaching preferences persistent and user-controlled.
+- Scope:
+  - Save preferences such as avoiding overhead pressing, preferred equipment, or movements to prioritize.
+  - Keep preferences optional and non-blocking.
+  - Add a clear way to review and reset them.
+- Acceptance Criteria:
+  - Preferences affect suggestions but never mutate logged workouts or templates.
+  - Defaults preserve current behavior.
+  - Preference changes are covered by API and UI tests.
+
+## Deferred Project Tasks
+
+### OPS-001 - Mark production DATABASE_URL as sensitive in Vercel
+- Status: `todo`
+- Assignee: `you`
+- Goal: Protect the production database credential in Vercel’s environment-variable dashboard.
+- Scope:
+  - Confirm the exact `DATABASE_URL` value points to the intended production Neon database.
+  - Remove and re-add the Production variable with Vercel’s Sensitive option enabled.
+  - Redeploy after saving the variable.
+- Acceptance Criteria:
+  - Production has exactly one active `DATABASE_URL` value.
+  - The variable is marked Sensitive and is not readable in the dashboard.
+  - The deployed app can still connect to PostgreSQL after redeployment.
+- Note: Do not modify the unrelated `POSTGRES_*` integration variables unless the deployment itself requires it.
+
+### OPS-002 - Prevent preview migration lock contention
+- Status: `done`
+- Assignee: `you`
+- Goal: Keep concurrent Preview deployments from competing for the production database migration lock.
+- Implementation: `vercel-build` runs Prisma migrations and production seeding only when `VERCEL_ENV=production`; Preview deployments run the application build without mutating the shared database.

@@ -1,5 +1,10 @@
 import { z } from "zod";
-import type { Exercise as PrismaExercise } from "@prisma/client";
+import {
+  LegBias,
+  MovementGroup,
+  MovementPlane,
+  type Exercise as PrismaExercise,
+} from "@prisma/client";
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/trpc";
 import { EXERCISE_TYPES } from "@/types";
@@ -23,6 +28,9 @@ const exerciseInputSchema = z.object({
   type: z.enum([EXERCISE_TYPES.EXERCISE, EXERCISE_TYPES.COMPLEX]),
   subExercises: z.array(subExerciseSchema).optional(),
   description: z.string().optional(),
+  movementGroup: z.nativeEnum(MovementGroup).nullable().optional(),
+  movementPlane: z.nativeEnum(MovementPlane).nullable().optional(),
+  legBias: z.nativeEnum(LegBias).nullable().optional(),
 });
 
 // Exercise output schema with properly typed subExercises
@@ -34,6 +42,9 @@ const exerciseOutputSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   subExercises: z.array(subExerciseSchema).nullable(),
+  movementGroup: z.nativeEnum(MovementGroup).nullable(),
+  movementPlane: z.nativeEnum(MovementPlane).nullable(),
+  legBias: z.nativeEnum(LegBias).nullable(),
 });
 
 export const exerciseRouter = createTRPCRouter({

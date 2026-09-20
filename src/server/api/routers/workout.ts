@@ -4,6 +4,10 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { idSchema, workoutExerciseInputSchema, workoutExerciseOutputSchema } from "../schemas";
+import { draftFeedbackOutputSchema } from "../schemas";
+import { analyzeWorkoutHistory } from "../../services/workout-history-analysis";
+import { getWorkoutDraftFeedback } from "../../services/workout-draft-feedback";
+import { getExerciseSuggestions } from "../../services/exercise-suggestions";
 
 // Full workout output schema used by both getAll and getById
 const workoutTagOutputSchema = z.object({
@@ -42,6 +46,27 @@ const createWorkoutSchema = baseWorkoutSchema.extend({
 const updateWorkoutSchema = baseWorkoutSchema.partial().extend({
   id: z.string(),
   tagIds: z.array(z.string()).optional(),
+});
+
+const validateDraftSchema = z.object({
+  exerciseIds: z.array(z.string()),
+  asOf: z.string().datetime().optional(),
+});
+
+const suggestionsOutputSchema = z.array(
+  z.object({
+    exerciseId: z.string(),
+    name: z.string(),
+    reason: z.string(),
+    replaceExerciseId: z.string().optional(),
+  }),
+);
+
+const balanceSummaryOutputSchema = z.object({
+  workoutCount: z.number(),
+  patternCoverage: z.array(z.object({ pattern: z.string(), count: z.number() })),
+  repeatedExercises: z.array(z.object({ name: z.string(), count: z.number() })),
+  neglectedPatterns: z.array(z.object({ pattern: z.string(), daysSince: z.number() })),
 });
 
 type WorkoutWithRelations = Prisma.WorkoutGetPayload<{
@@ -89,6 +114,169 @@ function serializeWorkout(workout: WorkoutWithRelations) {
 }
 
 export const workoutRouter = createTRPCRouter({
+  getBalanceSummary: protectedProcedure
+    .output(balanceSummaryOutputSchema)
+    .query(async ({ ctx }) => {
+      const asOf = new Date();
+      const workouts = await prisma.workout.findMany({
+        where: { userId: ctx.userId, date: { lte: asOf } },
+        orderBy: { date: "desc" },
+        include: {
+          exercises: {
+            include: {
+              exercise: {
+                select: {
+                  id: true,
+                  name: true,
+                  type: true,
+                  movementGroup: true,
+                  movementPlane: true,
+                  legBias: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      const history = analyzeWorkoutHistory(
+        workouts.map((workout) => ({
+          id: workout.id,
+          date: workout.date,
+          exercises: workout.exercises.map(({ exercise }) => exercise),
+        })),
+        asOf,
+      );
+
+      return {
+        workoutCount: history.windows.last7Days.workoutCount,
+        patternCoverage: Object.entries(history.windows.last7Days.counts).map(
+          ([pattern, count]) => ({
+            pattern,
+            count,
+          }),
+        ),
+        repeatedExercises: history.windows.last14Days.exercises
+          .filter((exercise) => exercise.count > 1)
+          .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+          .slice(0, 5)
+          .map((exercise) => ({ name: exercise.name, count: exercise.count })),
+        neglectedPatterns: Object.entries(history.daysSincePattern)
+          .filter(([, daysSince]) => daysSince !== null && daysSince >= 21)
+          .map(([pattern, daysSince]) => ({ pattern, daysSince: daysSince as number }))
+          .sort((a, b) => b.daysSince - a.daysSince),
+      };
+    }),
+  getSuggestions: protectedProcedure
+    .input(
+      validateDraftSchema.extend({
+        limit: z.number().int().min(1).max(10).default(3),
+        avoidVerticalPush: z.boolean().default(false),
+      }),
+    )
+    .output(suggestionsOutputSchema)
+    .query(async ({ input, ctx }) => {
+      const asOf = input.asOf ? new Date(input.asOf) : new Date();
+      const [candidates, workouts] = await Promise.all([
+        prisma.exercise.findMany({
+          where: { type: "EXERCISE" },
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            movementGroup: true,
+            movementPlane: true,
+            legBias: true,
+          },
+        }),
+        prisma.workout.findMany({
+          where: { userId: ctx.userId, date: { lte: asOf } },
+          orderBy: { date: "desc" },
+          include: {
+            exercises: {
+              include: {
+                exercise: {
+                  select: {
+                    id: true,
+                    name: true,
+                    type: true,
+                    movementGroup: true,
+                    movementPlane: true,
+                    legBias: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+      ]);
+      const draftIds = new Set(input.exerciseIds);
+      const draft = candidates.filter((candidate) => draftIds.has(candidate.id));
+      const history = analyzeWorkoutHistory(
+        workouts.map((workout) => ({
+          id: workout.id,
+          date: workout.date,
+          exercises: workout.exercises.map(({ exercise }) => exercise),
+        })),
+        asOf,
+      );
+
+      return getExerciseSuggestions(draft, candidates, history, input.limit, {
+        avoidVerticalPush: input.avoidVerticalPush,
+      });
+    }),
+  validateDraft: protectedProcedure
+    .input(validateDraftSchema)
+    .output(draftFeedbackOutputSchema)
+    .query(async ({ input, ctx }) => {
+      const asOf = input.asOf ? new Date(input.asOf) : new Date();
+      const [draftExercises, workouts] = await Promise.all([
+        prisma.exercise.findMany({
+          where: { id: { in: input.exerciseIds } },
+          select: {
+            id: true,
+            name: true,
+            movementGroup: true,
+            movementPlane: true,
+            legBias: true,
+          },
+        }),
+        prisma.workout.findMany({
+          where: { userId: ctx.userId, date: { lte: asOf } },
+          orderBy: { date: "desc" },
+          include: {
+            exercises: {
+              include: {
+                exercise: {
+                  select: {
+                    id: true,
+                    name: true,
+                    movementGroup: true,
+                    movementPlane: true,
+                    legBias: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+      ]);
+
+      const draftById = new Map(draftExercises.map((exercise) => [exercise.id, exercise]));
+      const draft = input.exerciseIds.flatMap((id) => {
+        const exercise = draftById.get(id);
+        return exercise ? [exercise] : [];
+      });
+      const history = analyzeWorkoutHistory(
+        workouts.map((workout) => ({
+          id: workout.id,
+          date: workout.date,
+          exercises: workout.exercises.map(({ exercise }) => exercise),
+        })),
+        asOf,
+      );
+
+      return getWorkoutDraftFeedback(draft, history);
+    }),
   getAll: protectedProcedure.output(z.array(workoutOutputSchema)).query(async ({ ctx }) => {
     const workouts = await prisma.workout.findMany({
       where: {

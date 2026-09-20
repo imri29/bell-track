@@ -57,6 +57,8 @@ const mockTagsQuery = vi.fn();
 const mockExercisesQuery = vi.fn();
 const mockDeleteTemplate = vi.fn();
 const mockInvalidateTemplates = vi.fn();
+const mockValidateDraft = vi.fn();
+const mockGetSuggestions = vi.fn();
 
 vi.mock("@/trpc/react", () => ({
   api: {
@@ -84,6 +86,16 @@ vi.mock("@/trpc/react", () => ({
       getAll: {
         useQuery: (...args: unknown[]) =>
           mockExercisesQuery(...args) ?? { data: [], isPending: false, error: undefined },
+      },
+    },
+    workout: {
+      validateDraft: {
+        useQuery: (...args: unknown[]) =>
+          mockValidateDraft(...args) ?? { data: undefined, isPending: false },
+      },
+      getSuggestions: {
+        useQuery: (...args: unknown[]) =>
+          mockGetSuggestions(...args) ?? { data: [], isPending: false },
       },
     },
   },
@@ -227,6 +239,7 @@ afterEach(() => {
   resetConfirmMock();
   resetNextMocks();
   vi.clearAllMocks();
+  mockValidateDraft.mockReturnValue({ data: undefined, isPending: false });
 });
 
 describe("TemplatesPage", () => {
@@ -261,10 +274,49 @@ describe("TemplatesPage", () => {
     expect(screen.getByText("Conditioning")).toBeInTheDocument();
 
     await userEvent.click(screen.getByLabelText(/log strength builder/i));
+    await userEvent.click(screen.getByRole("button", { name: "Start workout" }));
 
     await waitFor(() => {
       expect(getRouterMock().push).toHaveBeenCalledWith("/history/new?templateId=t1");
     });
+  });
+
+  it("applies a suggestion using the template exercise row id", async () => {
+    mockTemplateQuery.mockReturnValue({
+      data: [templateOne],
+      isPending: false,
+      error: undefined,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [],
+      isPending: false,
+      error: undefined,
+    });
+    mockValidateDraft.mockReturnValue({
+      data: { errors: [], warnings: [], hints: [] },
+      isPending: false,
+    });
+    mockGetSuggestions.mockReturnValue({
+      data: [
+        {
+          exerciseId: "replacement-exercise",
+          name: "Strict Press",
+          reason: "Keeps your exercise selection varied.",
+          replaceExerciseId: "ex1",
+        },
+      ],
+      isPending: false,
+    });
+
+    renderTemplates();
+
+    await userEvent.click(screen.getByLabelText(/log strength builder/i));
+    await userEvent.click(screen.getByRole("button", { name: "Use instead" }));
+    await userEvent.click(screen.getByRole("button", { name: "Start workout" }));
+
+    expect(getRouterMock().push).toHaveBeenCalledWith(
+      "/history/new?templateId=t1&swap=te1%3Areplacement-exercise",
+    );
   });
 
   it("confirms delete before removing a template", async () => {
@@ -448,6 +500,7 @@ describe("TemplatesPage", () => {
     });
 
     await userEvent.click(screen.getByLabelText("Log Complex Day"));
+    await userEvent.click(screen.getByRole("button", { name: "Start workout" }));
 
     expect(getRouterMock().push).toHaveBeenCalledWith(
       "/history/new?templateId=t-complex&swap=te-complex%3Acomplex-alt",
@@ -461,6 +514,7 @@ describe("TemplatesPage", () => {
     });
 
     await userEvent.click(screen.getByLabelText("Log Complex Day"));
+    await userEvent.click(screen.getByRole("button", { name: "Start workout" }));
     expect(getRouterMock().push).toHaveBeenLastCalledWith("/history/new?templateId=t-complex");
   });
 });

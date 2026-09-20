@@ -39,6 +39,11 @@ vi.mock("@/trpc/react", () => ({
         useQuery: () => ({ data: [], isPending: false }),
       },
     },
+    workout: {
+      validateDraft: {
+        useQuery: () => ({ data: undefined }),
+      },
+    },
     template: {
       getTags: {
         useQuery: () => ({ data: [], isPending: false, error: undefined }),
