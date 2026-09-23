@@ -155,6 +155,11 @@ function TemplateExerciseSummaryList({
                   />
                 )}
               </span>
+              {exercise.notes?.trim() && (
+                <p className="mt-1 whitespace-pre-wrap break-words text-xs text-muted-foreground/90">
+                  Note: {exercise.notes}
+                </p>
+              )}
             </div>
           );
         }}

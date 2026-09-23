@@ -142,7 +142,7 @@ const templateOne: TemplateWithExercises = {
       reps: "12",
       weight: 20,
       restTime: 60,
-      notes: "",
+      notes: "Keep the elbows close.",
       group: "B",
       order: 2,
       exercise: {
@@ -451,6 +451,23 @@ describe("TemplatesPage", () => {
     renderTemplates();
 
     expect(screen.getByText("Finisher")).toBeInTheDocument();
+  });
+
+  it("renders exercise notes in template summaries", () => {
+    mockTemplateQuery.mockReturnValue({
+      data: [templateOne],
+      isPending: false,
+      error: undefined,
+    });
+    mockTagsQuery.mockReturnValue({
+      data: [],
+      isPending: false,
+      error: undefined,
+    });
+
+    renderTemplates();
+
+    expect(screen.getByText("Note: Keep the elbows close.")).toBeInTheDocument();
   });
 
   it("temporarily substitutes a complex and carries it into logging", async () => {
