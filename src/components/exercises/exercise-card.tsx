@@ -54,6 +54,7 @@ export function ExerciseCard({
 
   const typeLabel =
     EXERCISE_TYPE_LABELS[exercise.type as keyof typeof EXERCISE_TYPE_LABELS] ?? exercise.type;
+  const movementLabel = getMovementLabel(exercise);
 
   return (
     <article
@@ -137,10 +138,42 @@ export function ExerciseCard({
         </div>
       ) : null}
 
+      {movementLabel ? (
+        <div className="mt-4 rounded-lg bg-muted/40 px-3 py-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Movement classification
+          </p>
+          <p className="mt-1 text-sm font-medium text-foreground">{movementLabel}</p>
+        </div>
+      ) : (
+        <p className="mt-4 text-xs text-muted-foreground">Movement classification: Unclassified</p>
+      )}
+
       <footer className="mt-auto flex items-center justify-between pt-5 text-xs text-muted-foreground">
         <span>Created {createdLabel}</span>
         {updatedLabel ? <span>Updated {updatedLabel}</span> : null}
       </footer>
     </article>
   );
+}
+
+function getMovementLabel(exercise: ExerciseCardData) {
+  const groupLabels = {
+    PUSH: "Pushing",
+    PULL: "Pulling",
+    CORE: "Core",
+    LEGS: "Legs",
+  } as const;
+
+  if (!exercise.movementGroup) return null;
+  if (exercise.movementGroup === "PUSH" || exercise.movementGroup === "PULL") {
+    const group = groupLabels[exercise.movementGroup];
+    return exercise.movementPlane
+      ? `${group} · ${exercise.movementPlane.toLowerCase()} ${exercise.movementGroup.toLowerCase()}`
+      : group;
+  }
+  if (exercise.movementGroup === "LEGS" && exercise.legBias) {
+    return `Legs · ${exercise.legBias === "QUAD_DOMINANT" ? "quad dominant" : "hamstring dominant"}`;
+  }
+  return groupLabels[exercise.movementGroup];
 }

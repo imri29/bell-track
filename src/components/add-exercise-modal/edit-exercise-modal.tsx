@@ -24,6 +24,7 @@ import { api } from "@/trpc/react";
 import { EXERCISE_TYPES } from "@/types";
 import { AddExerciseModal } from "./add-exercise-modal";
 import type { ComplexExerciseFormValues } from "./components/complex-exercise-builder";
+import type { ExerciseClassificationValues } from "./components/exercise-classification-fields";
 import { ExerciseModal } from "./index";
 
 type Exercise = RouterOutputs["exercise"]["getAll"][number];
@@ -76,6 +77,11 @@ function EditSimpleExerciseModalContent({
 }) {
   const utils = api.useUtils();
   const isMobile = useIsMobile();
+  const [classification, setClassification] = useState<ExerciseClassificationValues>({
+    movementGroup: exercise.movementGroup,
+    movementPlane: exercise.movementPlane,
+    legBias: exercise.legBias,
+  });
 
   const {
     register,
@@ -109,6 +115,7 @@ function EditSimpleExerciseModalContent({
       name: data.name,
       type: EXERCISE_TYPES.EXERCISE,
       description: data.description.trim() ? data.description : undefined,
+      ...classification,
     });
   });
 
@@ -126,6 +133,12 @@ function EditSimpleExerciseModalContent({
           >
             <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
             <ExerciseModal.DescriptionField register={register} />
+            <ExerciseModal.ClassificationFields
+              value={classification}
+              onChange={(key, value) =>
+                setClassification((current) => ({ ...current, [key]: value }))
+              }
+            />
             <DialogFooter className="pt-2">
               <ExerciseModal.Actions
                 onCancel={() => onOpenChange(false)}
@@ -154,6 +167,12 @@ function EditSimpleExerciseModalContent({
           <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4">
             <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
             <ExerciseModal.DescriptionField register={register} />
+            <ExerciseModal.ClassificationFields
+              value={classification}
+              onChange={(key, value) =>
+                setClassification((current) => ({ ...current, [key]: value }))
+              }
+            />
           </div>
           <DrawerFooter>
             <ExerciseModal.Actions
@@ -180,6 +199,11 @@ function EditComplexExerciseModalContent({
 }) {
   const utils = api.useUtils();
   const isMobile = useIsMobile();
+  const [classification, setClassification] = useState<ExerciseClassificationValues>({
+    movementGroup: exercise.movementGroup,
+    movementPlane: exercise.movementPlane,
+    legBias: exercise.legBias,
+  });
   const { data: exercises } = api.exercise.getAll.useQuery();
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
   const [createdSubExercise, setCreatedSubExercise] = useState<{
@@ -247,6 +271,7 @@ function EditComplexExerciseModalContent({
       description: data.description.trim() ? data.description : undefined,
       type: EXERCISE_TYPES.COMPLEX,
       subExercises,
+      ...classification,
     });
   });
 
@@ -262,6 +287,10 @@ function EditComplexExerciseModalContent({
         onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
       />
       <ExerciseModal.DescriptionField register={register} />
+      <ExerciseModal.ClassificationFields
+        value={classification}
+        onChange={(key, value) => setClassification((current) => ({ ...current, [key]: value }))}
+      />
     </>
   );
 

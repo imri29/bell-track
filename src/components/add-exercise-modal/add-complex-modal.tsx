@@ -17,6 +17,7 @@ import { api } from "@/trpc/react";
 import { EXERCISE_TYPES } from "@/types";
 import { AddExerciseModal } from "./add-exercise-modal";
 import type { ComplexExerciseFormValues } from "./components/complex-exercise-builder";
+import type { ExerciseClassificationValues } from "./components/exercise-classification-fields";
 import { ExerciseModal } from "./index";
 
 interface AddComplexExerciseModalProps {
@@ -33,6 +34,11 @@ export function AddComplexExerciseModal({
   const isMobile = useIsMobile();
   const utils = api.useUtils();
   const { data: exercises } = api.exercise.getAll.useQuery();
+  const [classification, setClassification] = useState<ExerciseClassificationValues>({
+    movementGroup: null,
+    movementPlane: null,
+    legBias: null,
+  });
   const [isAddExerciseModalOpen, setIsAddExerciseModalOpen] = useState(false);
   const [createdSubExercise, setCreatedSubExercise] = useState<{
     id: string;
@@ -59,6 +65,7 @@ export function AddComplexExerciseModal({
       utils.exercise.getAll.invalidate();
       onExerciseCreated?.({ id: data.id, name: data.name, type: data.type });
       reset();
+      setClassification({ movementGroup: null, movementPlane: null, legBias: null });
       onOpenChange(false);
     },
   });
@@ -74,6 +81,7 @@ export function AddComplexExerciseModal({
       type: EXERCISE_TYPES.COMPLEX,
       description: data.description,
       subExercises,
+      ...classification,
     });
   };
 
@@ -89,6 +97,10 @@ export function AddComplexExerciseModal({
         onCreateNewExercise={() => setIsAddExerciseModalOpen(true)}
       />
       <ExerciseModal.DescriptionField register={register} />
+      <ExerciseModal.ClassificationFields
+        value={classification}
+        onChange={(key, value) => setClassification((current) => ({ ...current, [key]: value }))}
+      />
     </>
   );
 

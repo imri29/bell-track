@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Dialog,
@@ -20,6 +21,7 @@ import { preventEnterFromSelect } from "@/lib/form-handlers";
 import { api } from "@/trpc/react";
 import { EXERCISE_TYPES } from "@/types";
 import { ExerciseModal } from "./index";
+import type { ExerciseClassificationValues } from "./components/exercise-classification-fields";
 
 type SimpleExerciseFormData = {
   name: string;
@@ -39,6 +41,11 @@ export function AddExerciseModal({
 }: AddSimpleExerciseModalProps) {
   const isMobile = useIsMobile();
   const utils = api.useUtils();
+  const [classification, setClassification] = useState<ExerciseClassificationValues>({
+    movementGroup: null,
+    movementPlane: null,
+    legBias: null,
+  });
 
   const {
     register,
@@ -57,6 +64,7 @@ export function AddExerciseModal({
       utils.exercise.getAll.invalidate();
       onExerciseCreated?.({ id: data.id, name: data.name, type: data.type });
       reset();
+      setClassification({ movementGroup: null, movementPlane: null, legBias: null });
       onOpenChange(false);
     },
   });
@@ -66,6 +74,7 @@ export function AddExerciseModal({
       name: data.name,
       type: EXERCISE_TYPES.EXERCISE,
       description: data.description,
+      ...classification,
     });
   };
 
@@ -74,6 +83,10 @@ export function AddExerciseModal({
       <div className="px-4 pb-4 space-y-4 overflow-y-auto flex-1">
         <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
         <ExerciseModal.DescriptionField register={register} />
+        <ExerciseModal.ClassificationFields
+          value={classification}
+          onChange={(key, value) => setClassification((current) => ({ ...current, [key]: value }))}
+        />
       </div>
       <DrawerFooter>
         <ExerciseModal.Actions
@@ -98,6 +111,12 @@ export function AddExerciseModal({
           >
             <ExerciseModal.NameField register={register} errorMessage={errors.name?.message} />
             <ExerciseModal.DescriptionField register={register} />
+            <ExerciseModal.ClassificationFields
+              value={classification}
+              onChange={(key, value) =>
+                setClassification((current) => ({ ...current, [key]: value }))
+              }
+            />
             <DialogFooter className="pt-2">
               <ExerciseModal.Actions
                 onCancel={() => onOpenChange(false)}
